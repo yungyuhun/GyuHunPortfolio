@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard-dynamic-subset.css');
+
+:root {
+  --font-inter: 'Inter', sans-serif;
+  --font-pretendard: 'Pretendard', sans-serif;
+  --font-myeongjo: 'NanumMyeongjo', sans-serif;
+}
+
+[data-scroll-container] {
+  min-height: 100vh;
+}
+
+body {
+  background: #000;
+}
+
+/* Text Outline Effect */
+.text-fill-effect {
+  position: relative;
+  width: 100%;
+  background: linear-gradient(to right, #fff, #fff) no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 0%;
+  color: rgba(255, 255, 255, 0.2);
+  font-weight: 700;
+  transition: background-size cubic-bezier(0.1, 0.5, 0.5, 1) 0.5s;
+}
+
+.text-fill-effect2 {
+  position: relative;
+  width: 100%;
+  background: linear-gradient(to right, #4A4AD3, #4A4AD3) no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 0%;
+  color: rgba(74, 74, 211, 0.2);
+  font-weight: 700;
+  transition: background-size cubic-bezier(0.1, 0.5, 0.5, 1) 0.5s;
+}
+
+.text-outline {
+  color: #000;
+  -webkit-text-stroke: 1px #fff;
+  text-shadow:
+    -1px -1px 0 #fff,
+    1px -1px 0 #fff,
+    -1px 1px 0 #fff,
+    1px 1px 0 #fff;
+}
+
+
+/* Scrollbar Hide */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Circle Rotate */
+.circle-rotate {
+  animation: circle-rotation 12s linear infinite;
+}
+
+@keyframes circle-rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Marquee Animate */
+@keyframes marquee-left {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+
+@keyframes marquee-right {
+  0% {
+    transform: translateX(-50%);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-marquee-left {
+  animation: marquee-left 20s linear infinite;
+}
+
+.animate-marquee-right {
+  animation: marquee-right 20s linear infinite;
+}
+
+/* 모바일 */
+@media (max-width: 639px) {
+  .xs\:text-outline-xs {
+    -webkit-text-stroke: .5px #fff;
+    text-shadow:
+      -.5px -.5px 0 #fff,
+      .5px -.5px 0 #fff,
+      -.5px .5px 0 #fff,
+      .5px .5px 0 #fff;
+  }
+}

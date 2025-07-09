@@ -1,0 +1,27 @@
+{
+  "name": "gyuhun-nextjs-app",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "@studio-freight/lenis": "^1.0.42",
+    "gsap": "^3.13.0",
+    "locomotive-scroll": "^4.1.4",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "swiper": "^11.2.10"
+  },
+  "devDependencies": {
+    "@types/node": "22.14.1",
+    "@types/react": "^19.1.6",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.21",
+    "tailwindcss": "^3.3.2",
+    "typescript": "^5.0.0"
+  }
+}
