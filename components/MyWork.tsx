@@ -11,10 +11,10 @@ gsap.registerPlugin(ScrollTrigger);
 
 export const panels = [
   {
-    background: "bg-black",
+    image: null,
     title: "My Work",
-    titleClass: "2xl:text-inter-title xs:text-inter-title-xs",
-    content: null,
+    subtitle: "",
+    background: "bg-black",
   },
   {
     image: "/work1.png",
@@ -45,21 +45,21 @@ export const panels = [
 export default function MyWork() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [cursorVisible, setCursorVisible] = useState(false);
+
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const panels = gsap.utils.toArray<HTMLElement>(".panel");
+      const allPanels = gsap.utils.toArray<HTMLElement>(".panel");
 
-      panels.forEach((panel, i) => {
-        const isLast = i === panels.length - 1;
+      allPanels.forEach((panel, i) => {
+        const isLast = i === allPanels.length - 1;
 
         ScrollTrigger.create({
           trigger: panel,
           start: "top top",
-          end: isLast ? "+=10%" : "+=100%",
-          pin: true,
-          pinSpacing: isLast,
-          scrub: 0.5,
-          pinType: "transform",
+          end: "bottom top",
+          pin: !isLast,
+          pinSpacing: false,
+          scrub: true,
         });
 
         const text = panel.querySelector(".panel-text");
@@ -86,31 +86,23 @@ export default function MyWork() {
     return () => ctx.revert();
   }, []);
 
-  const firstPanel = panels[0];
-  const restPanels = panels.slice(1);
-
   return (
     <div ref={sectionRef} className="relative w-full">
-      <section
-        className={`flex items-center justify-center w-full h-screen panel ${
-          firstPanel.background || ""
-        }`}
-      >
-        <h2
-          className={`font-semibold text-white ${firstPanel.titleClass} panel-text`}
-        >
-          {firstPanel.title}
-        </h2>
-      </section>
-
       <CustomCursor visible={cursorVisible} />
 
-      {restPanels.map((panel, index) => (
-        <Link key={index} href={panel.path || "#"}>
+      {panels.map((panel, index) => {
+        const isInteractive = !!panel.path;
+
+        const content = (
           <section
-            className="relative flex items-center justify-center w-full h-screen overflow-hidden panel"
-            onMouseEnter={() => setCursorVisible(true)}
-            onMouseLeave={() => setCursorVisible(false)}
+            key={index}
+            className={`relative z-[${
+              20 + index
+            }] panel flex items-center justify-center w-full h-screen ${
+              panel.background || ""
+            }`}
+            onMouseEnter={() => isInteractive && setCursorVisible(true)}
+            onMouseLeave={() => isInteractive && setCursorVisible(false)}
           >
             {panel.image && (
               <img
@@ -120,18 +112,33 @@ export default function MyWork() {
                 style={{ pointerEvents: "none", transform: "scale(1.04)" }}
               />
             )}
-            <div className="relative z-10 flex flex-col items-center justify-center panel-text">
-              <p className="font-sans font-light text-white 2xl:text-pt-subsection-title xs:text-pt-subtitle-xs">
-                {panel.subtitle}
-              </p>
-              <h2 className="font-sans font-semibold text-white 2xl:text-pt-title xs:text-pt-title-xs">
+            <div className="relative z-10 flex flex-col items-center justify-center text-center text-white panel-text">
+              {panel.subtitle && (
+                <p className="font-sans font-light md:text-pt-subsection-title xs:text-pt-subtitle-xs">
+                  {panel.subtitle}
+                </p>
+              )}
+              <h2
+                className={`font-sans font-semibold md:text-pt-title xs:text-pt-title-xs ${
+                  index === 0 ? "font-inter font-bold md:!text-inter-title xs:!text-inter-title=xs" : ""
+                }`}
+              >
                 {panel.title}
               </h2>
             </div>
           </section>
-        </Link>
-      ))}
-      <div className="relative z-10">
+        );
+
+        return isInteractive ? (
+          <Link key={index} href={panel.path}>
+            {content}
+          </Link>
+        ) : (
+          content
+        );
+      })}
+
+      <div className="relative z-[99]">
         <WorkList />
       </div>
     </div>

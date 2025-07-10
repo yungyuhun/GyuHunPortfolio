@@ -5,37 +5,40 @@ import gsap from "gsap";
 
 export default function InfiniteMarquee() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    if (!containerRef.current || !textRef.current) return;
+    const container = containerRef.current;
+    const text = textRef.current;
+    if (!container || !text) return;
 
-    gsap.set(containerRef.current, { x: 0 });
+    gsap.set(container, { x: 0 });
 
-    // 텍스트 복제 (2개)
-    const clone1 = textRef.current.cloneNode(true) as HTMLDivElement;
-    const clone2 = textRef.current.cloneNode(true) as HTMLDivElement;
-    containerRef.current.appendChild(clone1);
-    containerRef.current.appendChild(clone2);
+    const containerWidth = container.offsetWidth;
+    const textWidth = text.offsetWidth;
 
-    // 텍스트 너비 (원본 기준)
-    const textWidth = textRef.current.offsetWidth;
+    const minCopies = Math.ceil(containerWidth / textWidth) + 2;
+    const clones: HTMLElement[] = [];
 
-    // GSAP 애니메이션
+    for (let i = 0; i < minCopies; i++) {
+      const clone = text.cloneNode(true) as HTMLElement;
+      container.appendChild(clone);
+      clones.push(clone);
+    }
+
     const tl = gsap.timeline({ repeat: -1 });
-    tl.to(containerRef.current, {
+    tl.to(container, {
       x: -textWidth,
       duration: 20,
       ease: "none",
-    }).set(containerRef.current, { x: 0 });
+    }).set(container, { x: 0 });
 
     return () => {
-      if (containerRef.current) {
-        if (clone1.parentNode === containerRef.current)
-          containerRef.current.removeChild(clone1);
-        if (clone2.parentNode === containerRef.current)
-          containerRef.current.removeChild(clone2);
-      }
+      clones.forEach((clone) => {
+        if (clone.parentNode === container) {
+          container.removeChild(clone);
+        }
+      });
       tl.kill();
     };
   }, []);
