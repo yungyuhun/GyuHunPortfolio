@@ -7,6 +7,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@fontsource/nanum-myeongjo": "^5.2.9",
     "@gsap/react": "^2.1.2",
     "@studio-freight/lenis": "^1.0.42",
     "gsap": "^3.13.0",
