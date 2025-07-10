@@ -4,6 +4,7 @@
 
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard-dynamic-subset.css');
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/nanum-myeongjo@5.2.9/index.min.css');
 
 :root {
   --font-inter: 'Inter', sans-serif;
