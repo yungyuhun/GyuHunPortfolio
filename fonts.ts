@@ -25,17 +25,17 @@ export const pretendard = localFont({
 export const myeongjo = localFont({
   src: [
     {
-      path: "./fonts/NanumMyeongjo.otf",
+      path: "./fonts/NanumMyeongjo.woff2",
       weight: "400",
       style: "normal",
     },
     {
-      path: "./fonts/NanumMyeongjoBold.otf",
+      path: "./fonts/NanumMyeongjoBold.woff2",
       weight: "700",
       style: "normal",
     },
     {
-      path: "./fonts/NanumMyeongjoExtraBold.otf",
+      path: "./fonts/NanumMyeongjoExtraBold.woff2",
       weight: "800",
       style: "normal",
     },
