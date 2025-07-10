@@ -621,7 +621,7 @@ export default function BSW() {
       </section>
 
       {/* Section 15 : BSW Logo Banner */}
-      <section className="relative flex items-center justify-center w-full max-w-full mx-auto bg-white ">
+      <section className="relative flex items-center justify-center w-full max-w-full mx-auto bg-white">
         <img
           src="/bsw_bg.png"
           alt="BSW Background"

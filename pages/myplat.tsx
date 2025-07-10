@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
@@ -47,6 +47,18 @@ export default function Myplat() {
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeTextRef = useRef<HTMLDivElement>(null);
   const textRefs = useRef<(HTMLSpanElement | null)[]>([]);
+
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth < 768 : false
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (
@@ -95,21 +107,23 @@ export default function Myplat() {
 
   // 스크롤 연동 애니메이션
   useEffect(() => {
+    const yValue = isMobile ? "110px" : "280px";
+
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "5% top",
-          end: "+=150%",
+          end: "+=100%",
           pin: true,
           scrub: true,
         },
       });
 
       // 텍스트 이동
-      tl.to(topTextRef.current, { y: "280px", ease: "power2.out" }, 0).to(
+      tl.to(topTextRef.current, { y: yValue, ease: "power2.out" }, 0).to(
         bottomTextRef.current,
-        { y: "-280px", ease: "power2.out" },
+        { y: `-${yValue}`, ease: "power2.out" },
         0
       );
 
@@ -219,7 +233,7 @@ export default function Myplat() {
   }, []);
 
   return (
-    <div className="relative w-full min-h-screen bg-white">
+    <div className="relative w-full min-h-screen overflow-hidden bg-white">
       {/* Section 1 : 메인 이미지/타이틀 */}
       <section className="relative w-full h-screen overflow-hidden">
         <img
@@ -231,28 +245,31 @@ export default function Myplat() {
           ref={topTitleRef}
           className="absolute inset-0 z-10 flex flex-col items-center justify-center"
         >
-          <p className="font-sans font-light text-white text-pt-subsection-title">
+          <p className="font-sans font-light text-white md:text-pt-subsection-title xs:text-pt-subtitle-xs">
             Web/Mobile Platform
           </p>
-          <h2 className="mt-2 font-sans font-semibold text-white text-pt-title">
+          <h2 className="mt-2 font-sans font-semibold text-white md:text-pt-title xs:text-pt-title-xs">
             마이플랫
           </h2>
         </div>
         <div className="absolute z-10 -translate-x-1/2 left-1/2 bottom-8">
-          <Scroll size={32} color="#fff" className="animate-bounce" />
+          <Scroll
+            color="#fff"
+            className="md:w-8 md:h-8 xs:w-6 xs:h-6 animate-bounce"
+          />
         </div>
       </section>
 
       {/* Section 2 : 프로젝트 설명 */}
-      <section className="relative max-w-[1440px] py-[200px] mx-auto bg-white">
+      <section className="relative md:py-[200px] bg-white xs:py-20">
         <div
           ref={(el) => {
             fadeinRefs.current[0] = el;
           }}
-          className="flex justify-between"
+          className="flex justify-between max-w-[1440px] md:mx-auto md:flex-row xs:flex-col xs:mx-5"
         >
           <div className="flex flex-col gap-8">
-            <h2 className="font-sans font-bold text-primary text-pt-section-title">
+            <h2 className="font-sans font-bold text-primary md:text-pt-section-title xs:text-pt-section-title-xs">
               마이플랫 홈페이지 제작
             </h2>
             <div className="flex flex-wrap max-w-xl gap-4">
@@ -264,7 +281,7 @@ export default function Myplat() {
                   마이플랫
                 </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex gap-2 md:items-center xs:items-start">
                 <span className="font-sans font-normal text-pt-body text-primary-deepLight">
                   Category.
                 </span>
@@ -272,7 +289,7 @@ export default function Myplat() {
                   Web/Mobile Platform
                 </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex gap-2 md:items-center xs:items-start">
                 <span className="font-sans font-normal text-pt-body text-primary-deepLight">
                   Date.
                 </span>
@@ -280,7 +297,7 @@ export default function Myplat() {
                   2023. 12
                 </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex gap-2 md:items-center xs:items-start">
                 <span className="font-sans font-normal text-pt-body text-primary-deepLight">
                   Service.
                 </span>
@@ -292,13 +309,13 @@ export default function Myplat() {
                 href="https://www.myplat.co.kr/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-8 py-3 mt-12 font-sans font-normal text-black transition-all duration-300 ease-out bg-white border rounded-full text-pt-body border-primary-extraLight hover:bg-black hover:text-white hover:border-transparent"
+                className="px-8 py-3 font-sans font-normal text-black transition-all duration-300 ease-out bg-white border rounded-full md:mt-12 xs:mt-6 text-pt-body border-primary-extraLight hover:bg-black hover:text-white hover:border-transparent"
               >
                 사이트 바로가기
               </a>
             </div>
           </div>
-          <div className="flex flex-col max-w-xl gap-16">
+          <div className="flex flex-col max-w-xl md:Fgap-16 xs:gap-8 md:mt-0 xs:mt-14">
             <div className="flex flex-col gap-4">
               <h3 className="font-sans font-semibold text-pt-body">Brief</h3>
               <span className="flex w-full border-b border-primary-deepLight"></span>
@@ -325,50 +342,53 @@ export default function Myplat() {
       </section>
 
       {/* Section 3 : 마이플랫 메인 이미지 */}
-      <section className="flex justify-center min-h-screen py-[200px] bg-background-gray">
+      <section className="flex justify-center min-h-screen md:py-[200px] xs:py-20 bg-background-gray">
         <img
           src="/myplat_main.png"
           alt="Myplat Main"
-          className="w-full max-w-[1440px]"
+          className="w-full md:max-w-[1440px] xs:max-w-full xs:px-5"
         />
       </section>
 
       {/* Section 4 : 스크롤 트리거 애니메이션 */}
       <section
         ref={sectionRef}
-        className="relative flex flex-col items-center justify-center py-[200px] overflow-hidden bg-white w-full"
+        className="relative flex flex-col items-center justify-center md:py-[200px] xs:py-20 overflow-hidden bg-white w-full"
       >
         <div
           ref={(el) => {
             fadeinRefs.current[1] = el;
           }}
-          className="box-border w-full max-w-[1440px] mx-auto"
+          className="flex flex-col justify-center w-full md:max-w-[1440px] xs:max-w-full h-full mx-auto xs:px-5 md:mih-h-0 xs:h-screen"
         >
           <h2
             ref={topTextRef}
-            className="relative z-20 mb-20 font-bold text-center font-inter text-inter-subtitle text-blue/20"
+            className="relative z-20 font-bold text-center md:mb-20 xs:mb-10 font-inter md:text-inter-subtitle xs:text-inter-subtitle-xs text-blue/20"
           >
             My Platform
             <br />
             Freelance Services
           </h2>
           <div className="relative z-10">
-            <img
-              ref={imgRef}
-              src="/myplat_banner.png"
-              alt="My Platform, Freelance Services"
-              className="w-full max-w-full min-w-0"
-            />
+            <picture>
+              <source srcSet="/myplat_banner.png" media="(min-width: 768px)" />
+              <img
+                ref={imgRef}
+                src="/myplat_banner_mobile.png"
+                alt="My Platform, Freelance Services"
+                className="object-cover w-full h-full"
+              />
+            </picture>
           </div>
           <div
             ref={bottomTextRef}
-            className="relative z-20 mt-20 font-sans font-normal text-center text-pt-subsection-title text-primary"
+            className="relative z-20 font-sans font-normal text-center md:mt-20 xs:mt-10 md:text-pt-subsection-title xs:text-lg text-primary"
           >
             인재 아웃소싱의 풍부한 경험을 지닌 매칭 컨설턴트가 서비스를
             제공하며,
-            <br />
+            <br className="hidden md:inline" />
             이해하고 소통해 나가는 플랫폼을 만들어 나가도록 하겠습니다.
-            <br />
+            <br className="hidden md:inline" />
             마이플랫은 다양한 IT 전문가와 클라이언트의 연결을 보다 편리하게
             제공해드리겠습니다.
           </div>
@@ -376,15 +396,15 @@ export default function Myplat() {
       </section>
 
       {/* Section 5 : 마이플랫 메인 페이지 스크롤 이미지 */}
-      <section className="relative bg-blue -mt-[200px] pb-[200px] bg-top bg-cover bg-no-repeat">
+      <section className="relative bg-blue -mt-[200px] md:pb-[200px] xs:pb-20 bg-top bg-cover bg-no-repeat">
         <div
           ref={(el) => {
             fadeinRefs.current[2] = el;
           }}
-          className="relative mx-auto max-w-[1440px]"
+          className="relative mx-auto max-w-[1440px] xs:px-5"
         >
           <div
-            className="w-full h-[820px] overflow-y-auto border-[6px] rounded-3xl border-primary pointer-events-auto hide-scrollbar shadow-lg"
+            className="w-full md:h-[820px] xs:h-full overflow-y-auto md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary pointer-events-auto hide-scrollbar shadow-lg"
             onWheel={(e) => e.stopPropagation()}
           >
             <img src="/myplat_main.png" alt="Myplat Main" className="w-full" />
@@ -392,34 +412,34 @@ export default function Myplat() {
           <img
             src="/myplat_text.png"
             alt="circle text"
-            className="w-[240px] h-[240px] circle-rotate absolute -top-28 -right-28"
+            className="md:w-[240px] xs:w-32 md:h-[240px] xs:h-32 circle-rotate absolute md:-top-28 xs:-top-14 md:-right-28 xs:right-0"
           />
         </div>
       </section>
 
       {/* Section 6 : PC Sub Page */}
-      <section className="flex flex-col items-center py-24 mx-auto bg-blue">
+      <section className="flex flex-col items-center mx-auto md:py-24 xs:py-12 bg-blue">
         <div
           ref={(el) => {
             fadeinRefs.current[3] = el;
           }}
-          className="flex max-w-[1440px] w-full mx-auto"
+          className="flex md:flex-row xs:flex-col md:max-w-[1440px] xs:max-w-full w-full mx-auto xs:px-5"
         >
           {/* 왼쪽 고정 텍스트 */}
-          <div className="sticky top-[200px] z-10 flex flex-col items-start justify-start w-1/3 h-fit text-white pr-20">
-            <h3 className="mb-6 font-sans font-bold text-pt-section-title">
+          <div className="md:sticky xs:relative md:top-[200px] xs:top-0 z-10 flex flex-col items-start justify-start md:w-1/3 xs:w-full h-fit text-white md:pr-20 xs:pr-0 xs:mb-10">
+            <h3 className="font-sans font-bold md:mb-6 xs:mb-4 md:text-pt-section-title xs:text-pt-subsection-title">
               Sub Page
             </h3>
-            <p className="max-w-md font-sans text-pt-body">
+            <p className="font-sans md:max-w-md xs:max-w-full text-pt-body">
               프로젝트 목록, 알림, 상세 정보 등 주요 기능을 한눈에 확인하고
               관리할 수 있도록 카드형 정보 구조와 명확한 네비게이션으로
               설계·구현하였습니다.
             </p>
           </div>
           {/* 가운데 이미지 컬럼 */}
-          <div className="flex flex-col w-1/3 gap-8 pl-8">
+          <div className="flex flex-col md:gap-8 xs:gap-4 md:pl-8 xs:pl-0 md:w-1/3 xs:w-full xs:mb-4">
             {MyplatSubImages.map((src, i) => (
-              <div key={i} className="w-full h-[290px]">
+              <div key={i} className="w-full md:h-[290px] xs:h-full">
                 <div className="flex items-center justify-center w-full h-full overflow-hidden border-4 shadow-lg pointer-events-none select-none border-primary rounded-2xl">
                   <img
                     src={src}
@@ -432,9 +452,9 @@ export default function Myplat() {
             ))}
           </div>
           {/* 오른쪽 이미지 컬럼 (아래로 살짝 내림) */}
-          <div className="flex flex-col w-1/3 gap-8 pt-20 pl-8">
+          <div className="flex flex-col md:gap-8 xs:gap-4 md:pl-8 xs:pl-0 md:w-1/3 xs:w-full">
             {MyplatSub2Images.map((src, i) => (
-              <div key={i} className="w-full h-[290px]">
+              <div key={i} className="w-full md:h-[290px] xs:h-full">
                 <div className="flex items-center justify-center w-full h-full overflow-hidden border-4 shadow-lg pointer-events-none select-none border-primary rounded-2xl">
                   <img
                     src={src}
@@ -454,7 +474,7 @@ export default function Myplat() {
         <div ref={marqueeRef} className="flex whitespace-nowrap">
           <div
             ref={marqueeTextRef}
-            className="inline-block mt-20 font-semibold text-white/20 font-inter text-inter-title whitespace-nowrap"
+            className="inline-block font-semibold md:mt-20 xs:mt-10 text-white/20 font-inter md:text-inter-title xs:text-inter-title-xs whitespace-nowrap"
           >
             Where IT Talent Meets Opportunity, Myplat
           </div>
@@ -463,9 +483,9 @@ export default function Myplat() {
           ref={(el) => {
             fadeinRefs.current[4] = el;
           }}
-          className="flex justify-between w-full max-w-[1440px] mx-auto pt-[200px] mb-[100px]"
+          className="flex md:flex-row xs:flex-col justify-between w-full max-w-[1440px] mx-auto md:pt-[200px] xs:pt-20 mb-[100px] xs:gap-4 xs:px-5"
         >
-          <h3 className="font-sans font-bold text-white text-pt-section-title">
+          <h3 className="font-sans font-bold text-white md:text-pt-section-title xs:text-pt-section-title-xs">
             Mobile Page
           </h3>
           <p className="max-w-xl font-sans font-normal text-white text-pt-body">
@@ -480,70 +500,70 @@ export default function Myplat() {
           ref={(el) => {
             fadeinRefs.current[5] = el;
           }}
-          className="flex max-w-[1440px] mx-auto w-full min-h-screen  gap-20 justify-between"
+          className="flex md:max-w-[1440px] xs:max-w-full mx-auto w-full md:min-h-screen xs:min-h-0 md:gap-20 xs:gap-4 justify-between xs:px-5"
         >
           <div className="flex flex-col flex-wrap">
             <img
               src="myplat_m1.png"
               alt="Myplat Moblie 메인페이지"
-              className="w-full z-10 border-[6px] rounded-3xl border-primary shadow-lg"
+              className="w-full z-10 md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
             />
             <img
               src="myplat_m1-1.png"
               alt="Myplat Moblie 메인페이지"
-              className="w-full -mt-8 shadow-lg"
+              className="w-full shadow-lg md:-mt-8 xs:-mt-2"
             />
           </div>
-          <div className="flex flex-col flex-wrap gap-[100px] mt-[100px]">
+          <div className="flex flex-col flex-wrap md:gap-[100px] xs:gap-4 md:mt-[100px] xs:mt-10">
             <img
               src="myplat_m2.png"
               alt="Myplat Moblie 프로젝트"
-              className="w-full border-[6px] rounded-3xl border-primary shadow-lg"
+              className="w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
             />
             <img
               src="myplat_m3.png"
               alt="Myplat Moblie 내가 지원한 프로젝트"
-              className="w-full border-[6px] rounded-3xl border-primary shadow-lg"
+              className="w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
             />
             <img
               src="myplat_m4.png"
               alt="Myplat Moblie 프로젝트 공고"
-              className="w-full border-[6px] rounded-3xl border-primary shadow-lg"
+              className="w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
             />
           </div>
-          <div className="flex flex-col flex-wrap gap-[100px]">
+          <div className="flex flex-col flex-wrap md:gap-[100px] xs:gap-4">
             <img
               src="myplat_m5.png"
               alt="Myplat Moblie 매칭카드"
-              className="w-full border-[6px] rounded-3xl border-primary shadow-lg"
+              className="w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
             />
             <img
               src="myplat_m6.png"
               alt="Myplat Moblie 증명서 발급 내역"
-              className="w-full border-[6px] rounded-3xl border-primary shadow-lg"
+              className="w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
             />
             <img
               src="myplat_m7.png"
               alt="Myplat Moblie 매칭카드 수정"
-              className="w-full border-[6px] rounded-3xl border-primary shadow-lg"
+              className="w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
             />
           </div>
         </div>
       </section>
 
       {/* Section 8 : 디자인 시스템 */}
-      <section className="relative py-[200px] bg-background-light">
-        <div className="relative mx-auto max-w-[1440px]">
+      <section className="relative md:py-[200px] xs:py-20 bg-background-light">
+        <div className="relative mx-auto md:max-w-[1440px] xs:max-w-full xs:px-5">
           <div
             ref={(el) => {
               fadeinRefs.current[6] = el;
             }}
-            className="flex justify-between w-full max-w-[1440px] mx-auto mb-[100px]"
+            className="flex md:flex-row xs:flex-col justify-between w-full md:max-w-[1440px] xs:max-w-full mx-auto md:mb-[100px] xs:mb-10 xs:gap-4"
           >
-            <h3 className="font-sans font-bold text-primary text-pt-section-title">
+            <h3 className="font-sans font-bold text-primary md:text-pt-section-title xs:text-pt-section-title-xs">
               Design System
             </h3>
-            <p className="max-w-xl font-sans font-normal text-primary text-pt-body">
+            <p className="font-sans font-normal md:max-w-xl xs:max-w-full text-primary text-pt-body">
               컬러 시스템, 타이포그래피, 그리드, 카드·버튼·네비게이션 등 UI
               컴포넌트를 직접 설계하고 구현했습니다. 반응형 레이아웃과 상태별
               컬러 배지, 마이크로인터랙션, 접근성까지 세부 가이드라인을 적용해,
@@ -556,7 +576,7 @@ export default function Myplat() {
             }}
             src="/myplat_color.png"
             alt="Myplat Main Image"
-            className="w-full rounded-3xl"
+            className="w-full md:rounded-3xl xs:rounded-xl"
           />
         </div>
       </section>
@@ -564,9 +584,9 @@ export default function Myplat() {
       {/* Section 9 : 텍스트 애니메이션 */}
       <section
         ref={sectionRef2}
-        className="flex flex-col items-center justify-center py-[200px] bg-background-light"
+        className="flex flex-col items-center justify-center md:py-[200px] xs:py-20 bg-background-light"
       >
-        <p className="font-sans font-bold text-center text-pt-section-title">
+        <p className="font-sans font-bold text-center md:text-pt-section-title xs:text-pt-subsection-title-xs">
           <span
             ref={(el) => {
               textRefs.current[0] = el;
@@ -609,18 +629,18 @@ export default function Myplat() {
       </section>
 
       {/* Section 11 : 마이플랫 어드민 페이지 */}
-      <section className="relative py-[200px] bg-background-blue">
-        <div className="relative mx-auto max-w-[1440px]">
+      <section className="relative md:py-[200px] xs:py-20 bg-background-blue">
+        <div className="relative mx-auto md:max-w-[1440px] xs:max-w-full xs:px-5">
           <div
             ref={(el) => {
               fadeinRefs.current[9] = el;
             }}
-            className="flex justify-between w-full max-w-[1440px] mx-auto mb-[100px]"
+            className="flex md:flex-row xs:flex-col justify-between w-full md:max-w-[1440px] xs:max-w-full mx-auto md:mb-[100px] xs:mb-10 xs:gap-4"
           >
-            <h3 className="font-sans font-bold text-blue text-pt-section-title">
+            <h3 className="font-sans font-bold text-blue md:text-pt-section-title xs:text-pt-section-title-xs">
               Admin Page
             </h3>
-            <p className="max-w-xl font-sans font-normal text-primary text-pt-body">
+            <p className="font-sans font-normal md:max-w-xl xs:max-w-full text-primary text-pt-body">
               운영자(Admin) 페이지를 직접 구현하여, 회원·프로젝트 통계, 일정,
               알림 등 핵심 데이터를 한눈에 관리할 수 있도록 만들었습니다.
               kendo.js로 데이터 그리드·캘린더 등 복잡한 UI와 관리 기능을
@@ -634,13 +654,13 @@ export default function Myplat() {
             }}
             src="/myplat_bo1.png"
             alt="Myplat Main Image"
-            className="w-full border-[6px] rounded-3xl border-primary shadow-lg"
+            className="w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
           />
         </div>
       </section>
 
       {/* Section 11 : 마이플랫 어드민 서브페이지 Swiper */}
-      <section className=" pb-[200px] w-full overflow-hidden bg-background-blue">
+      <section className="md:pb-[200px] xs:pb-20 w-full overflow-hidden bg-background-blue">
         <div
           ref={(el) => {
             fadeinRefs.current[11] = el;
@@ -649,20 +669,22 @@ export default function Myplat() {
         >
           <Swiper
             modules={[Autoplay]}
-            slidesPerView={2.5}
             centeredSlides={true}
-            spaceBetween={40}
             loop={true}
             autoplay={{ delay: 3000, disableOnInteraction: false }}
             className="w-full"
             style={{ paddingLeft: "0", paddingRight: "0" }}
+            breakpoints={{
+              0: { slidesPerView: 1.5, spaceBetween: 12 },
+              768: { slidesPerView: 2.5, spaceBetween: 40 },
+            }}
           >
             {BOImages.map((src, i) => (
               <SwiperSlide key={i}>
                 <img
                   src={src}
                   alt={`slide-${i + 1}`}
-                  className="object-cover w-full border-[6px] rounded-3xl border-primary shadow-lg"
+                  className="object-cover w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-lg border-primary shadow-lg"
                   draggable={false}
                 />
               </SwiperSlide>
@@ -675,8 +697,13 @@ export default function Myplat() {
       <section className="relative bg-background-light">
         <img
           src="myplat_banner2.png"
-          alt="Myplat Main Image"
-          className="object-cover w-full"
+          alt="Myplat Logo Banner"
+          className="hidden object-cover w-full md:block"
+        />
+        <img
+          src="/myplat_banner2_mobile.png"
+          alt="Myplat Logo Banner"
+          className="block object-cover w-full h-full md:hidden"
         />
       </section>
 
