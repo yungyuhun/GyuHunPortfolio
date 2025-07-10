@@ -10,7 +10,7 @@ const config = {
       fontFamily: {
         sans: ['var(--font-pretendard)', 'sans-serif'],
         inter: ['var(--font-inter)', 'sans-serif'],
-        serif: ['var(--font-myeongjo)', 'sans-serif'],
+        serif: ['var(--font-myeongjo)', 'serif'],
       },
       fontSize: {
         // Inter

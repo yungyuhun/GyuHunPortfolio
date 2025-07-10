@@ -111,7 +111,7 @@ export default function Petpeace() {
   }, []);
 
   return (
-    <div className="relative w-full min-h-screen bg-white md:overflow-visible xs:overflow-hidden">
+    <div className="relative w-full min-h-screen overflow-hidden bg-white">
       {/* Section 1 : 메인 이미지/타이틀 */}
       <section className="relative w-full h-screen overflow-hidden">
         <img
@@ -416,12 +416,12 @@ export default function Petpeace() {
           ref={(el) => {
             fadeinRefs.current[12] = el;
           }}
-          className="absolute md:-translate-x-1/2 md:-translate-y-1/2 md:right-20 xs:right-0 text-yellow-dark top-1/2 xs:hidden"
+          className="absolute -translate-x-1/2 -translate-y-1/2 right-20 text-yellow-dark top-1/2 md:block xs:hidden"
         >
-          <h2 className="mb-4 font-serif font-normal md:text-pt-section-title xs:text-pt-body">
+          <h2 className="mb-4 font-serif font-normal text-pt-section-title">
             감동을 넘어 가치를 실현하다.
           </h2>
-          <p className="font-serif font-bold leading-loose md:text-pt-body xs:text-pt-body-xs">
+          <p className="font-serif font-bold leading-loose text-pt-body">
             함께하는 시간동안 동물이 아닌 가족으로서,
             <br />
             책임감으로 처음부터 끝까지 함께하는 좋은나라펫피스!

@@ -301,7 +301,7 @@ export default function BSW() {
           }}
           className="flex w-full md:max-w-[1440px] xs:max-w-full md:mb-[100px] xs:mb-10"
         >
-          <h3 className="font-sans font-bold text-white md:mx-auto xs:mx-5 text-pt-section-title xs:text-pt-section-title-xs">
+          <h3 className="font-sans font-bold text-white md:mx-0 xs:mx-5 md:text-pt-section-title xs:text-pt-section-title-xs">
             Color System
           </h3>
         </div>
@@ -348,7 +348,7 @@ export default function BSW() {
           }}
           className="flex w-full md:max-w-[1440px] xs:max-w-full md:mb-[100px] xs:mb-10"
         >
-          <h3 className="font-sans font-bold text-white md:mx-auto xs:mx-5 text-pt-section-title xs:text-pt-section-title-xs">
+          <h3 className="font-sans font-bold text-white md:mx-0 xs:mx-5 md:text-pt-section-title xs:text-pt-section-title-xs">
             Icons
           </h3>
         </div>
