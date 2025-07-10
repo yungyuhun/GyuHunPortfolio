@@ -113,8 +113,8 @@ export default function Myplat() {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: "5% top",
-          end: "+=100%",
+          start: "top top",
+          end: "+=150%",
           pin: true,
           scrub: true,
         },
@@ -233,7 +233,7 @@ export default function Myplat() {
   }, []);
 
   return (
-    <div className="relative w-full min-h-screen overflow-hidden bg-white">
+    <div className="relative w-full min-h-screen bg-white md:overflow-visible xs:overflow-hidden">
       {/* Section 1 : 메인 이미지/타이틀 */}
       <section className="relative w-full h-screen overflow-hidden">
         <img
@@ -353,13 +353,13 @@ export default function Myplat() {
       {/* Section 4 : 스크롤 트리거 애니메이션 */}
       <section
         ref={sectionRef}
-        className="relative flex flex-col items-center justify-center md:py-[200px] xs:py-20 overflow-hidden bg-white w-full"
+        className="relative flex flex-col items-center justify-center w-full overflow-hidden bg-white"
       >
         <div
           ref={(el) => {
             fadeinRefs.current[1] = el;
           }}
-          className="flex flex-col justify-center w-full md:max-w-[1440px] xs:max-w-full h-full mx-auto xs:px-5 md:mih-h-0 xs:h-screen"
+          className="flex flex-col justify-center w-full md:max-w-[1440px] xs:max-w-full mx-auto xs:px-5 h-screen"
         >
           <h2
             ref={topTextRef}
@@ -396,7 +396,7 @@ export default function Myplat() {
       </section>
 
       {/* Section 5 : 마이플랫 메인 페이지 스크롤 이미지 */}
-      <section className="relative bg-blue -mt-[200px] md:pb-[200px] xs:pb-20 bg-top bg-cover bg-no-repeat">
+      <section className="relative bg-blue md:-mt-[200px] xs:-mt-20 md:pb-[200px] xs:pb-20 bg-top bg-cover bg-no-repeat">
         <div
           ref={(el) => {
             fadeinRefs.current[2] = el;
@@ -404,7 +404,7 @@ export default function Myplat() {
           className="relative mx-auto max-w-[1440px] xs:px-5"
         >
           <div
-            className="w-full md:h-[820px] xs:h-full overflow-y-auto md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary pointer-events-auto hide-scrollbar shadow-lg"
+            className="w-full md:h-[820px] xs:h-[240px] overflow-y-auto md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary pointer-events-auto hide-scrollbar shadow-lg"
             onWheel={(e) => e.stopPropagation()}
           >
             <img src="/myplat_main.png" alt="Myplat Main" className="w-full" />
@@ -418,7 +418,7 @@ export default function Myplat() {
       </section>
 
       {/* Section 6 : PC Sub Page */}
-      <section className="flex flex-col items-center mx-auto md:py-24 xs:py-12 bg-blue">
+      <section className="relative flex flex-col items-center mx-auto overflow-visible md:py-24 xs:py-12 bg-blue">
         <div
           ref={(el) => {
             fadeinRefs.current[3] = el;
@@ -452,7 +452,7 @@ export default function Myplat() {
             ))}
           </div>
           {/* 오른쪽 이미지 컬럼 (아래로 살짝 내림) */}
-          <div className="flex flex-col md:gap-8 xs:gap-4 md:pl-8 xs:pl-0 md:w-1/3 xs:w-full">
+          <div className="flex flex-col md:pt-20 xs:pt-0 md:gap-8 xs:gap-4 md:pl-8 xs:pl-0 md:w-1/3 xs:w-full">
             {MyplatSub2Images.map((src, i) => (
               <div key={i} className="w-full md:h-[290px] xs:h-full">
                 <div className="flex items-center justify-center w-full h-full overflow-hidden border-4 shadow-lg pointer-events-none select-none border-primary rounded-2xl">

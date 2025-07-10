@@ -12,11 +12,20 @@ type ImagePosition = {
   right?: string;
 };
 
-const texts = [
+const pcTexts = [
   "웹을 쉽고, 보기 좋고, 움직이게 만드는 퍼블리셔입니다.",
   "기본을 지킨 마크업, 깔끔한 스타일링,",
   "그리고 눈길을 끄는 인터랙션을 중요하게 생각합니다.",
   "React, Next.js, GSAP 등 다양한 도구를 익히며,",
+  "사용자에게 더 좋은 경험을 전하고자 끊임없이 고민합니다.",
+];
+
+const mobileTexts = [
+  "웹을 쉽고, 보기 좋고, 움직이게 만드는",
+  "웹 퍼블리셔 윤규훈입니다.",
+  "기본을 지킨 마크업, 깔끔한 스타일링,",
+  "다양한 인터랙션을 중요하게 생각합니다.",
+  "또한 React, Next.js, GSAP 등 익히며,",
   "사용자에게 더 좋은 경험을 전하고자 끊임없이 고민합니다.",
 ];
 
@@ -57,7 +66,7 @@ export default function WhoAmI() {
   const imgRefs = useRef<(HTMLImageElement | null)[]>([]);
 
   const [isMobile, setIsMobile] = useState(false);
-
+  const texts = isMobile ? mobileTexts : pcTexts;
   const positions = isMobile ? mobileImagePositions : PCImagePositions;
 
   // 화면 크기 감지
@@ -144,7 +153,7 @@ export default function WhoAmI() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [isMobile]);
+  }, [isMobile, texts]);
 
   return (
     <div className="relative w-full bg-black 2xl:min-h-[300vh] xs:min-h-[200vh]">
@@ -152,7 +161,6 @@ export default function WhoAmI() {
       <div className="absolute inset-0 z-0 pointer-events-none">
         {images.map((src, i) => {
           const { top, left, right } = positions[i] || {};
-
           return (
             <img
               key={i}
