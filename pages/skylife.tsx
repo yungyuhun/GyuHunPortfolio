@@ -169,7 +169,10 @@ export default function SkyLife() {
           </h2>
         </div>
         <div className="absolute z-10 -translate-x-1/2 left-1/2 bottom-8">
-          <Scroll color="#fff" className="md:w-8 md:h-8 xs:w-6 xs:h-6 animate-bounce" />
+          <Scroll
+            color="#fff"
+            className="md:w-8 md:h-8 xs:w-6 xs:h-6 animate-bounce"
+          />
         </div>
       </section>
 
@@ -367,6 +370,8 @@ export default function SkyLife() {
               muted
               autoPlay
               loop
+              playsInline
+              preload="auto"
               className="object-cover w-full h-full"
             />
           </div>
@@ -382,6 +387,8 @@ export default function SkyLife() {
               muted
               autoPlay
               loop
+              playsInline
+              preload="auto"
               className="object-cover w-full h-full"
             />
           </div>
@@ -397,6 +404,8 @@ export default function SkyLife() {
               muted
               autoPlay
               loop
+              playsInline
+              preload="auto"
               className="object-cover w-full h-full"
             />
           </div>

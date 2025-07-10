@@ -388,6 +388,8 @@ export default function BSW() {
             muted
             autoPlay
             loop
+            playsInline
+            preload="auto"
             className="object-cover w-full h-full"
           />
         </div>
