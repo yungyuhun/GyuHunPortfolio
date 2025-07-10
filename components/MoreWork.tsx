@@ -175,7 +175,7 @@ export default function WorkTableGSAP() {
                 {p.no}
               </div>
               <div className="flex w-7/12 md:gap-5 md:flex-row md:items-center xs:flex-col xs:gap-1 xs:items-start">
-                <h2 className="font-sans font-semibold text-primary-light md:text-pt-section-title work-cell xs:text-pt-section-title-xs">
+                <h2 className="font-sans md:font-semibold xs:font-bold text-primary-light md:text-pt-section-title work-cell xs:text-pt-subsection-title-xs">
                   {p.title}
                 </h2>
                 <p className="font-sans font-normal text-primary-light md:text-pt-body work-cell xs:text-pt-body-xs">

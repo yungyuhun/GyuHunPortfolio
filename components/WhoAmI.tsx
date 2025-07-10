@@ -50,7 +50,6 @@ const mobileImagePositions: ImagePosition[] = [
   { top: "95%", left: "5%" },
 ];
 
-
 export default function WhoAmI() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -64,7 +63,7 @@ export default function WhoAmI() {
   // 화면 크기 감지
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 640);
+      setIsMobile(window.innerWidth < 768);
     };
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -83,7 +82,7 @@ export default function WhoAmI() {
       ScrollTrigger.create({
         trigger: section,
         start: "top top",
-        end: isMobile ? "+=150%" : "+=200%",
+        end: isMobile ? "+=100%" : "+=200%",
         pin: true,
         scrub: scrubDuration,
       });
@@ -129,10 +128,10 @@ export default function WhoAmI() {
         if (!img) return;
         gsap.fromTo(
           img,
-          { y: imageYOffset, opacity: isMobile ? 0.2 : 0.4 },
+          { y: imageYOffset, opacity: 0.4 },
           {
             y: -imageYOffset,
-            opacity: isMobile ? 0.2 : 0.4,
+            opacity: 0.4,
             scrollTrigger: {
               trigger: section,
               start: "top top",
@@ -163,7 +162,7 @@ export default function WhoAmI() {
               src={src}
               alt={`si${i + 1}`}
               className="absolute 2xl:w-[550px] opacity-50 object-cover rounded-xl shadow-xl transform-gpu xs:w-[200px]"
-              style={{ top, left, right  }}
+              style={{ top, left, right }}
             />
           );
         })}
@@ -177,7 +176,7 @@ export default function WhoAmI() {
         <div className="absolute top-0 left-0 w-full h-[16rem] bg-gradient-to-b from-black to-transparent z-10" />
         <div className="absolute bottom-0 left-0 w-full h-[16rem] bg-gradient-to-t from-black to-transparent z-10" />
 
-        <div className="relative z-20 flex flex-col items-center justify-center w-full max-w-screen-xl text-center mix-blend-difference xs:mx-5">
+        <div className="relative z-20 flex flex-col items-center justify-center w-full text-center md:max-w-screen-xl xs:max-w-full mix-blend-difference xs:mx-5">
           <h2
             ref={headingRef}
             className="mb-8 font-bold leading-tight text-transparent bg-gradient-to-r from-white to-white bg-clip-text 2xl:text-inter-subtitle xs:text-inter-subtitle-xs"
@@ -197,7 +196,7 @@ export default function WhoAmI() {
               ref={(el) => {
                 textRefs.current[i] = el;
               }}
-              className="font-sans font-semibold text-transparent opacity-0 bg-gradient-to-r from-white to-white bg-clip-text 2xl:text-pt-subsection-title xs:text-pt-subsection-title-xs"
+              className="font-sans font-semibold text-transparent opacity-0 bg-gradient-to-r from-white to-white bg-clip-text 2xl:text-pt-subsection-title xs:text-pt-subtitle-xs"
               style={{
                 backgroundRepeat: "no-repeat",
                 backgroundSize: "0% 100%",

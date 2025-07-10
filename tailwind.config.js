@@ -16,12 +16,12 @@ const config = {
         // Inter
         'inter-title': ['10rem', { lineHeight: '120%' }],
         'inter-subtitle': ['5.75rem', { lineHeight: '120%' }],
-        'inter-desc': ['0.875rem', { lineHeight: '120%' }],
+        'inter-desc': ['1rem', { lineHeight: '120%' }],
 
         // Inter(Mobile)
         'inter-title-xs': ['3rem', { lineHeight: '120%' }],
         'inter-subtitle-xs': ['2.75rem', { lineHeight: '120%' }],
-        'inter-desc-xs': ['0.875rem', { lineHeight: '120%' }],
+        'inter-desc-xs': ['1rem', { lineHeight: '120%' }],
 
         // Pretendard
         'pt-title': ['5.75rem', { lineHeight: '150%' }],
@@ -33,9 +33,10 @@ const config = {
         // Pretendard(Mobile)
         'pt-title-xs': ['3rem', { lineHeight: '150%' }],
         'pt-section-title-xs': ['2rem', { lineHeight: '150%' }],
-        'pt-subsection-title-xs': ['1.125rem', { lineHeight: '150%' }],
-        'pt-subtitle-xs': ['1rem', { lineHeight: '150%' }],
+        'pt-subsection-title-xs': ['1.5rem', { lineHeight: '150%' }],
+        'pt-subtitle-xs': ['1.25rem', { lineHeight: '150%' }],
         'pt-body-xs': ['0.875rem', { lineHeight: '150%' }],
+
       },
       colors: {
         primary: {

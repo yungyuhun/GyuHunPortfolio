@@ -59,6 +59,7 @@ export default function MyWork() {
           pin: true,
           pinSpacing: isLast,
           scrub: 0.5,
+          pinType: "transform",
         });
 
         const text = panel.querySelector(".panel-text");
@@ -120,7 +121,7 @@ export default function MyWork() {
               />
             )}
             <div className="relative z-10 flex flex-col items-center justify-center panel-text">
-              <p className="font-sans font-light text-white 2xl:text-pt-subsection-title xs:text-pt-subsection-title-xs">
+              <p className="font-sans font-light text-white 2xl:text-pt-subsection-title xs:text-pt-subtitle-xs">
                 {panel.subtitle}
               </p>
               <h2 className="font-sans font-semibold text-white 2xl:text-pt-title xs:text-pt-title-xs">

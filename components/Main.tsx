@@ -65,7 +65,7 @@ export default function Main({ showSplash }: { showSplash?: boolean }) {
           />
         </div>
         <div className="absolute z-10 -translate-x-1/2 left-1/2 bottom-8">
-          <Scroll size={32} color="#fff" className="animate-bounce" />
+          <Scroll color="#fff" className="md:w-8 md:h-8 xs:w-6 xs:h-6 animate-bounce" />
         </div>
       </div>
     </section>

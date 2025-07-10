@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "@/components/Footer";
@@ -21,6 +21,20 @@ export default function SkyLife() {
     ["/skylife_sub3.png", "/skylife_sub4.png"],
     ["/skylife_sub5.png", "/skylife_sub6.png"],
   ];
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // 모바일이면 2개만, 아니면 전체
+  const visibleCols = isMobile ? 2 : subImages.length;
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -147,7 +161,7 @@ export default function SkyLife() {
           ref={topTitleRef}
           className="absolute inset-0 z-10 flex flex-col items-center justify-center"
         >
-          <p className="font-sans font-light text-white md:text-pt-subsection-title xs:text-pt-subsection-title-xs">
+          <p className="font-sans font-light text-white md:text-pt-subsection-title xs:text-pt-subtitle-xs">
             Web/Mobile Platform
           </p>
           <h2 className="mt-2 font-sans font-semibold text-white md:text-pt-title xs:text-pt-title-xs">
@@ -251,7 +265,7 @@ export default function SkyLife() {
           alt="SkyLife Logo"
           className="w-full md:max-w-xl xs:max-w-[240px]"
         />
-        <p className="font-sans font-bold text-center md:mx-auto xs:mx-5 md:text-pt-section-title xs:text-pt-subtitle">
+        <p className="font-sans font-bold text-center md:mx-auto xs:mx-5 md:text-pt-section-title xs:text-pt-subtitle-xs">
           <span
             ref={(el) => {
               textRefs.current[0] = el;
@@ -288,12 +302,12 @@ export default function SkyLife() {
             ref={(el) => {
               fadeinRefs.current[1] = el;
             }}
-            className="z-0 w-full"
+            className="relative z-0 w-full overflow-hidden"
           >
             <span
               className="font-bold md:text-inter-title font-inter whitespace-nowrap
         bg-gradient-to-r from-[#05C753] to-[#61FFA0]
-        bg-clip-text text-transparent inline-block xs:text-pt-subsection-title w-full text-center"
+        bg-clip-text text-transparent inline-block xs:text-[36px] w-full text-center"
             >
               Interactive Design
             </span>
@@ -409,8 +423,8 @@ export default function SkyLife() {
               신청 방법을 한눈에 확인할 수 있습니다.
             </p>
           </div>
-          <div className="grid grid-cols-3 md:gap-10 xs:gap-4">
-            {subImages.map((col, colIdx) => (
+          <div className="grid md:grid-cols-3 xs:grid-cols-2 md:gap-10 xs:gap-4">
+            {subImages.slice(0, visibleCols).map((col, colIdx) => (
               <div key={colIdx} className="flex flex-col md:gap-10 xs:gap-4">
                 {col.map((src, rowIdx) => {
                   const flatIdx = colIdx * 2 + rowIdx; // 0~5
@@ -495,7 +509,7 @@ export default function SkyLife() {
             className="grid w-full gap-10 md:grid-cols-2 xs:grid-cols-1"
           >
             <div className="flex flex-col gap-6">
-              <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subsection-title-xs">
+              <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subtitle-xs">
                 System Icons
               </p>
               <img
@@ -505,7 +519,7 @@ export default function SkyLife() {
               />
             </div>
             <div className="flex flex-col gap-6">
-              <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subsection-title-xs">
+              <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subtitle-xs">
                 Graphic Icons
               </p>
               <img
@@ -533,7 +547,7 @@ export default function SkyLife() {
             className="grid w-full gap-10 md:grid-cols-2 xs:grid-cols-1"
           >
             <div className="flex flex-col gap-6">
-              <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subsection-title-xs">
+              <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subtitle-xs">
                 Button
               </p>
               <img
@@ -543,7 +557,7 @@ export default function SkyLife() {
               />
             </div>
             <div className="flex flex-col gap-6">
-              <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subsection-title-xs">
+              <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subtitle-xs">
                 Checkbox
               </p>
               <img
@@ -553,7 +567,7 @@ export default function SkyLife() {
               />
             </div>
             <div className="flex flex-col gap-6">
-              <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subsection-title-xs">
+              <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subtitle-xs">
                 Dropdown
               </p>
               <img
@@ -563,7 +577,7 @@ export default function SkyLife() {
               />
             </div>
             <div className="flex flex-col gap-6">
-              <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subsection-title-xs">
+              <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subtitle-xs">
                 Text Field
               </p>
               <img

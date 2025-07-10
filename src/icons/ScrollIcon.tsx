@@ -1,19 +1,17 @@
 import React from "react";
 
 interface IconProps {
-  size?: number | string;
   color?: string;
   className?: string;
 }
 
 const ScrollIcon = ({
-  size = 32,
   color = "white",
   className = "",
 }: IconProps) => (
   <svg
-    width={typeof size === "number" ? size : size || 32}
-    height={typeof size === "number" ? size : size || 32}
+    width={32}
+    height={32}
     viewBox="0 0 32 32"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
