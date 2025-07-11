@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "@/components/Footer";
@@ -38,6 +38,14 @@ const HQSubImages = [
 export default function BSW() {
   const fadeinRefs = useRef<(HTMLDivElement | null)[]>([]);
   const topTitleRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     // 상단 타이틀 Fade-in (페이지 진입 시)
@@ -115,7 +123,7 @@ export default function BSW() {
             <h2 className="font-sans font-bold text-primary md:text-pt-section-title xs:text-pt-section-title-xs">
               BSW Beauty 솔루션 구축
             </h2>
-            <div className="flex flex-wrap max-w-xl gap-4">
+            <div className="flex flex-wrap gap-4 md:flex-row md:max-w-xl xs:max-w-full xs:flex-col">
               <div className="flex items-center gap-2">
                 <span className="font-sans font-normal text-pt-body text-primary-deepLight">
                   Client.
@@ -155,7 +163,7 @@ export default function BSW() {
                     "해당 프로젝트는 현재 비공개 처리되어 있어 열람하실 수 없습니다."
                   );
                 }}
-                className="px-8 py-3 font-sans font-normal text-black transition-all duration-300 ease-out bg-white border rounded-full md:mt-12 xs:mt-6 text-pt-body border-primary-extraLight hover:bg-black hover:text-white hover:border-transparent"
+                className="px-8 py-3 font-sans font-normal transition-all duration-300 ease-out bg-white border rounded-full text-primary md:mt-12 xs:mt-6 text-pt-body border-primary-extraLight hover:bg-primary hover:text-white hover:border-transparent"
               >
                 사이트 바로가기
               </button>
@@ -214,25 +222,29 @@ export default function BSW() {
       </section>
 
       {/* Section 4 : POS System 주요 페이지 */}
-      <section className="flex flex-col md:gap-14 xs:gap-2 items-center justify-center w-full overflow-hidden md:min-h-screen xs:min-h-0 md:pb-[200px] xs:pb-20 bg-primary">
+      <section className="flex flex-col md:gap-10 xs:gap-2 items-center justify-center w-full overflow-hidden md:min-h-screen xs:min-h-0 md:pb-[200px] xs:pb-20 bg-primary">
         {POSImages.map((row, rowIdx) => (
           <div
             key={rowIdx}
             ref={(el) => {
               fadeinRefs.current[3 + rowIdx] = el;
             }}
-            className={`grid md:w-[130%] xs:w-[150%] grid-cols-4 md:gap-14 xs:gap-2 pointer-events-none select-none ${
-              rowIdx === 0 ? "ml-[10%]" : "mr-[10%]"
+            className={`grid md:w-[130%] xs:w-[150%] md:grid-cols-4 xs:grid-cols-3 md:gap-10 xs:gap-2 pointer-events-none select-none ${
+              -rowIdx === 0 ? "ml-[10%]" : "mr-[10%]"
             }`}
           >
-            {row.map((img, colIdx) => (
-              <img
-                key={img.src}
-                src={img.src}
-                alt={img.alt}
-                className="object-cover w-full bg-white border md:rounded-2xl xs:rounded-lg border-primary-light"
-              />
-            ))}
+            {row.map((img, colIdx) => {
+              // 모바일에서 마지막 이미지는 렌더링하지 않음
+              if (isMobile && colIdx === row.length - 1) return null;
+              return (
+                <img
+                  key={img.src}
+                  src={img.src}
+                  alt={img.alt}
+                  className="object-cover w-full bg-white border rounded-lg md:rounded-2xl border-primary-light"
+                />
+              );
+            })}
           </div>
         ))}
       </section>
@@ -314,27 +326,52 @@ export default function BSW() {
           <img
             src="/bsw_pos-blue.png"
             alt="blue color"
-            className="object-cover w-full md:rounded-2xl xs:rounded-lg"
+            className="hidden object-cover w-full rounded-2xl md:block"
+          />
+          <img
+            src="/bsw_pos-blue_mobile.png"
+            alt="blue color"
+            className="block object-cover w-full rounded-mds md:hidden"
           />
           <img
             src="/bsw_pos-beige.png"
             alt="beige color"
-            className="object-cover w-full md:rounded-2xl xs:rounded-lg"
+            className="hidden object-cover w-full rounded-2xl md:block"
+          />
+          <img
+            src="/bsw_pos-beige_mobile.png"
+            alt="beige color"
+            className="block object-cover w-full rounded-mds md:hidden"
           />
           <img
             src="/bsw_pos-green.png"
             alt="green color"
-            className="object-cover w-full md:rounded-2xl xs:rounded-lg"
+            className="hidden object-cover w-full rounded-2xl md:block"
+          />
+          <img
+            src="/bsw_pos-green_mobile.png"
+            alt="green color"
+            className="block object-cover w-full rounded-mds md:hidden"
           />
           <img
             src="/bsw_pos-pink.png"
             alt="pink color"
-            className="object-cover w-full md:rounded-2xl xs:rounded-lg"
+            className="hidden object-cover w-full rounded-2xl md:block"
+          />
+          <img
+            src="/bsw_pos-pink_mobile.png"
+            alt="pink color"
+            className="block object-cover w-full rounded-mds md:hidden"
           />
           <img
             src="/bsw_pos-purple.png"
             alt="purple color"
-            className="object-cover w-full md:rounded-2xl xs:rounded-lg"
+            className="hidden object-cover w-full rounded-2xl md:block"
+          />
+          <img
+            src="/bsw_pos-purple_mobile.png"
+            alt="purple color"
+            className="block object-cover w-full rounded-mds md:hidden"
           />
         </div>
       </section>
@@ -491,12 +528,22 @@ export default function BSW() {
         <img
           src="/bsw_logo.png"
           alt="BSW Logo"
-          className="object-cover w-1/2"
+          className="hidden object-cover w-1/2 md:block"
+        />
+        <img
+          src="/bsw_logo_mobile.png"
+          alt="BSW Logo"
+          className="block object-cover w-1/2 h-full md:hidden"
         />
         <img
           src="/bsw_app-mockup.png"
           alt="BSW App Mockup"
-          className="object-cover w-1/2"
+          className="hidden object-cover w-1/2 md:block"
+        />
+        <img
+          src="/bsw_app-mockup_mobile.png"
+          alt="BSW App Mockup"
+          className="block object-cover w-1/2 h-full md:hidden"
         />
       </section>
 

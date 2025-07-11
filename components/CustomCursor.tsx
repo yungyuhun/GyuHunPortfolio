@@ -41,7 +41,7 @@ export default function CustomCursor({ visible }: CustomCursorProps) {
   return (
     <div
       ref={cursorRef}
-      className={`pointer-events-none fixed z-[9999] w-40 h-40 rounded-full 
+      className={`pointer-events-none fixed z-[9999] md:w-40 xs:w-32 md:h-40 xs:h-32 rounded-full 
         transition-opacity duration-200 transform -translate-x-1/2 -translate-y-1/2 
         ${visible ? "opacity-100" : "opacity-0"} 
         bg-white/10 backdrop-blur-md shadow-md 

@@ -184,7 +184,7 @@ export default function SkyLife() {
           }}
           className="flex justify-between max-w-[1440px] md:mx-auto md:flex-row xs:flex-col xs:mx-5"
         >
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-wrap gap-4 md:flex-row md:max-w-xl xs:max-w-full xs:flex-col">
             <h2 className="font-sans font-bold text-primary md:text-pt-section-title xs:text-pt-section-title-xs">
               스카이라이프 홈페이지 고도화
             </h2>
@@ -225,7 +225,7 @@ export default function SkyLife() {
                 href="https://www.skylife.co.kr/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-8 py-3 font-sans font-normal text-black transition-all duration-300 ease-out bg-white border rounded-full md:mt-12 xs:mt-6 text-pt-body border-primary-extraLight hover:bg-black hover:text-white hover:border-transparent"
+                className="px-8 py-3 font-sans font-normal text-center transition-all duration-300 ease-out bg-white border rounded-full h-fit text-primary md:w-auto xs:w-full md:mt-12 xs:mt-6 text-pt-body border-primary-extraLight hover:bg-primary hover:text-white hover:border-transparent"
               >
                 사이트 바로가기
               </a>

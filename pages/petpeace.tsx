@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "@/components/Footer";
@@ -13,6 +13,17 @@ export default function Petpeace() {
   const topTitleRef = useRef<HTMLDivElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeTextRef = useRef<HTMLDivElement>(null);
+
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const topImages = [
     "/petpeace_sub5.png",
@@ -150,7 +161,7 @@ export default function Petpeace() {
             <h2 className="font-sans font-bold text-primary md:text-pt-section-title xs:text-pt-section-title-xs">
               좋은나라펫피스 홈페이지 제작
             </h2>
-            <div className="flex flex-wrap max-w-xl gap-4">
+            <div className="flex flex-wrap gap-4 md:flex-row md:max-w-xl xs:max-w-full xs:flex-col">
               <div className="flex items-center gap-2">
                 <span className="font-sans font-normal text-pt-body text-primary-deepLight">
                   Client.
@@ -190,7 +201,7 @@ export default function Petpeace() {
                     "해당 프로젝트는 현재 비공개 처리되어 있어 열람하실 수 없습니다."
                   );
                 }}
-                className="px-8 py-3 font-sans font-normal text-black transition-all duration-300 ease-out bg-white border rounded-full md:mt-12 xs:mt-6 text-pt-body border-primary-extraLight hover:bg-black hover:text-white hover:border-transparent"
+                className="px-8 py-3 font-sans font-normal transition-all duration-300 ease-out bg-white border rounded-full text-primary md:mt-12 xs:mt-6 text-pt-body border-primary-extraLight hover:bg-primary hover:text-white hover:border-transparent"
               >
                 사이트 바로가기
               </button>
@@ -270,14 +281,22 @@ export default function Petpeace() {
           }}
           className="mx-auto font-sans leading-relaxed text-center md:mt-6 xs:mt-2 md:max-w-5xl xs:max-w-full md:text-pt-subtitle xs:text-pt-body"
         >
-          <p>
-            좋은나라펫피스는 반려동물케어 전문기업으로 전체적으로 깔끔하면서
-            간결한 레이아웃으로 상품 및 콘텐츠에 대한 주목도를 높이고 상품에
-            대한 정보를 쉽게 전달하며 흥미를 일으켜 구매를 유도하고자 했다.
-            <br />
-            또한, 사용자들이 사이트를 쉽게 이용할 수 있도록 디자인하여 편리하게
-            이용할 수 있도록 설계 하였습니다.
-          </p>
+          {isMobile ? (
+            <p>
+              좋은나라펫피스는 반려동물케어 전문기업으로 전체적으로 깔끔하면서
+              간결한 레이아웃으로 사용자들이 사이트를 쉽게 이용할 수 있도록 설계
+              하였습니다.
+            </p>
+          ) : (
+            <p>
+              좋은나라펫피스는 반려동물케어 전문기업으로 전체적으로 깔끔하면서
+              간결한 레이아웃으로 상품 및 콘텐츠에 대한 주목도를 높이고 상품에
+              대한 정보를 쉽게 전달하며 흥미를 일으켜 구매를 유도하고자 했다.
+              <br />
+              또한, 사용자들이 사이트를 쉽게 이용할 수 있도록 디자인하여
+              편리하게 이용할 수 있도록 설계 하였습니다.
+            </p>
+          )}
         </div>
       </section>
 

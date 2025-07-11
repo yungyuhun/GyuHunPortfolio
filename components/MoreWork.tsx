@@ -192,7 +192,7 @@ export default function WorkTableGSAP() {
                   imageRefs.current[i] = el;
                 }}
                 style={{ willChange: "opacity, transform" }}
-                className="absolute md:right-40 xs:right-0 top-1/2 -translate-y-1/2 md:w-[520px] xs:w-60 md:h-[300px] xs:h-32 rounded-lg overflow-hidden shadow z-10 pointer-events-none"
+                className="absolute md:right-40 xs:right-0 top-1/2 -translate-y-1/2 md:w-[520px] xs:w-48 md:h-[300px] xs:h-32 rounded-lg overflow-hidden shadow z-10 pointer-events-none"
               >
                 <img
                   src={p.image}

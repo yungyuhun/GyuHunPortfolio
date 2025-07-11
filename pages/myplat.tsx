@@ -272,7 +272,7 @@ export default function Myplat() {
             <h2 className="font-sans font-bold text-primary md:text-pt-section-title xs:text-pt-section-title-xs">
               마이플랫 홈페이지 제작
             </h2>
-            <div className="flex flex-wrap max-w-xl gap-4">
+            <div className="flex flex-wrap gap-4 md:flex-row md:max-w-xl xs:max-w-full xs:flex-col">
               <div className="flex items-center gap-2">
                 <span className="font-sans font-normal text-pt-body text-primary-deepLight">
                   Client.
@@ -309,7 +309,7 @@ export default function Myplat() {
                 href="https://www.myplat.co.kr/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-8 py-3 font-sans font-normal text-black transition-all duration-300 ease-out bg-white border rounded-full md:mt-12 xs:mt-6 text-pt-body border-primary-extraLight hover:bg-black hover:text-white hover:border-transparent"
+                className="px-8 py-3 font-sans font-normal text-center transition-all duration-300 ease-out bg-white border rounded-full h-fit text-primary md:w-auto xs:w-full md:mt-12 xs:mt-6 text-pt-body border-primary-extraLight hover:bg-primary hover:text-white hover:border-transparent"
               >
                 사이트 바로가기
               </a>
