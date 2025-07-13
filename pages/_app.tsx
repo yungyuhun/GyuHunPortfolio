@@ -1,7 +1,7 @@
 import type { AppProps } from "next/app";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
-import Lenis from "@studio-freight/lenis";
+import Lenis from 'lenis'
 import Splash from "@/components/Splash";
 import "../styles/globals.css";
 import "swiper/css";
