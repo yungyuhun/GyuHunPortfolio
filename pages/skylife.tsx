@@ -8,6 +8,8 @@ import { Scroll } from "@/src/icons/Icon";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// ...생략(import 등)
+
 export default function SkyLife() {
   const fadeinRefs = useRef<(HTMLDivElement | null)[]>([]);
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -35,21 +37,50 @@ export default function SkyLife() {
   // 모바일이면 2개만, 아니면 전체
   const visibleCols = isMobile ? 2 : subImages.length;
 
-  // 애니메이션 및 트리거 최적화
+  // Section별 실제 fadein 인덱스
+  // (아래는 예시, 실제 섹션 구조에 맞게 조정)
+  const section6FadeinIndexes = isMobile
+    ? [7, 8, 9, 10, 11] // 모바일: 타이틀(7) + 2col*2row(8~11)
+    : [7, 8, 9, 10, 11, 12, 13]; // 데스크탑: 타이틀(7) + 3col*2row(8~13)
+
+  // Section 8(Design System) 인덱스
+  const section8Indexes = [14, 15, 16, 17, 18, 19];
+
+  // 기타 섹션 fadein 인덱스 (예시)
+  const otherFadeinIndexes = [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6, // Section 2~5 등
+    ...section6FadeinIndexes,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+  ];
+
+  // GSAP 애니메이션 (Section 8 제외)
   useEffect(() => {
+    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+    let fadeTweens: gsap.core.Tween[] = [];
     let textTrigger: ScrollTrigger | null = null;
     let marqueeTween: gsap.core.Tween | null = null;
-    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
-
-    // Section 8 fadein 인덱스(14~19)는 여기서 제외
-    const fadeinLength = 32;
 
     function setupGsap() {
+      // 모든 실제 렌더된 인덱스의 ref가 준비됐는지 체크
       if (
-        fadeinRefs.current.length < fadeinLength ||
-        fadeinRefs.current
-          .slice(0, fadeinLength)
-          .some((el, idx) => !el && (idx < 14 || idx > 19)) ||
+        otherFadeinIndexes.some((idx) => !fadeinRefs.current[idx]) ||
         !sectionRef.current ||
         textRefs.current.length < 3 ||
         textRefs.current.some((el) => !el)
@@ -85,26 +116,28 @@ export default function SkyLife() {
         },
       });
 
-      // Section 8 fadein 인덱스(14~19)는 제외하고 나머지에만 애니메이션 적용
-      fadeinRefs.current.forEach((el, idx) => {
-        if (!el) return;
-        if (idx >= 14 && idx <= 19) return; // Section 8은 별도 useEffect에서 처리
-        gsap.fromTo(
-          el,
-          { opacity: 0, y: 60 },
-          {
-            opacity: 1,
-            y: 0,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: el,
-              start: "top 60%",
-              end: "top 25%",
-              scrub: 0.8,
-            },
-          }
-        );
-      });
+      // 실제 렌더된 요소만 애니메이션
+      fadeTweens = otherFadeinIndexes
+        .map((idx) => {
+          const el = fadeinRefs.current[idx];
+          if (!el) return null;
+          return gsap.fromTo(
+            el,
+            { opacity: 0, y: 60 },
+            {
+              opacity: 1,
+              y: 0,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: el,
+                start: "top 60%",
+                end: "top 25%",
+                scrub: 0.8,
+              },
+            }
+          );
+        })
+        .filter(Boolean) as gsap.core.Tween[];
 
       // 마퀴 애니메이션
       const marqueeContainer = marqueeRef.current;
@@ -116,7 +149,7 @@ export default function SkyLife() {
         const textClone = marqueeText.cloneNode(true) as HTMLElement;
         marqueeContainer.appendChild(textClone);
 
-        const gap = window.innerWidth < 768 ? 30 : 60;
+        const gap = isMobile ? 30 : 60;
         marqueeText.style.display = "inline-block";
         textClone.style.display = "inline-block";
         marqueeContainer.style.gap = `${gap}px`;
@@ -159,25 +192,21 @@ export default function SkyLife() {
 
     return () => {
       if (retryTimeout) clearTimeout(retryTimeout);
+      fadeTweens.forEach((t) => t && t.kill());
       textTrigger?.kill();
       marqueeTween?.kill();
       ScrollTrigger.getAll().forEach((t) => t.kill());
       if (marqueeRef.current) marqueeRef.current.style.transform = "";
     };
-  }, [isMobile]);
+  }, [isMobile, otherFadeinIndexes.join(",")]); // 인덱스 배열이 바뀌면 재실행
 
   // Section 8(Design System) 페이드인 애니메이션 전용
   useEffect(() => {
     let retryTimeout: ReturnType<typeof setTimeout> | null = null;
-    const startIdx = 14;
-    const endIdx = 19;
 
     function setupSection8Fadein() {
-      const targets = fadeinRefs.current.slice(startIdx, endIdx + 1);
-      if (
-        targets.length !== endIdx - startIdx + 1 ||
-        targets.some((el) => !el)
-      ) {
+      const targets = section8Indexes.map((idx) => fadeinRefs.current[idx]);
+      if (targets.some((el) => !el)) {
         retryTimeout = setTimeout(setupSection8Fadein, 50);
         return;
       }
