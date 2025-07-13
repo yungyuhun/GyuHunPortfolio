@@ -24,10 +24,9 @@ export default function SkyLife() {
 
   const [isMobile, setIsMobile] = useState(false);
 
+  // 반응형 처리
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -36,14 +35,113 @@ export default function SkyLife() {
   // 모바일이면 2개만, 아니면 전체
   const visibleCols = isMobile ? 2 : subImages.length;
 
+  // 애니메이션 및 트리거 최적화
   useEffect(() => {
-    const section = sectionRef.current;
-    const marqueeContainer = marqueeRef.current;
-    const marqueeText = marqueeTextRef.current;
+    let textTrigger: ScrollTrigger | null = null;
+    let marqueeTween: gsap.core.Tween | null = null;
+    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
 
-    if (!section) return;
+    // Section 8 fadein 인덱스(14~19)는 여기서 제외
+    const fadeinLength = 32;
 
-    // 0. 상단 타이틀 Fade-in (페이지 진입 시)
+    function setupGsap() {
+      if (
+        fadeinRefs.current.length < fadeinLength ||
+        fadeinRefs.current
+          .slice(0, fadeinLength)
+          .some((el, idx) => !el && (idx < 14 || idx > 19)) ||
+        !sectionRef.current ||
+        textRefs.current.length < 3 ||
+        textRefs.current.some((el) => !el)
+      ) {
+        retryTimeout = setTimeout(setupGsap, 50);
+        return;
+      }
+
+      // 텍스트 그라데이션
+      textRefs.current.forEach(
+        (el) =>
+          el &&
+          gsap.set(el, {
+            backgroundSize: "0% 100%",
+            opacity: 1.2,
+          })
+      );
+
+      textTrigger = ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: true,
+        onUpdate: ({ progress }) => {
+          textRefs.current.forEach(
+            (el) =>
+              el &&
+              gsap.set(el, {
+                backgroundSize: `${progress * 100}% 100%`,
+                opacity: 1 + progress * 2,
+              })
+          );
+        },
+      });
+
+      // Section 8 fadein 인덱스(14~19)는 제외하고 나머지에만 애니메이션 적용
+      fadeinRefs.current.forEach((el, idx) => {
+        if (!el) return;
+        if (idx >= 14 && idx <= 19) return; // Section 8은 별도 useEffect에서 처리
+        gsap.fromTo(
+          el,
+          { opacity: 0, y: 60 },
+          {
+            opacity: 1,
+            y: 0,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 60%",
+              end: "top 25%",
+              scrub: 0.8,
+            },
+          }
+        );
+      });
+
+      // 마퀴 애니메이션
+      const marqueeContainer = marqueeRef.current;
+      const marqueeText = marqueeTextRef.current;
+      if (marqueeContainer && marqueeText) {
+        while (marqueeContainer.children.length > 1) {
+          marqueeContainer.removeChild(marqueeContainer.lastChild!);
+        }
+        const textClone = marqueeText.cloneNode(true) as HTMLElement;
+        marqueeContainer.appendChild(textClone);
+
+        const gap = window.innerWidth < 768 ? 30 : 60;
+        marqueeText.style.display = "inline-block";
+        textClone.style.display = "inline-block";
+        marqueeContainer.style.gap = `${gap}px`;
+
+        requestAnimationFrame(() => {
+          const textWidth = marqueeText.offsetWidth;
+          const totalWidth = textWidth + gap;
+          if (textWidth === 0) {
+            setTimeout(setupGsap, 50);
+            return;
+          }
+          marqueeTween = gsap.to(marqueeContainer, {
+            x: `-=${totalWidth}`,
+            duration: 18,
+            ease: "none",
+            repeat: -1,
+            modifiers: {
+              x: gsap.utils.unitize((x) => parseFloat(x) % totalWidth),
+            },
+          });
+        });
+      }
+    }
+
+    // 상단 타이틀 Fade-in
     if (topTitleRef.current) {
       gsap.fromTo(
         topTitleRef.current,
@@ -57,96 +155,59 @@ export default function SkyLife() {
       );
     }
 
-    // 1. Fade-in 애니메이션
-    fadeinRefs.current.forEach((el) => {
-      if (!el) return;
-      gsap.fromTo(
-        el,
-        { opacity: 0, y: 60 },
-        {
-          opacity: 1,
-          y: 0,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: el,
-            start: "top 60%",
-            end: "top 25%",
-            scrub: 0.8,
-          },
-        }
-      );
-    });
+    setupGsap();
 
-    // 2. 텍스트 배경 애니메이션
-    textRefs.current.forEach(
-      (el) =>
-        el &&
-        gsap.set(el, {
-          backgroundSize: "0% 100%",
-          opacity: 1.2,
-        })
-    );
+    return () => {
+      if (retryTimeout) clearTimeout(retryTimeout);
+      textTrigger?.kill();
+      marqueeTween?.kill();
+      ScrollTrigger.getAll().forEach((t) => t.kill());
+      if (marqueeRef.current) marqueeRef.current.style.transform = "";
+    };
+  }, [isMobile]);
 
-    const textTrigger = ScrollTrigger.create({
-      trigger: section,
-      start: "top top",
-      end: "bottom bottom",
-      scrub: true,
-      onUpdate: ({ progress }) => {
-        textRefs.current.forEach(
-          (el) =>
-            el &&
-            gsap.set(el, {
-              backgroundSize: `${progress * 100}% 100%`,
-              opacity: 1 + progress * 2,
-            })
-        );
-      },
-    });
+  // Section 8(Design System) 페이드인 애니메이션 전용
+  useEffect(() => {
+    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+    const startIdx = 14;
+    const endIdx = 19;
 
-    // 3. 무한 마퀴 애니메이션
-    let marqueeAnimation: gsap.core.Tween | null = null;
-
-    if (marqueeContainer && marqueeText) {
-      // 기존 클론 제거 (항상 1개만 클론)
-      while (marqueeContainer.children.length > 1) {
-        marqueeContainer.removeChild(marqueeContainer.lastChild!);
+    function setupSection8Fadein() {
+      const targets = fadeinRefs.current.slice(startIdx, endIdx + 1);
+      if (
+        targets.length !== endIdx - startIdx + 1 ||
+        targets.some((el) => !el)
+      ) {
+        retryTimeout = setTimeout(setupSection8Fadein, 50);
+        return;
       }
-
-      // 텍스트 클론 생성
-      const textClone = marqueeText.cloneNode(true) as HTMLElement;
-      marqueeContainer.appendChild(textClone);
-
-      // 스타일 설정
-      const isMobile = window.innerWidth < 768;
-
-      marqueeText.style.display = "inline-block";
-      textClone.style.display = "inline-block";
-      const gap = isMobile ? 30 : 60;
-      marqueeContainer.style.gap = `${gap}px`;
-
-      // 레이아웃 계산 후 실행
-      requestAnimationFrame(() => {
-        const textWidth = marqueeText.offsetWidth;
-        const totalWidth = textWidth + gap;
-
-        marqueeAnimation = gsap.to(marqueeContainer, {
-          x: `-=${totalWidth}`,
-          duration: 18,
-          ease: "none",
-          repeat: -1,
-          modifiers: {
-            x: gsap.utils.unitize((x) => parseFloat(x) % totalWidth),
-          },
-        });
+      targets.forEach((el) => {
+        if (!el) return;
+        gsap.fromTo(
+          el,
+          { opacity: 0, y: 60 },
+          {
+            opacity: 1,
+            y: 0,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 60%",
+              end: "top 25%",
+              scrub: 0.8,
+            },
+          }
+        );
       });
     }
+
+    setupSection8Fadein();
+
     return () => {
-      textTrigger.kill();
-      marqueeAnimation?.kill();
-      ScrollTrigger.getAll().forEach((t) => t.kill());
+      if (retryTimeout) clearTimeout(retryTimeout);
+      ScrollTrigger.getAll().forEach((st) => st.kill());
     };
-  }, []);
+  }, [isMobile]);
 
   return (
     <div className="relative w-full h-screen bg-white">

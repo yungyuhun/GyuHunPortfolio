@@ -47,8 +47,46 @@ export default function BSW() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // GSAP 페이드인 애니메이션 (모든 Section)
   useEffect(() => {
-    // 상단 타이틀 Fade-in (페이지 진입 시)
+    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+    let fadeTweens: gsap.core.Tween[] = [];
+
+    // 필요한 fadeinRefs 개수 (마지막 인덱스 + 1)
+    const fadeinLength = 21; // 마지막 Section에서 사용하는 인덱스 + 1로 맞추세요
+
+    function setupFadein() {
+      const targets = fadeinRefs.current.slice(0, fadeinLength);
+      if (targets.length !== fadeinLength || targets.some(el => !el)) {
+        retryTimeout = setTimeout(setupFadein, 50);
+        return;
+      }
+      // 기존 Tween 정리
+      fadeTweens.forEach(t => t.kill());
+      fadeTweens = [];
+      targets.forEach((el) => {
+        if (!el) return;
+        fadeTweens.push(
+          gsap.fromTo(
+            el,
+            { opacity: 0, y: 60 },
+            {
+              opacity: 1,
+              y: 0,
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: el,
+                start: "top 60%",
+                end: "top 25%",
+                scrub: 0.8,
+              },
+            }
+          )
+        );
+      });
+    }
+
+    // 상단 타이틀 Fade-in
     if (topTitleRef.current) {
       gsap.fromTo(
         topTitleRef.current,
@@ -62,26 +100,15 @@ export default function BSW() {
       );
     }
 
-    // Fade-in 애니메이션 (스크롤 트리거)
-    fadeinRefs.current.forEach((el) => {
-      if (!el) return;
-      gsap.fromTo(
-        el,
-        { opacity: 0, y: 60 },
-        {
-          opacity: 1,
-          y: 0,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: el,
-            start: "top 60%",
-            end: "top 25%",
-            scrub: 0.8,
-          },
-        }
-      );
-    });
-  }, []);
+    setupFadein();
+
+    return () => {
+      if (retryTimeout) clearTimeout(retryTimeout);
+      fadeTweens.forEach(t => t.kill());
+      ScrollTrigger.getAll().forEach(st => st.kill());
+    };
+  }, [isMobile]);
+
 
   return (
     <div className="relative w-full min-h-screen bg-white">

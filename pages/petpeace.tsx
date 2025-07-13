@@ -44,82 +44,102 @@ export default function Petpeace() {
   ];
 
   useEffect(() => {
-    // 상단 타이틀 Fade-in (페이지 진입 시)
-    if (topTitleRef.current) {
-      gsap.fromTo(
-        topTitleRef.current,
-        { opacity: 0, y: 100 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: "power3.out",
-        }
-      );
-    }
+    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+    let fadeTweens: gsap.core.Tween[] = [];
+    let marqueeTween: gsap.core.Tween | null = null;
 
-    // Fade-in 애니메이션 (스크롤 트리거)
-    fadeinRefs.current.forEach((el) => {
-      if (!el) return;
-      gsap.fromTo(
-        el,
-        { opacity: 0, y: 60 },
-        {
-          opacity: 1,
-          y: 0,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: el,
-            start: "top 60%",
-            end: "top 25%",
-            scrub: 0.8,
-          },
-        }
-      );
-    });
+    // fadeinRefs 인덱스의 최대값+1을 지정하세요 (예: 18까지면 19)
+    const fadeinLength = 18;
 
-    // 마퀴 텍스트 애니메이션
-    const marqueeContainer = marqueeRef.current;
-    const marqueeText = marqueeTextRef.current;
-    let marqueeAnimation: gsap.core.Tween | null = null;
-
-    if (marqueeContainer && marqueeText) {
-      // 기존 클론 제거 (항상 1개만 클론)
-      while (marqueeContainer.children.length > 1) {
-        marqueeContainer.removeChild(marqueeContainer.lastChild!);
+    function setupGsap() {
+      const targets = fadeinRefs.current.slice(0, fadeinLength);
+      if (targets.length !== fadeinLength || targets.some((el) => !el)) {
+        retryTimeout = setTimeout(setupGsap, 50);
+        return;
       }
 
-      // 텍스트 클론 생성
-      const textClone = marqueeText.cloneNode(true) as HTMLElement;
-      marqueeContainer.appendChild(textClone);
+      // 상단 타이틀 Fade-in
+      if (topTitleRef.current) {
+        gsap.fromTo(
+          topTitleRef.current,
+          { opacity: 0, y: 100 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: "power3.out",
+          }
+        );
+      }
 
-      // 스타일 설정
-      marqueeText.style.display = "inline-block";
-      textClone.style.display = "inline-block";
-      const gap = 60;
-      marqueeContainer.style.gap = `${gap}px`;
+      // Fade-in 애니메이션 (스크롤 트리거)
+      fadeTweens = targets
+        .map((el) =>
+          el
+            ? gsap.fromTo(
+                el,
+                { opacity: 0, y: 60 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  ease: "power3.out",
+                  scrollTrigger: {
+                    trigger: el,
+                    start: "top 60%",
+                    end: "top 25%",
+                    scrub: 0.8,
+                  },
+                }
+              )
+            : null
+        )
+        .filter(Boolean) as gsap.core.Tween[];
 
-      // 레이아웃 계산 후 실행
-      requestAnimationFrame(() => {
-        const textWidth = marqueeText.offsetWidth;
-        const totalWidth = textWidth + gap;
+      // 마퀴 텍스트 애니메이션
+      const marqueeContainer = marqueeRef.current;
+      const marqueeText = marqueeTextRef.current;
+      if (marqueeContainer && marqueeText) {
+        while (marqueeContainer.children.length > 1) {
+          marqueeContainer.removeChild(marqueeContainer.lastChild!);
+        }
+        const textClone = marqueeText.cloneNode(true) as HTMLElement;
+        marqueeContainer.appendChild(textClone);
 
-        marqueeAnimation = gsap.to(marqueeContainer, {
-          x: `-=${totalWidth}`,
-          duration: 18,
-          ease: "none",
-          repeat: -1,
-          modifiers: {
-            x: gsap.utils.unitize((x) => parseFloat(x) % totalWidth),
-          },
+        marqueeText.style.display = "inline-block";
+        textClone.style.display = "inline-block";
+        const gap = 60;
+        marqueeContainer.style.gap = `${gap}px`;
+
+        requestAnimationFrame(() => {
+          const textWidth = marqueeText.offsetWidth;
+          const totalWidth = textWidth + gap;
+          if (textWidth === 0) {
+            setTimeout(setupGsap, 50);
+            return;
+          }
+          marqueeTween = gsap.to(marqueeContainer, {
+            x: `-=${totalWidth}`,
+            duration: 18,
+            ease: "none",
+            repeat: -1,
+            modifiers: {
+              x: gsap.utils.unitize((x) => parseFloat(x) % totalWidth),
+            },
+          });
         });
-      });
+      }
     }
 
+    setupGsap();
+
     return () => {
-      if (marqueeAnimation) marqueeAnimation.kill();
+      if (retryTimeout) clearTimeout(retryTimeout);
+      fadeTweens.forEach((t) => t.kill());
+      marqueeTween?.kill();
+      ScrollTrigger.getAll().forEach((st) => st.kill());
+      if (marqueeRef.current) marqueeRef.current.style.transform = "";
     };
-  }, []);
+  }, [isMobile]);
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden bg-white">
@@ -328,8 +348,8 @@ export default function Petpeace() {
       </section>
 
       {/* Section 5 : 좋은나라펫피스 주요 페이지 */}
-      <section className="relative flex flex-col items-center w-full mx-auto xs:px-5 bg-yellow">
-        <div className="md:max-w-[1440px] xs:max-w-full w-full md;pb-[200px] xs:pb-20 grid grid-cols-2 md:gap-x-24 xs:gap-x-4 pointer-events-none select-none">
+      <section className="relative flex flex-col items-center w-full mx-auto md:px-0 xs:px-5 bg-yellow">
+        <div className="md:max-w-[1440px] xs:max-w-full w-full md:pb-[200px] xs:pb-20 grid grid-cols-2 md:gap-x-24 xs:gap-x-4 pointer-events-none select-none">
           <img
             ref={(el) => {
               fadeinRefs.current[5] = el;
@@ -366,7 +386,7 @@ export default function Petpeace() {
       </section>
 
       {/* Section 6 : 좋은나라펫피스 서브 페이지 */}
-      <section className="relative md:py-[200px] xs:py-20 xs:px-5 bg-background-light">
+      <section className="relative md:py-[200px] xs:py-20 md:px-0 xs:px-5 bg-background-light">
         <div
           ref={(el) => {
             fadeinRefs.current[9] = el;
@@ -470,12 +490,12 @@ export default function Petpeace() {
             <img
               src="petpeace_m1.png"
               alt="병원 모바일 랜딩페이지 UI"
-              className="md:w-[320px] xs:w-full z-10 md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
+              className="md:w-[360px] xs:w-full z-10 md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
             />
             <img
               src="petpeace_m1-1.png"
               alt="상세정보"
-              className="md:w-[320px] xs:w-full md:-mt-8 xs:-mt-4 shadow-lg"
+              className="md:w-[360px] xs:w-full md:-mt-8 xs:-mt-4 shadow-lg"
             />
           </div>
           <div
@@ -487,12 +507,12 @@ export default function Petpeace() {
             <img
               src="petpeace_m2.png"
               alt="베이지 20 상품안내 페이지"
-              className="md:w-[320px] xs:w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
+              className="md:w-[360px] xs:w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
             />
             <img
               src="petpeace_m3.png"
               alt="베이지 20 전자청약가입 페이지"
-              className="md:w-[320px] xs:w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
+              className="md:w-[360px] xs:w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
             />
           </div>
           <div
@@ -504,12 +524,12 @@ export default function Petpeace() {
             <img
               src="petpeace_m4.png"
               alt="브랜드 스토리 페이지"
-              className="md:w-[320px] xs:w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
+              className="md:w-[360px] xs:w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
             />
             <img
               src="petpeace_m5.png"
               alt="장례시설 페이지"
-              className="md:w-[320px] xs:w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
+              className="md:w-[360px] xs:w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
             />
           </div>
         </div>

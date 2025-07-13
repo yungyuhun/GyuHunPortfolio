@@ -77,7 +77,7 @@ export default function Splash({ onComplete }: { onComplete: () => void }) {
       {/* 배경 */}
       <div
         ref={bgRef}
-        className="absolute inset-0 bg-black"
+        className="absolute inset-0 bg-primary"
         style={{ transition: "opacity 1.2s" }}
       />
       {/* 텍스트 */}

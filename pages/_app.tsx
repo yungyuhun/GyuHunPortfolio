@@ -17,12 +17,12 @@ export default function App({ Component, pageProps }: AppProps) {
 
   const isIndex = router.pathname === "/";
 
-  // index가 아니면 Splash 바로 비활성화
+  // Splash 비활성화 (index 아닐 때)
   useEffect(() => {
     if (!isIndex && showSplash) setShowSplash(false);
   }, [isIndex, showSplash]);
 
-  // index에서 다른 페이지로 이동할 때 위치 저장 + 상단 이동
+  // index에서 다른 페이지로 이동 시 위치 저장 + 상단 이동
   useEffect(() => {
     if (!isIndex) {
       setIndexScrollY(window.scrollY);
@@ -37,13 +37,21 @@ export default function App({ Component, pageProps }: AppProps) {
   // index로 돌아올 때 저장된 위치로 이동
   useEffect(() => {
     if (isIndex && indexScrollY > 0) {
-      if (lenisRef.current) {
-        lenisRef.current.scrollTo(indexScrollY, { immediate: true });
-      } else {
-        window.scrollTo(0, indexScrollY);
+      let rafId: number;
+      var restoreScroll = function() {
+        if (lenisRef.current) {
+          lenisRef.current.scrollTo(indexScrollY, { immediate: true });
+        } else {
+          window.scrollTo(0, indexScrollY);
+        }
       }
+      // 렌더 완료 후 1프레임 뒤에 실행
+      rafId = requestAnimationFrame(restoreScroll);
+
+      // cleanup
+      return () => cancelAnimationFrame(rafId);
     }
-  }, [isIndex]);
+  }, [isIndex, indexScrollY]);
 
   // Lenis 인스턴스 및 스크롤 관리
   useEffect(() => {
@@ -55,15 +63,17 @@ export default function App({ Component, pageProps }: AppProps) {
     });
     lenisRef.current = lenis;
 
+    let running = true;
     let requestId: number;
 
     function raf(time: number) {
+      if (!running) return;
       lenis.raf(time);
       requestId = requestAnimationFrame(raf);
     }
-
     requestId = requestAnimationFrame(raf);
 
+    // Splash 상태에 따라 스크롤 제어
     if (showSplash) {
       lenis.stop();
       document.body.style.overflow = "hidden";
@@ -73,6 +83,7 @@ export default function App({ Component, pageProps }: AppProps) {
     }
 
     return () => {
+      running = false;
       cancelAnimationFrame(requestId);
       lenis.destroy();
       document.body.style.overflow = "auto";

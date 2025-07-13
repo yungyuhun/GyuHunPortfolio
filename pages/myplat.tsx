@@ -37,7 +37,7 @@ const BOImages = [
 ];
 
 export default function Myplat() {
-  const fadeinRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const fadeinRefs = useRef<(HTMLDivElement | null)[]>([]);
   const topTitleRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const sectionRef2 = useRef<HTMLDivElement | null>(null);
@@ -52,6 +52,7 @@ export default function Myplat() {
     typeof window !== "undefined" ? window.innerWidth < 768 : false
   );
 
+  // 반응형
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -60,56 +61,65 @@ export default function Myplat() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // 텍스트 그라데이션 애니메이션
   useEffect(() => {
-    if (
-      !sectionRef2.current ||
-      textRefs.current.length < 3 ||
-      textRefs.current.some((el) => !el)
-    )
-      return;
+    let textTrigger: ScrollTrigger | null = null;
+    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
 
-    // 초기 배경 그라데이션 세팅
-    textRefs.current.forEach(
-      (el) =>
-        el &&
-        gsap.set(el, {
-          backgroundSize: "0% 100%",
-          backgroundPosition: "left center",
-          opacity: 1.2,
-        })
-    );
+    function setupGsap() {
+      if (
+        !sectionRef2.current ||
+        textRefs.current.length < 3 ||
+        textRefs.current.some((el) => !el)
+      ) {
+        retryTimeout = setTimeout(setupGsap, 50);
+        return;
+      }
 
-    const textTrigger = ScrollTrigger.create({
-      trigger: sectionRef2.current,
-      start: "-100% top",
-      end: "bottom bottom",
-      scrub: true,
-      onUpdate: ({ progress }) => {
-        textRefs.current.forEach(
-          (el) =>
-            el &&
-            gsap.set(el, {
-              backgroundSize: `${progress * 100}% 100%`,
-              backgroundPosition: "left center",
-              opacity: 1 + progress * 2,
-            })
-        );
-      },
-    });
+      textRefs.current.forEach(
+        (el) =>
+          el &&
+          gsap.set(el, {
+            backgroundSize: "0% 100%",
+            backgroundPosition: "left center",
+            opacity: 1.2,
+          })
+      );
 
-    return () => textTrigger.kill();
-  }, [
-    sectionRef2.current,
-    textRefs.current[0],
-    textRefs.current[1],
-    textRefs.current[2],
-  ]);
+      textTrigger = ScrollTrigger.create({
+        trigger: sectionRef2.current,
+        start: "-100% top",
+        end: "bottom bottom",
+        scrub: true,
+        onUpdate: ({ progress }) => {
+          textRefs.current.forEach(
+            (el) =>
+              el &&
+              gsap.set(el, {
+                backgroundSize: `${progress * 100}% 100%`,
+                backgroundPosition: "left center",
+                opacity: 1 + progress * 2,
+              })
+          );
+        },
+      });
+    }
+
+    setupGsap();
+
+    return () => {
+      if (retryTimeout) clearTimeout(retryTimeout);
+      if (textTrigger) textTrigger.kill();
+    };
+  }, []);
 
   // 스크롤 연동 애니메이션
   useEffect(() => {
+    if (!sectionRef.current) return;
     const yValue = isMobile ? "110px" : "280px";
+    let ctx: gsap.Context | undefined;
 
-    const ctx = gsap.context(() => {
+    ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -120,49 +130,42 @@ export default function Myplat() {
         },
       });
 
-      // 텍스트 이동
-      tl.to(topTextRef.current, { y: yValue, ease: "power2.out" }, 0).to(
-        bottomTextRef.current,
-        { y: `-${yValue}`, ease: "power2.out" },
-        0
-      );
-
-      // 텍스트 색상 전환
-      tl.to(
-        [topTextRef.current, bottomTextRef.current],
-        { color: "#fff", ease: "none" },
-        ">-0.5"
-      );
-
-      // 이미지 확대 및 페이드아웃 + borderRadius 애니메이션
-      tl.fromTo(
-        imgRef.current,
-        { borderRadius: "9999px" },
-        {
-          scale: 2,
-          opacity: 0,
-          borderRadius: "0px",
-          ease: "power2.inOut",
-        },
-        0
-      );
-
-      // 배경색 변경
-      tl.to(
-        sectionRef.current,
-        { backgroundColor: "#4A4AD3", ease: "none" },
-        "<"
-      );
+      tl.to(topTextRef.current, { y: yValue, ease: "power2.out" }, 0)
+        .to(bottomTextRef.current, { y: `-${yValue}`, ease: "power2.out" }, 0)
+        .to(
+          [topTextRef.current, bottomTextRef.current],
+          { color: "#fff", ease: "none" },
+          ">-0.5"
+        )
+        .fromTo(
+          imgRef.current,
+          { borderRadius: "9999px" },
+          {
+            scale: 2,
+            opacity: 0,
+            borderRadius: "0px",
+            ease: "power2.inOut",
+          },
+          0
+        )
+        .to(
+          sectionRef.current,
+          { backgroundColor: "#4A4AD3", ease: "none" },
+          "<"
+        );
     }, sectionRef);
 
-    return () => ctx.revert();
-  }, []);
+    return () => {
+      ctx && ctx.revert();
+    };
+  }, [isMobile]);
 
-  // fade-in 효과 및 마퀴 애니메이션
+  // 페이드인 및 마퀴 애니메이션
   useEffect(() => {
-    // 상단 타이틀 Fade-in (페이지 진입 시)
+    // 타이틀 Fade-in
+    let topTitleTween: gsap.core.Tween | undefined;
     if (topTitleRef.current) {
-      gsap.fromTo(
+      topTitleTween = gsap.fromTo(
         topTitleRef.current,
         { opacity: 0, y: 100 },
         {
@@ -175,31 +178,39 @@ export default function Myplat() {
     }
 
     // Fade-in 애니메이션 (스크롤 트리거)
+    const fadeTweens: gsap.core.Tween[] = [];
     fadeinRefs.current.forEach((el) => {
       if (!el) return;
-      gsap.fromTo(
-        el,
-        { opacity: 0, y: 60 },
-        {
-          opacity: 1,
-          y: 0,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: el,
-            start: "top 60%",
-            end: "top 25%",
-            scrub: 0.8,
-          },
-        }
+      fadeTweens.push(
+        gsap.fromTo(
+          el,
+          { opacity: 0, y: 60 },
+          {
+            opacity: 1,
+            y: 0,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 60%",
+              end: "top 25%",
+              scrub: 0.8,
+            },
+          }
+        )
       );
     });
 
     // 마퀴 텍스트 애니메이션
     const marqueeContainer = marqueeRef.current;
     const marqueeText = marqueeTextRef.current;
-    let marqueeAnimation: gsap.core.Tween | null = null;
+    let marqueeTween: gsap.core.Tween | null = null;
 
-    if (marqueeContainer && marqueeText) {
+    function startMarquee() {
+      if (!marqueeContainer || !marqueeText) return;
+      if (marqueeTween) {
+        marqueeTween.kill();
+        marqueeTween = null;
+      }
       while (marqueeContainer.children.length > 1) {
         marqueeContainer.removeChild(marqueeContainer.lastChild!);
       }
@@ -211,24 +222,35 @@ export default function Myplat() {
       const gap = 60;
       marqueeContainer.style.gap = `${gap}px`;
 
-      requestAnimationFrame(() => {
-        const textWidth = marqueeText.offsetWidth;
-        const totalWidth = textWidth + gap;
+      const textWidth = marqueeText.offsetWidth;
+      const totalWidth = textWidth + gap;
 
-        marqueeAnimation = gsap.to(marqueeContainer, {
-          x: `-=${totalWidth}`,
-          duration: 18,
-          ease: "none",
-          repeat: -1,
-          modifiers: {
-            x: gsap.utils.unitize((x) => parseFloat(x) % totalWidth),
-          },
-        });
+      if (textWidth === 0) {
+        setTimeout(startMarquee, 50);
+        return;
+      }
+
+      marqueeTween = gsap.to(marqueeContainer, {
+        x: `-=${totalWidth}`,
+        duration: 18,
+        ease: "none",
+        repeat: -1,
+        modifiers: {
+          x: gsap.utils.unitize((x) => parseFloat(x) % totalWidth),
+        },
       });
     }
 
+    startMarquee();
+
     return () => {
-      if (marqueeAnimation) marqueeAnimation.kill();
+      topTitleTween?.kill();
+      fadeTweens.forEach((t) => t.kill());
+      if (marqueeTween) marqueeTween.kill();
+      if (marqueeContainer) {
+        marqueeContainer.style.transform = "";
+      }
+      ScrollTrigger.getAll().forEach((st) => st.kill());
     };
   }, []);
 
@@ -506,7 +528,7 @@ export default function Myplat() {
             <img
               src="myplat_m1.png"
               alt="Myplat Moblie 메인페이지"
-              className="w-full z-10 md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
+              className="w-full z-10 md:border-[6px] xs:border-[3px] md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
             />
             <img
               src="myplat_m1-1.png"
@@ -518,34 +540,34 @@ export default function Myplat() {
             <img
               src="myplat_m2.png"
               alt="Myplat Moblie 프로젝트"
-              className="w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
+              className="w-full md:border-[6px] xs:border-[3px] md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
             />
             <img
               src="myplat_m3.png"
               alt="Myplat Moblie 내가 지원한 프로젝트"
-              className="w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
+              className="w-full md:border-[6px] xs:border-[3px] md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
             />
             <img
               src="myplat_m4.png"
               alt="Myplat Moblie 프로젝트 공고"
-              className="w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
+              className="w-full md:border-[6px] xs:border-[3px] md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
             />
           </div>
           <div className="flex flex-col flex-wrap md:gap-[100px] xs:gap-4">
             <img
               src="myplat_m5.png"
               alt="Myplat Moblie 매칭카드"
-              className="w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
+              className="w-full md:border-[6px] xs:border-[3px] md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
             />
             <img
               src="myplat_m6.png"
               alt="Myplat Moblie 증명서 발급 내역"
-              className="w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
+              className="w-full md:border-[6px] xs:border-[3px] md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
             />
             <img
               src="myplat_m7.png"
               alt="Myplat Moblie 매칭카드 수정"
-              className="w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
+              className="w-full md:border-[6px] xs:border-[3px] md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
             />
           </div>
         </div>
@@ -654,7 +676,7 @@ export default function Myplat() {
             }}
             src="/myplat_bo1.png"
             alt="Myplat Main Image"
-            className="w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
+            className="w-full md:border-[6px] xs:border-[3px] md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
           />
         </div>
       </section>
@@ -684,7 +706,7 @@ export default function Myplat() {
                 <img
                   src={src}
                   alt={`slide-${i + 1}`}
-                  className="object-cover w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-lg border-primary shadow-lg"
+                  className="object-cover w-full md:border-[6px] xs:border-[3px] md:rounded-3xl xs:rounded-lg border-primary shadow-lg"
                   draggable={false}
                 />
               </SwiperSlide>
