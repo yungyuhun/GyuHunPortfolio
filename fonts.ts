@@ -12,7 +12,7 @@ export const inter = Inter({
 export const pretendard = localFont({
   src: [
     {
-      path: "./fonts/PretendardVariable.woff2",
+      path: "/fonts/PretendardVariable.woff2",
       weight: "45 920",
       style: "normal",
     },
@@ -25,17 +25,17 @@ export const pretendard = localFont({
 export const myeongjo = localFont({
   src: [
     {
-      path: "./fonts/NanumMyeongjo.woff2",
+      path: "/fonts/NanumMyeongjo.woff2",
       weight: "400",
       style: "normal",
     },
     {
-      path: "./fonts/NanumMyeongjoBold.woff2",
+      path: "/fonts/NanumMyeongjoBold.woff2",
       weight: "700",
       style: "normal",
     },
     {
-      path: "./fonts/NanumMyeongjoExtraBold.woff2",
+      path: "/fonts/NanumMyeongjoExtraBold.woff2",
       weight: "800",
       style: "normal",
     },
