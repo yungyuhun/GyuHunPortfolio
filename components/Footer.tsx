@@ -44,7 +44,10 @@ export default function Footer() {
             aria-label="맨 위로"
             className="flex items-center justify-center transition-colors rounded-full bg-primary w-14 h-14 group md:relative xs:absolute md:bottom-0 xs:-bottom-44 xs:right-0"
           >
-            <Scroll size={24} color="#fff" className="rotate-180" />
+            <Scroll
+              color="#fff"
+              className="w-6 h-6 rotate-180"
+            />
           </button>
         </div>
 

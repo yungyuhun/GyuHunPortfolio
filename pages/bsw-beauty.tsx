@@ -124,7 +124,7 @@ export default function BSW() {
   }, [isMobile]);
 
   return (
-    <div className="relative w-full min-h-screen bg-white">
+    <div className="relative w-full min-h-screen overflow-hidden bg-white">
       {/* Section 1 : 메인 이미지/타이틀 */}
       <section className="relative w-full h-screen overflow-hidden">
         <img

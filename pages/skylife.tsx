@@ -159,7 +159,7 @@ export default function SkyLife() {
   }, [isMobile]);
 
   return (
-    <div className="relative w-full h-screen bg-white">
+    <div className="relative w-full min-h-screen overflow-hidden bg-white">
       {/* Section 1 : 메인 이미지 */}
       <section className="relative w-full h-screen overflow-hidden">
         <img
@@ -329,14 +329,17 @@ export default function SkyLife() {
             <img src="/macbook.png" alt="Macbook Mockup" className="w-full" />
             {/* 화면 안에 실제 서비스 이미지 오버레이 */}
             <div
-              className="absolute left-1/2 top-[2%] w-[87.2%] h-[86.8%] rounded-t-lg -translate-x-1/2 overflow-y-auto bg-white pointer-events-auto hide-scrollbar"
+              className="absolute left-1/2 top-[2%] w-[87.2%] h-[86.8%] rounded-t-lg -translate-x-1/2 overflow-y-auto bg-white pointer-events-auto"
               onWheel={(e) => e.stopPropagation()}
             >
-              <img
-                src="/skylife_work1.jpg"
-                alt="Interactive Example"
-                className="w-full"
-                style={{ minHeight: 1200 }}
+              <video
+                src="/skylife_main.mp4"
+                muted
+                autoPlay
+                loop
+                playsInline
+                preload="auto"
+                className="object-cover w-full h-full"
               />
             </div>
           </div>
@@ -410,7 +413,7 @@ export default function SkyLife() {
       </section>
 
       {/* Section 6 : 프로젝트 서브페이지 */}
-      <section className="md:min-h-screen xs:min-h-0 bg-white md:py-[200px] xs:py-20">
+      <section className="md:min-h-screen xs:min-h-0 bg-white md:pb-[200px] xs:pb-20">
         <div className="max-w-[1440px] md:mx-auto xs:mx-5 flex flex-col items-center md:gap-[100px] xs:gap-10">
           {/* 상단 타이틀 */}
           <div
@@ -455,6 +458,7 @@ export default function SkyLife() {
       {/* Section 7 : 프로젝트 PC 목업 */}
       <section className="flex flex-col items-center w-full bg-white">
         <img
+          data-aos="fade-up"
           src="/skylife_mockup.png"
           alt="PC Sub Page Mockup"
           className="w-full max-w-full"
