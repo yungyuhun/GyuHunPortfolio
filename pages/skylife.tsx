@@ -8,8 +8,6 @@ import { Scroll } from "@/src/icons/Icon";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// ...생략(import 등)
-
 export default function SkyLife() {
   const fadeinRefs = useRef<(HTMLDivElement | null)[]>([]);
   const sectionRef = useRef<HTMLDivElement>(null);
