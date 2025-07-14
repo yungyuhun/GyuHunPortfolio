@@ -5,29 +5,15 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Petpeace() {
-  const fadeinRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const topTitleRef = useRef<HTMLDivElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeTextRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
-
-  // 새로고침 및 로딩 처리
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const reloaded = sessionStorage.getItem("petpeaceReloaded");
-
-    if (!reloaded) {
-      sessionStorage.setItem("petpeaceReloaded", "true");
-      window.location.reload();
-    } else {
-      sessionStorage.removeItem("petpeaceReloaded");
-    }
-  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -57,61 +43,27 @@ export default function Petpeace() {
   ];
 
   useEffect(() => {
-    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
-    let fadeTweens: gsap.core.Tween[] = [];
+    if (typeof window === "undefined") return;
+
+    const isMobile = window.innerWidth < 768; // 모바일 기준
+
+    AOS.init({
+      duration: 1000,
+      once: false,
+      offset: isMobile ? 200 : 500,
+      easing: "ease-out-cubic",
+    });
+    AOS.refresh();
+  }, []);
+
+  useEffect(() => {
     let marqueeTween: gsap.core.Tween | null = null;
 
-    // fadeinRefs 인덱스의 최대값+1을 지정하세요 (예: 18까지면 19)
-    const fadeinLength = 18;
-
     function setupGsap() {
-      const targets = fadeinRefs.current.slice(0, fadeinLength);
-      if (targets.length !== fadeinLength || targets.some((el) => !el)) {
-        retryTimeout = setTimeout(setupGsap, 50);
-        return;
-      }
-
-      // 상단 타이틀 Fade-in
-      if (topTitleRef.current) {
-        gsap.fromTo(
-          topTitleRef.current,
-          { opacity: 0, y: 100 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: "power3.out",
-          }
-        );
-      }
-
-      // Fade-in 애니메이션 (스크롤 트리거)
-      fadeTweens = targets
-        .map((el) =>
-          el
-            ? gsap.fromTo(
-                el,
-                { opacity: 0, y: 60 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  ease: "power3.out",
-                  scrollTrigger: {
-                    trigger: el,
-                    start: "top 60%",
-                    end: "top 25%",
-                    scrub: 0.8,
-                  },
-                }
-              )
-            : null
-        )
-        .filter(Boolean) as gsap.core.Tween[];
-
-      // 마퀴 텍스트 애니메이션
       const marqueeContainer = marqueeRef.current;
       const marqueeText = marqueeTextRef.current;
       if (marqueeContainer && marqueeText) {
+        // 기존 텍스트 클론 및 스타일 처리
         while (marqueeContainer.children.length > 1) {
           marqueeContainer.removeChild(marqueeContainer.lastChild!);
         }
@@ -146,13 +98,10 @@ export default function Petpeace() {
     setupGsap();
 
     return () => {
-      if (retryTimeout) clearTimeout(retryTimeout);
-      fadeTweens.forEach((t) => t.kill());
       marqueeTween?.kill();
-      ScrollTrigger.getAll().forEach((st) => st.kill());
       if (marqueeRef.current) marqueeRef.current.style.transform = "";
     };
-  }, [isMobile]);
+  }, []);
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden bg-white">
@@ -164,7 +113,7 @@ export default function Petpeace() {
           className="absolute inset-0 z-0 object-cover w-full h-full"
         />
         <div
-          ref={topTitleRef}
+          data-aos="fade-up"
           className="absolute inset-0 z-10 flex flex-col items-center justify-center"
         >
           <p className="font-sans font-light text-white md:text-pt-subsection-title xs:text-pt-subtitle-xs">
@@ -185,9 +134,7 @@ export default function Petpeace() {
       {/* Section 2 : 프로젝트 설명 */}
       <section className="relative md:py-[200px] bg-white xs:py-20">
         <div
-          ref={(el) => {
-            fadeinRefs.current[0] = el;
-          }}
+          data-aos="fade-up"
           className="flex justify-between max-w-[1440px] md:mx-auto md:flex-row xs:flex-col xs:mx-5"
         >
           <div className="flex flex-col gap-8">
@@ -269,6 +216,7 @@ export default function Petpeace() {
       {/* Section 3 : 좋은나라펫피스 메인 이미지 */}
       <section className="flex flex-col items-center justify-center min-h-screen bg-background-gray">
         <img
+          data-aos="fade-up"
           src="/petpeace_main.png"
           alt="SkyLife Logo"
           className="w-full md:max-w-[1560px] xs:max-w-full"
@@ -277,12 +225,7 @@ export default function Petpeace() {
 
       {/* Section 4 : 좋은나라펫피스 소개 */}
       <section className="relative flex flex-col items-center w-full md:max-w-[1440px] xs:max-w-full md:py-[200px] xs:py-20 mx-auto xs:px-5 bg-white md:gap-10 xs:gap-4">
-        <div
-          ref={(el) => {
-            fadeinRefs.current[1] = el;
-          }}
-          className="flex flex-col items-center gap-4"
-        >
+        <div data-aos="fade-up" className="flex flex-col items-center gap-4">
           <span className="font-serif font-bold text-yellow-dark md:text-pt-subtitle xs:text-pt-body">
             좋은나라펫피스 홈페이지 제작
           </span>
@@ -293,12 +236,7 @@ export default function Petpeace() {
           </h1>
         </div>
 
-        <div
-          ref={(el) => {
-            fadeinRefs.current[2] = el;
-          }}
-          className="flex justify-center w-full"
-        >
+        <div data-aos="fade-up" className="flex justify-center w-full">
           <div className="w-full aspect-[3/1] overflow-hidden rounded-[500px] md:mx-10 xs:mx-0 flex items-center justify-center">
             <img
               src="/petpeace_main2.png"
@@ -309,9 +247,7 @@ export default function Petpeace() {
         </div>
 
         <div
-          ref={(el) => {
-            fadeinRefs.current[3] = el;
-          }}
+          data-aos="fade-up"
           className="mx-auto font-sans leading-relaxed text-center md:mt-6 xs:mt-2 md:max-w-5xl xs:max-w-full md:text-pt-subtitle xs:text-pt-body"
         >
           {isMobile ? (
@@ -337,9 +273,7 @@ export default function Petpeace() {
       <section className="relative md:bg-[url('/petpeace_bg.png')] xs:bg-[url('/petpeace_bg_mobile.png')] bg-top bg-cover bg-no-repeat md:min-h-screen xs:min-h-0">
         <div className="relative md:mx-auto xs:mx-5 md:max-w-[1440px] xs:max-w-full md:pt-[360px] xs:pt-20 md:pb-[200px] xs:pb-36 pointer-events-none select-none">
           <div
-            ref={(el) => {
-              fadeinRefs.current[4] = el;
-            }}
+            data-aos="fade-up"
             className="w-full md:h-[820px] xs:h-[240px] overflow-hidden md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
           >
             <video
@@ -364,33 +298,25 @@ export default function Petpeace() {
       <section className="relative flex flex-col items-center w-full mx-auto md:px-0 xs:px-5 bg-yellow">
         <div className="md:max-w-[1440px] xs:max-w-full w-full md:pb-[200px] xs:pb-20 grid grid-cols-2 md:gap-x-24 xs:gap-x-4 pointer-events-none select-none">
           <img
-            ref={(el) => {
-              fadeinRefs.current[5] = el;
-            }}
+            data-aos="fade-up"
             src="/petpeace_sub1.png"
             alt="펫피스 40 상품안내 페이지"
             className="object-cover w-full md:mt-36 xs:mt-10 md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
           />
           <img
-            ref={(el) => {
-              fadeinRefs.current[6] = el;
-            }}
+            data-aos="fade-up"
             src="/petpeace_sub2.png"
             alt="이용절차 페이지"
             className="object-cover w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
           />
           <img
-            ref={(el) => {
-              fadeinRefs.current[7] = el;
-            }}
+            data-aos="fade-up"
             src="/petpeace_sub3.png"
             alt="운구서비스 페이지"
             className="object-cover w-full md:mt-20 xs:mt-4 md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
           />
           <img
-            ref={(el) => {
-              fadeinRefs.current[8] = el;
-            }}
+            data-aos="fade-up"
             src="/petpeace_sub4.png"
             alt="장례시설 페이지"
             className="object-cover w-full md:mt-20 xs:mt-2 md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
@@ -401,9 +327,7 @@ export default function Petpeace() {
       {/* Section 6 : 좋은나라펫피스 서브 페이지 */}
       <section className="relative md:py-[200px] xs:py-20 md:px-0 xs:px-5 bg-background-light">
         <div
-          ref={(el) => {
-            fadeinRefs.current[9] = el;
-          }}
+          data-aos="fade-up"
           className="flex md:flex-row xs:flex-col justify-between w-full md:max-w-[1440px] xs:max-w-full mx-auto md:mb-[100px] xs:mb-10 xs:gap-4"
         >
           <h3 className="font-sans font-bold text-primary md:text-pt-section-title xs:text-pt-section-title-xs">
@@ -417,9 +341,7 @@ export default function Petpeace() {
           </p>
         </div>
         <div
-          ref={(el) => {
-            fadeinRefs.current[10] = el;
-          }}
+          data-aos="fade-left"
           className="flex items-center w-full h-full pointer-events-none select-none whitespace-nowrap animate-marquee-left"
         >
           {[...topImages, ...topImages].map((src, i) => (
@@ -434,9 +356,7 @@ export default function Petpeace() {
           ))}
         </div>
         <div
-          ref={(el) => {
-            fadeinRefs.current[11] = el;
-          }}
+          data-aos="fade-right"
           className="flex items-center w-full h-full pointer-events-none select-none md:mt-12 xs:mt-6 whitespace-nowrap animate-marquee-right"
         >
           {[...bottomImages, ...bottomImages].map((src, i) => (
@@ -460,15 +380,14 @@ export default function Petpeace() {
           className="hidden object-cover w-full md:block"
         />
         <img
+          data-aos="fade-up"
           src="/petpeace_banner_mobile.png"
           alt="좋은나라펫피스 배너"
           className="block object-cover w-full h-full md:hidden"
         />
         <div
-          ref={(el) => {
-            fadeinRefs.current[12] = el;
-          }}
-          className="absolute -translate-x-1/2 -translate-y-1/2 right-20 text-yellow-dark top-1/2 md:block xs:hidden"
+          data-aos="fade-up"
+          className="absolute top-[38%] right-[15%] text-yellow-dark md:block xs:hidden"
         >
           <h2 className="mb-4 font-serif font-normal text-pt-section-title">
             감동을 넘어 가치를 실현하다.
@@ -486,6 +405,7 @@ export default function Petpeace() {
       <section className="w-full h-full overflow-hidden rlative">
         <div ref={marqueeRef} className="flex whitespace-nowrap">
           <div
+            data-aos="fade-left"
             ref={marqueeTextRef}
             className="inline-block font-serif font-semibold md:mt-20 xs:mt-10 md:text-inter-title xs:text-inter-title-xs text-yellow whitespace-nowrap"
           >
@@ -494,52 +414,43 @@ export default function Petpeace() {
         </div>
         {/* 모바일 이미지 */}
         <div className="flex md:max-w-[1440px] xs:max-w-full mx-auto xs:px-5 w-full md:min-h-screen xs:min-h-0 md:pt-[200px] xs:pt-20 justify-between xs:gap-4">
-          <div
-            ref={(el) => {
-              fadeinRefs.current[14] = el;
-            }}
-            className="flex flex-col flex-wrap"
-          >
+          <div className="flex flex-col flex-wrap">
             <img
+              data-aos="fade-up"
               src="petpeace_m1.png"
               alt="병원 모바일 랜딩페이지 UI"
               className="md:w-[360px] xs:w-full z-10 md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
             />
             <img
+              data-aos="fade-down"
               src="petpeace_m1-1.png"
               alt="상세정보"
               className="md:w-[360px] xs:w-full md:-mt-8 xs:-mt-4 shadow-lg"
             />
           </div>
-          <div
-            ref={(el) => {
-              fadeinRefs.current[15] = el;
-            }}
-            className="flex flex-col flex-wrap md:gap-[100px] xs:gap-4 md:mt-[100px] xs:mt-10"
-          >
+          <div className="flex flex-col flex-wrap md:gap-[100px] xs:gap-4 md:mt-[100px] xs:mt-10">
             <img
+              data-aos="fade-up"
               src="petpeace_m2.png"
               alt="베이지 20 상품안내 페이지"
               className="md:w-[360px] xs:w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
             />
             <img
+              data-aos="fade-up"
               src="petpeace_m3.png"
               alt="베이지 20 전자청약가입 페이지"
               className="md:w-[360px] xs:w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
             />
           </div>
-          <div
-            ref={(el) => {
-              fadeinRefs.current[16] = el;
-            }}
-            className="flex flex-col flex-wrap md:gap-[100px] xs:gap-4"
-          >
+          <div className="flex flex-col flex-wrap md:gap-[100px] xs:gap-4">
             <img
+              data-aos="fade-up"
               src="petpeace_m4.png"
               alt="브랜드 스토리 페이지"
               className="md:w-[360px] xs:w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
             />
             <img
+              data-aos="fade-up"
               src="petpeace_m5.png"
               alt="장례시설 페이지"
               className="md:w-[360px] xs:w-full md:border-[6px] xs:border-4 md:rounded-3xl xs:rounded-xl border-yellow shadow-lg"
@@ -561,10 +472,8 @@ export default function Petpeace() {
           className="block object-cover w-full h-full md:hidden"
         />
         <div
-          ref={(el) => {
-            fadeinRefs.current[17] = el;
-          }}
-          className="absolute w-full text-center text-white -translate-x-1/2 -translate-y-1/2 xs:px-5 left-1/2 top-1/2"
+          data-aos="fade-up"
+          className="absolute w-full text-center text-white xs:px-5 left-0 md:top-[38%] xs:top-1/3"
         >
           <h2 className="font-serif font-normal md:mb-20 xs:mb-10 md:text-pt-section-title xs:text-pt-subtitle-xs">
             아름다운 동행, 아름다운 이별
