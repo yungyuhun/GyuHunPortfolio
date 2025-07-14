@@ -28,11 +28,6 @@ export default function SkyLife() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // 스크롤 차단
-      document.body.style.overflow = "hidden";
-      document.documentElement.style.overflow = "hidden"; // 추가
-      document.body.style.height = "100vh"; // 일부 브라우저 대응
-      document.documentElement.style.height = "100vh";
 
       if (!sessionStorage.getItem("skylifeReloaded")) {
         sessionStorage.setItem("skylifeReloaded", "true");
