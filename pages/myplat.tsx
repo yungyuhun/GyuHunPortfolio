@@ -24,6 +24,15 @@ export default function Myplat() {
     typeof window !== "undefined" ? window.innerWidth < 768 : false
   );
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (!sessionStorage.getItem("myplatReloaded")) {
+        sessionStorage.setItem("myplatReloaded", "true");
+        window.location.reload();
+      }
+    }
+  }, []);
+
   // 반응형
   useEffect(() => {
     const handleResize = () => {

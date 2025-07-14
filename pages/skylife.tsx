@@ -24,6 +24,15 @@ export default function SkyLife() {
 
   const [isMobile, setIsMobile] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (!sessionStorage.getItem("skylifeReloaded")) {
+        sessionStorage.setItem("skylifeReloaded", "true");
+        window.location.reload();
+      }
+    }
+  }, []);
+
   // 반응형 처리
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);

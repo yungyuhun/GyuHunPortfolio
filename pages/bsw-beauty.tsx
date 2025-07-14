@@ -41,6 +41,15 @@ export default function BSW() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (!sessionStorage.getItem("bswReloaded")) {
+        sessionStorage.setItem("bswReloaded", "true");
+        window.location.reload();
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener("resize", handleResize);
@@ -57,12 +66,12 @@ export default function BSW() {
 
     function setupFadein() {
       const targets = fadeinRefs.current.slice(0, fadeinLength);
-      if (targets.length !== fadeinLength || targets.some(el => !el)) {
+      if (targets.length !== fadeinLength || targets.some((el) => !el)) {
         retryTimeout = setTimeout(setupFadein, 50);
         return;
       }
       // 기존 Tween 정리
-      fadeTweens.forEach(t => t.kill());
+      fadeTweens.forEach((t) => t.kill());
       fadeTweens = [];
       targets.forEach((el) => {
         if (!el) return;
@@ -104,11 +113,10 @@ export default function BSW() {
 
     return () => {
       if (retryTimeout) clearTimeout(retryTimeout);
-      fadeTweens.forEach(t => t.kill());
-      ScrollTrigger.getAll().forEach(st => st.kill());
+      fadeTweens.forEach((t) => t.kill());
+      ScrollTrigger.getAll().forEach((st) => st.kill());
     };
   }, [isMobile]);
-
 
   return (
     <div className="relative w-full min-h-screen bg-white">

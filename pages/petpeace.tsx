@@ -17,6 +17,15 @@ export default function Petpeace() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (!sessionStorage.getItem("petpeaceReloaded")) {
+        sessionStorage.setItem("petpeaceReloaded", "true");
+        window.location.reload();
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
