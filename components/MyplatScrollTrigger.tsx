@@ -90,7 +90,7 @@ export default function MyplatScrollTrigger({
   return (
     <section
       ref={sectionRef}
-      className="relative flex flex-col items-center justify-center w-full overflow-hidden bg-white"
+      className="relative flex flex-col items-center justify-center w-full max-w-full overflow-hidden bg-white"
     >
       <div
         ref={el => {

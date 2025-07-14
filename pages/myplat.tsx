@@ -11,7 +11,6 @@ import MyplatSubPageScroll from "@/components/MyplatSubPageScroll";
 import MyplatTextGradient from "@/components/MyplatTextGradient";
 import MyplatAdmin from "@/components/MyplatAdmin";
 import MyplatMobile from "@/components/MyplatMobile";
-import Loading from "@/components/Loading";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,38 +19,21 @@ export default function Myplat() {
   const fadeinRefs = useRef<(HTMLDivElement | null)[]>([]);
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeTextRef = useRef<HTMLDivElement>(null);
-  const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(
     typeof window !== "undefined" ? window.innerWidth < 768 : false
   );
 
-  // 새로고침 및 로딩 처리
+  // 새로고침
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      // 스크롤 차단
-      document.body.style.overflow = "hidden";
-      document.documentElement.style.overflow = "hidden"; // 추가
-      document.body.style.height = "100vh"; // 일부 브라우저 대응
-      document.documentElement.style.height = "100vh";
+    if (typeof window === "undefined") return;
 
-      if (!sessionStorage.getItem("myplatReloaded")) {
-        sessionStorage.setItem("myplatReloaded", "true");
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
-      } else {
-        const timer = setTimeout(() => {
-          setLoading(false);
+    const reloaded = sessionStorage.getItem("myplatReloaded");
 
-          // 스크롤 복구
-          document.body.style.overflow = "";
-          document.documentElement.style.overflow = "";
-          document.body.style.height = "";
-          document.documentElement.style.height = "";
-        }, 2000);
-
-        return () => clearTimeout(timer);
-      }
+    if (!reloaded) {
+      sessionStorage.setItem("myplatReloaded", "true");
+      window.location.reload();
+    } else {
+      sessionStorage.removeItem("myplatReloaded");
     }
   }, []);
 
@@ -314,8 +296,6 @@ export default function Myplat() {
       </section>
 
       <Footer />
-
-      {loading && <Loading />}
     </div>
   );
 }
