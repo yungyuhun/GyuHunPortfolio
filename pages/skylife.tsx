@@ -5,16 +5,16 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function SkyLife() {
-  const fadeinRefs = useRef<(HTMLDivElement | null)[]>([]);
   const sectionRef = useRef<HTMLDivElement>(null);
   const textRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeTextRef = useRef<HTMLDivElement>(null);
-  const topTitleRef = useRef<HTMLDivElement>(null);
 
   const subImages = [
     ["/skylife_sub1.png", "/skylife_sub2.png"],
@@ -23,13 +23,11 @@ export default function SkyLife() {
   ];
 
   const [isMobile, setIsMobile] = useState(false);
-  
+
   // 새로고침
   useEffect(() => {
     if (typeof window === "undefined") return;
-
     const reloaded = sessionStorage.getItem("skylifeReloaded");
-
     if (!reloaded) {
       sessionStorage.setItem("skylifeReloaded", "true");
       window.location.reload();
@@ -49,50 +47,36 @@ export default function SkyLife() {
   // 모바일이면 2개만, 아니면 전체
   const visibleCols = isMobile ? 2 : subImages.length;
 
-  // Section별 실제 fadein 인덱스
-  // (아래는 예시, 실제 섹션 구조에 맞게 조정)
-  const section6FadeinIndexes = isMobile
-    ? [7, 8, 9, 10, 11] // 모바일: 타이틀(7) + 2col*2row(8~11)
-    : [7, 8, 9, 10, 11, 12, 13]; // 데스크탑: 타이틀(7) + 3col*2row(8~13)
+  // AOS 초기화
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
-  // Section 8(Design System) 인덱스
-  const section8Indexes = [14, 15, 16, 17, 18, 19];
+    AOS.init({
+      duration: 1000,
+      once: false,
+      offset: isMobile ? 200 : 500,
+      easing: "ease-out-cubic",
+    });
 
-  // 기타 섹션 fadein 인덱스 (예시)
-  const otherFadeinIndexes = [
-    0,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6, // Section 2~5 등
-    ...section6FadeinIndexes,
-    20,
-    21,
-    22,
-    23,
-    24,
-    25,
-    26,
-    27,
-    28,
-    29,
-    30,
-    31,
-  ];
+    // 레이아웃 변동 대응
+    setTimeout(() => {
+      AOS.refresh();
+    }, 100);
 
-  // GSAP 애니메이션 (Section 8 제외)
+    return () => {
+      AOS.refreshHard();
+    };
+  }, [isMobile]);
+
+  // GSAP 애니메이션 (텍스트 그라데이션 & 마퀴)
   useEffect(() => {
     let retryTimeout: ReturnType<typeof setTimeout> | null = null;
-    let fadeTweens: gsap.core.Tween[] = [];
     let textTrigger: ScrollTrigger | null = null;
     let marqueeTween: gsap.core.Tween | null = null;
 
     function setupGsap() {
-      // 모든 실제 렌더된 인덱스의 ref가 준비됐는지 체크
+      // 텍스트 그라데이션용 ref 준비됐는지 체크
       if (
-        otherFadeinIndexes.some((idx) => !fadeinRefs.current[idx]) ||
         !sectionRef.current ||
         textRefs.current.length < 3 ||
         textRefs.current.some((el) => !el)
@@ -127,29 +111,6 @@ export default function SkyLife() {
           );
         },
       });
-
-      // 실제 렌더된 요소만 애니메이션
-      fadeTweens = otherFadeinIndexes
-        .map((idx) => {
-          const el = fadeinRefs.current[idx];
-          if (!el) return null;
-          return gsap.fromTo(
-            el,
-            { opacity: 0, y: 60 },
-            {
-              opacity: 1,
-              y: 0,
-              ease: "power3.out",
-              scrollTrigger: {
-                trigger: el,
-                start: "top 60%",
-                end: "top 25%",
-                scrub: 0.8,
-              },
-            }
-          );
-        })
-        .filter(Boolean) as gsap.core.Tween[];
 
       // 마퀴 애니메이션
       const marqueeContainer = marqueeRef.current;
@@ -186,67 +147,14 @@ export default function SkyLife() {
       }
     }
 
-    // 상단 타이틀 Fade-in
-    if (topTitleRef.current) {
-      gsap.fromTo(
-        topTitleRef.current,
-        { opacity: 0, y: 100 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: "power3.out",
-        }
-      );
-    }
-
     setupGsap();
 
     return () => {
       if (retryTimeout) clearTimeout(retryTimeout);
-      fadeTweens.forEach((t) => t && t.kill());
       textTrigger?.kill();
       marqueeTween?.kill();
       ScrollTrigger.getAll().forEach((t) => t.kill());
       if (marqueeRef.current) marqueeRef.current.style.transform = "";
-    };
-  }, [isMobile, otherFadeinIndexes.join(",")]); // 인덱스 배열이 바뀌면 재실행
-
-  // Section 8(Design System) 페이드인 애니메이션 전용
-  useEffect(() => {
-    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
-
-    function setupSection8Fadein() {
-      const targets = section8Indexes.map((idx) => fadeinRefs.current[idx]);
-      if (targets.some((el) => !el)) {
-        retryTimeout = setTimeout(setupSection8Fadein, 50);
-        return;
-      }
-      targets.forEach((el) => {
-        if (!el) return;
-        gsap.fromTo(
-          el,
-          { opacity: 0, y: 60 },
-          {
-            opacity: 1,
-            y: 0,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: el,
-              start: "top 60%",
-              end: "top 25%",
-              scrub: 0.8,
-            },
-          }
-        );
-      });
-    }
-
-    setupSection8Fadein();
-
-    return () => {
-      if (retryTimeout) clearTimeout(retryTimeout);
-      ScrollTrigger.getAll().forEach((st) => st.kill());
     };
   }, [isMobile]);
 
@@ -260,7 +168,7 @@ export default function SkyLife() {
           className="absolute inset-0 z-0 object-cover w-full h-full"
         />
         <div
-          ref={topTitleRef}
+          data-aos="fade-up"
           className="absolute inset-0 z-10 flex flex-col items-center justify-center"
         >
           <p className="font-sans font-light text-white md:text-pt-subsection-title xs:text-pt-subtitle-xs">
@@ -281,9 +189,7 @@ export default function SkyLife() {
       {/* Section 2 : 프로젝트 설명 */}
       <section className="relative md:py-[200px] bg-white xs:py-20">
         <div
-          ref={(el) => {
-            fadeinRefs.current[0] = el;
-          }}
+          data-aos="fade-up"
           className="flex justify-between max-w-[1440px] md:mx-auto md:flex-row xs:flex-col xs:mx-5"
         >
           <div className="flex flex-wrap gap-4 md:flex-row md:max-w-xl xs:max-w-full xs:flex-col">
@@ -366,6 +272,7 @@ export default function SkyLife() {
         className="flex flex-col items-center justify-center gap-10 md:min-h-screen xs:min-h-0 md:py-0 xs:py-20 bg-background-green"
       >
         <img
+          data-aos="fade"
           src="/skylife_logo.png"
           alt="SkyLife Logo"
           className="w-full md:max-w-xl xs:max-w-[240px]"
@@ -404,9 +311,7 @@ export default function SkyLife() {
       <section className="relative md:min-h-screen xs:min-h-0 md:py-[200px] xs:py-20 bg-white">
         <div className="max-w-[1440px] flex flex-col items-center justify-center md:mx-auto xs:mx-5">
           <div
-            ref={(el) => {
-              fadeinRefs.current[1] = el;
-            }}
+            data-aos="fade-up"
             className="relative z-0 w-full overflow-hidden"
           >
             <span
@@ -418,9 +323,7 @@ export default function SkyLife() {
             </span>
           </div>
           <div
-            ref={(el) => {
-              fadeinRefs.current[2] = el;
-            }}
+            data-aos="fade-up"
             className="relative z-10 pointer-events-none select-none md:-mt-8 xs:-mt-4"
           >
             <img src="/macbook.png" alt="Macbook Mockup" className="w-full" />
@@ -445,9 +348,7 @@ export default function SkyLife() {
         <div className="max-w-[1440px] md:mx-auto xs:mx-5 flex flex-col items-center md:gap-[100px] xs:gap-10">
           {/* 상단 타이틀 */}
           <div
-            ref={(el) => {
-              fadeinRefs.current[3] = el;
-            }}
+            data-aos="fade-up"
             className="flex justify-between w-full md:flex-row xs:flex-col md:gap-0 xs:gap-4"
           >
             <h3 className="font-sans font-bold md:text-pt-section-title xs:text-pt-section-title-xs">
@@ -462,9 +363,7 @@ export default function SkyLife() {
           </div>
           {/* 리뷰 Swiper 영상 */}
           <div
-            ref={(el) => {
-              fadeinRefs.current[4] = el;
-            }}
+            data-aos="fade-up"
             className="w-full max-w-[1440px] bg-white border-2 border-deepLight md:rounded-xl xs:rounded-lg overflow-hidden"
           >
             <video
@@ -479,9 +378,7 @@ export default function SkyLife() {
           </div>
           {/* 혜택 Swiper 영상 */}
           <div
-            ref={(el) => {
-              fadeinRefs.current[5] = el;
-            }}
+            data-aos="fade-up"
             className="w-full max-w-[1440px] bg-white border-2 border-deepLight md:rounded-xl xs:rounded-lg overflow-hidden"
           >
             <video
@@ -496,9 +393,7 @@ export default function SkyLife() {
           </div>
           {/* 포인트 Swiper 영상 */}
           <div
-            ref={(el) => {
-              fadeinRefs.current[6] = el;
-            }}
+            data-aos="fade-up"
             className="w-full max-w-[1440px] bg-white border-2 border-deepLight md:rounded-xl xs:rounded-lg overflow-hidden"
           >
             <video
@@ -519,9 +414,7 @@ export default function SkyLife() {
         <div className="max-w-[1440px] md:mx-auto xs:mx-5 flex flex-col items-center md:gap-[100px] xs:gap-10">
           {/* 상단 타이틀 */}
           <div
-            ref={(el) => {
-              fadeinRefs.current[7] = el;
-            }}
+            data-aos="fade-up"
             className="flex justify-between w-full md:flex-row xs:flex-col md:gap-0 xs:gap-4"
           >
             <h3 className="font-sans font-bold md:text-pt-section-title xs:text-pt-section-title-xs">
@@ -538,14 +431,12 @@ export default function SkyLife() {
             {subImages.slice(0, visibleCols).map((col, colIdx) => (
               <div key={colIdx} className="flex flex-col md:gap-10 xs:gap-4">
                 {col.map((src, rowIdx) => {
-                  const flatIdx = colIdx * 2 + rowIdx; // 0~5
                   return (
                     <div
                       key={src}
-                      ref={(el) => {
-                        fadeinRefs.current[8 + flatIdx] = el;
-                      }}
                       className="flex flex-row items-center justify-center overflow-hidden"
+                      data-aos="fade-up"
+                      data-aos-delay={rowIdx * 100}
                     >
                       <img
                         src={src}
@@ -575,9 +466,7 @@ export default function SkyLife() {
         <div className="max-w-[1440px] md:mx-auto xs:mx-5 flex flex-col items-center md:gap-[100px] xs:gap-10">
           {/* 상단 타이틀 - Colors */}
           <div
-            ref={(el) => {
-              fadeinRefs.current[14] = el;
-            }}
+            data-aos="fade-up"
             className="flex justify-between w-full md:flex-row xs:flex-col md:gap-0 xs:gap-4"
           >
             <h3 className="font-sans font-bold md:text-pt-section-title xs:text-pt-section-title-xs">
@@ -590,12 +479,7 @@ export default function SkyLife() {
               기반의 디자인 시스템을 구축하였습니다.
             </p>
           </div>
-          <div
-            ref={(el) => {
-              fadeinRefs.current[15] = el;
-            }}
-            className="flex w-full"
-          >
+          <div data-aos="fade-up" className="flex w-full">
             <img
               src="/skylife_color.png"
               alt="Color System"
@@ -604,9 +488,7 @@ export default function SkyLife() {
           </div>
           {/* 상단 타이틀 - Icons */}
           <div
-            ref={(el) => {
-              fadeinRefs.current[16] = el;
-            }}
+            data-aos="fade-up"
             className="flex w-full md:mt-[100px] xs:mt-10"
           >
             <h3 className="font-sans font-bold md:text-pt-section-title xs:text-pt-section-title-xs">
@@ -614,9 +496,7 @@ export default function SkyLife() {
             </h3>
           </div>
           <div
-            ref={(el) => {
-              fadeinRefs.current[17] = el;
-            }}
+            data-aos="fade-up"
             className="grid w-full gap-10 md:grid-cols-2 xs:grid-cols-1"
           >
             <div className="flex flex-col gap-6">
@@ -642,9 +522,7 @@ export default function SkyLife() {
           </div>
           {/* 상단 타이틀 - Components */}
           <div
-            ref={(el) => {
-              fadeinRefs.current[18] = el;
-            }}
+            data-aos="fade-up"
             className="flex w-full md:mt-[100px] xs:mt-10"
           >
             <h3 className="font-sans font-bold md:text-pt-section-title xs:text-pt-section-title-xs">
@@ -652,9 +530,7 @@ export default function SkyLife() {
             </h3>
           </div>
           <div
-            ref={(el) => {
-              fadeinRefs.current[19] = el;
-            }}
+            data-aos="fade-up"
             className="grid w-full gap-10 md:grid-cols-2 xs:grid-cols-1"
           >
             <div className="flex flex-col gap-6">
@@ -706,17 +582,13 @@ export default function SkyLife() {
         {/* 상단 텍스트 */}
         <div className="w-full max-w-[1440px] mx-auto ">
           <h3
-            ref={(el) => {
-              fadeinRefs.current[20] = el;
-            }}
+            data-aos="fade-up"
             className="block font-sans font-bold text-white md:text-pt-section-title xs:text-pt-section-title-xs mb-14 md:mx-0 xs:mx-5"
           >
             Mobile Design
           </h3>
           <div
-            ref={(el) => {
-              fadeinRefs.current[21] = el;
-            }}
+            data-aos="fade-up"
             className="relative flex justify-center w-full mx-auto md:max-w-2xl xs:max-w-xs"
           >
             <img
@@ -726,14 +598,13 @@ export default function SkyLife() {
             />
           </div>
           <div
-            ref={(el) => {
-              fadeinRefs.current[22] = el;
-            }}
+            data-aos="fade-up"
             className="absolute left-0 w-full overflow-hidden pointer-events-none select-none"
           >
             <div ref={marqueeRef} className="flex whitespace-nowrap">
               <div
                 ref={marqueeTextRef}
+                data-aos="fade-left"
                 className="inline-block font-bold font-inter md:text-inter-title xs:text-inter-title-xs text-white/40 whitespace-nowrap"
               >
                 Connect for Happy Life, KT SkyLife
@@ -755,12 +626,11 @@ export default function SkyLife() {
               return (
                 <div
                   key={i}
-                  ref={(el) => {
-                    fadeinRefs.current[23 + i] = el;
-                  }}
                   className={`flex items-center justify-center overflow-hidden xs:max-h-[460px] md:max-h-[800px] md:rounded-3xl xs:rounded-xl w-full${
                     marginClass ? " " + marginClass : ""
                   }`}
+                  data-aos="fade-up"
+                  data-aos-delay={i * 100}
                 >
                   <img
                     src={src}
@@ -787,12 +657,11 @@ export default function SkyLife() {
               return (
                 <div
                   key={i}
-                  ref={(el) => {
-                    fadeinRefs.current[27 + i] = el;
-                  }}
                   className={`flex items-center justify-center overflow-hidden xs:max-h-[460px] md:max-h-[800px] md:rounded-3xl xs:rounded-xl w-full${
                     marginClass ? " " + marginClass : ""
                   }`}
+                  data-aos="fade-up"
+                  data-aos-delay={i * 100}
                 >
                   <img
                     src={src}
@@ -804,6 +673,7 @@ export default function SkyLife() {
               );
             })}
           </div>
+
           <div className="absolute left-0 z-10 w-screen pointer-events-none xs:bottom-20 md:bottom-40 h-60 bg-gradient-to-t from-background-green to-transparent" />
         </div>
       </section>
@@ -821,9 +691,7 @@ export default function SkyLife() {
           className="block object-cover w-full h-full md:hidden"
         />
         <div
-          ref={(el) => {
-            fadeinRefs.current[31] = el;
-          }}
+          data-aos="fade-up"
           className="absolute inset-0 z-10 flex flex-col items-center justify-center md:gap-8 xs:gap-4"
         >
           <img

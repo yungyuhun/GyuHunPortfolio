@@ -33,6 +33,18 @@ export default function Petpeace() {
     "/petpeace_sub15.png",
   ];
 
+  // 새로고침
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const reloaded = sessionStorage.getItem("skylifeReloaded");
+    if (!reloaded) {
+      sessionStorage.setItem("skylifeReloaded", "true");
+      window.location.reload();
+    } else {
+      sessionStorage.removeItem("skylifeReloaded");
+    }
+  }, []);
+
   // 반응형 체크
   useEffect(() => {
     const handleResize = () => {
