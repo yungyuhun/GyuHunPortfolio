@@ -5,6 +5,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
+import Loading from "@/components/Loading";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,6 +16,7 @@ export default function SkyLife() {
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeTextRef = useRef<HTMLDivElement>(null);
   const topTitleRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(true);
 
   const subImages = [
     ["/skylife_sub1.png", "/skylife_sub2.png"],
@@ -26,9 +28,29 @@ export default function SkyLife() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      // 스크롤 차단
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden"; // 추가
+      document.body.style.height = "100vh"; // 일부 브라우저 대응
+      document.documentElement.style.height = "100vh";
+
       if (!sessionStorage.getItem("skylifeReloaded")) {
         sessionStorage.setItem("skylifeReloaded", "true");
-        window.location.reload();
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      } else {
+        const timer = setTimeout(() => {
+          setLoading(false);
+
+          // 스크롤 복구
+          document.body.style.overflow = "";
+          document.documentElement.style.overflow = "";
+          document.body.style.height = "";
+          document.documentElement.style.height = "";
+        }, 2000);
+
+        return () => clearTimeout(timer);
       }
     }
   }, []);
@@ -835,6 +857,8 @@ export default function SkyLife() {
       </section>
 
       <Footer />
+
+      {loading && <Loading />}
     </div>
   );
 }

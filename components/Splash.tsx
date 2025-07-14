@@ -23,7 +23,7 @@ export default function Splash({ onComplete }: { onComplete: () => void }) {
       tl.to(textRef.current, {
         strokeDasharray: "100% 0",
         strokeDashoffset: "0%",
-        duration: 3,
+        duration: 2.5,
         ease: "power3.out",
         onComplete: () => {
           gsap.set(textRef.current, {

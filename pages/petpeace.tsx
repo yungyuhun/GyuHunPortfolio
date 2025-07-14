@@ -5,6 +5,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
+import Loading from "@/components/Loading";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,14 +14,35 @@ export default function Petpeace() {
   const topTitleRef = useRef<HTMLDivElement>(null);
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeTextRef = useRef<HTMLDivElement>(null);
-
+  const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
+  // 새로고침 및 로딩 처리
   useEffect(() => {
     if (typeof window !== "undefined") {
+      // 스크롤 차단
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden"; // 추가
+      document.body.style.height = "100vh"; // 일부 브라우저 대응
+      document.documentElement.style.height = "100vh";
+
       if (!sessionStorage.getItem("petpeaceReloaded")) {
         sessionStorage.setItem("petpeaceReloaded", "true");
-        window.location.reload();
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      } else {
+        const timer = setTimeout(() => {
+          setLoading(false);
+
+          // 스크롤 복구
+          document.body.style.overflow = "";
+          document.documentElement.style.overflow = "";
+          document.body.style.height = "";
+          document.documentElement.style.height = "";
+        }, 2000);
+
+        return () => clearTimeout(timer);
       }
     }
   }, []);
@@ -574,6 +596,8 @@ export default function Petpeace() {
       </section>
 
       <Footer />
+
+      {loading && <Loading />}
     </div>
   );
 }

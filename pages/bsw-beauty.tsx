@@ -5,6 +5,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
+import Loading from "@/components/Loading";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -39,12 +40,34 @@ export default function BSW() {
   const fadeinRefs = useRef<(HTMLDivElement | null)[]>([]);
   const topTitleRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  // 새로고침 및 로딩 처리
   useEffect(() => {
     if (typeof window !== "undefined") {
+      // 스크롤 차단
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden"; // 추가
+      document.body.style.height = "100vh"; // 일부 브라우저 대응
+      document.documentElement.style.height = "100vh";
+
       if (!sessionStorage.getItem("bswReloaded")) {
         sessionStorage.setItem("bswReloaded", "true");
-        window.location.reload();
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      } else {
+        const timer = setTimeout(() => {
+          setLoading(false);
+
+          // 스크롤 복구
+          document.body.style.overflow = "";
+          document.documentElement.style.overflow = "";
+          document.body.style.height = "";
+          document.documentElement.style.height = "";
+        }, 2000);
+
+        return () => clearTimeout(timer);
       }
     }
   }, []);
@@ -719,6 +742,8 @@ export default function BSW() {
       </section>
 
       <Footer />
+
+      {loading && <Loading />}
     </div>
   );
 }
