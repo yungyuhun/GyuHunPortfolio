@@ -1,5 +1,5 @@
 import type { AppProps } from "next/app";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Splash from "@/components/Splash";
 import "../styles/globals.css";
@@ -7,11 +7,13 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import Head from "next/head";
+import Lenis from "lenis";
 
 export default function App({ Component, pageProps }: AppProps) {
   const [showSplash, setShowSplash] = useState(true);
   const [indexScrollY, setIndexScrollY] = useState(0);
   const router = useRouter();
+  const lenisRef = useRef<Lenis | null>(null);
 
   const isIndex = router.pathname === "/";
 
@@ -24,7 +26,11 @@ export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
     if (!isIndex) {
       setIndexScrollY(window.scrollY);
-      window.scrollTo(0, 0);
+      if (lenisRef.current) {
+        lenisRef.current.scrollTo(0, { immediate: true });
+      } else {
+        window.scrollTo(0, 0);
+      }
     }
   }, [router.pathname, isIndex]);
 
@@ -33,14 +39,58 @@ export default function App({ Component, pageProps }: AppProps) {
     if (isIndex && indexScrollY > 0) {
       let rafId: number;
       const restoreScroll = () => {
-        window.scrollTo(0, indexScrollY);
+        if (lenisRef.current) {
+          lenisRef.current.scrollTo(indexScrollY, { immediate: true });
+        } else {
+          window.scrollTo(0, indexScrollY);
+        }
       };
       rafId = requestAnimationFrame(restoreScroll);
 
-      // cleanup
       return () => cancelAnimationFrame(rafId);
     }
   }, [isIndex, indexScrollY]);
+
+  // Lenis 인스턴스 및 스크롤 관리
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const lenis = new Lenis({
+      lerp: 0.05,
+      duration: 3,
+      smoothWheel: true,
+      infinite: false,
+    });
+    lenisRef.current = lenis;
+
+    let running = true;
+    let requestId: number;
+
+    function raf(time: number) {
+      if (!running) return;
+      lenis.raf(time);
+      requestId = requestAnimationFrame(raf);
+    }
+    requestId = requestAnimationFrame(raf);
+
+    // Splash 상태에 따라 스크롤 제어
+    if (showSplash) {
+      lenis.stop();
+      document.body.style.overflow = "hidden";
+    } else {
+      lenis.start();
+      document.body.style.overflow = "auto";
+    }
+
+    // cleanup
+    return () => {
+      running = false;
+      cancelAnimationFrame(requestId);
+      lenis.destroy();
+      document.body.style.overflow = "auto";
+      lenisRef.current = null;
+    };
+  }, [showSplash]);
 
   // Splash가 끝나기 전에는 메인 컴포넌트 렌더링하지 않음
   return (
