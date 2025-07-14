@@ -15,15 +15,6 @@ export default function Petpeace() {
   const marqueeTextRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   const topImages = [
     "/petpeace_sub5.png",
     "/petpeace_sub6.png",
@@ -42,10 +33,19 @@ export default function Petpeace() {
     "/petpeace_sub15.png",
   ];
 
+  // 반응형 체크
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // AOS 초기화
   useEffect(() => {
     if (typeof window === "undefined") return;
-
-    const isMobile = window.innerWidth < 768; // 모바일 기준
 
     AOS.init({
       duration: 1000,
@@ -53,9 +53,18 @@ export default function Petpeace() {
       offset: isMobile ? 200 : 500,
       easing: "ease-out-cubic",
     });
-    AOS.refresh();
-  }, []);
 
+    // 레이아웃 변동 대응
+    setTimeout(() => {
+      AOS.refresh();
+    }, 100);
+
+    return () => {
+      AOS.refreshHard();
+    };
+  }, [isMobile]);
+
+  // GSAP marquee 애니메이션
   useEffect(() => {
     let marqueeTween: gsap.core.Tween | null = null;
 
@@ -63,7 +72,6 @@ export default function Petpeace() {
       const marqueeContainer = marqueeRef.current;
       const marqueeText = marqueeTextRef.current;
       if (marqueeContainer && marqueeText) {
-        // 기존 텍스트 클론 및 스타일 처리
         while (marqueeContainer.children.length > 1) {
           marqueeContainer.removeChild(marqueeContainer.lastChild!);
         }
