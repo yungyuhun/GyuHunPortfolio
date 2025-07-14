@@ -63,63 +63,49 @@ export default function Myplat() {
 
   // 텍스트 그라데이션 애니메이션
   useEffect(() => {
-    let textTrigger: ScrollTrigger | null = null;
-    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+    const timeout = setTimeout(() => {
+      const ctx = gsap.context(() => {
+        if (!sectionRef2.current || textRefs.current.some((el) => !el)) return;
 
-    function setupGsap() {
-      if (
-        !sectionRef2.current ||
-        textRefs.current.length < 3 ||
-        textRefs.current.some((el) => !el)
-      ) {
-        retryTimeout = setTimeout(setupGsap, 50);
-        return;
-      }
-
-      textRefs.current.forEach(
-        (el) =>
-          el &&
+        textRefs.current.forEach((el) => {
+          if (!el) return;
           gsap.set(el, {
             backgroundSize: "0% 100%",
             backgroundPosition: "left center",
             opacity: 1.2,
-          })
-      );
+          });
+        });
 
-      textTrigger = ScrollTrigger.create({
-        trigger: sectionRef2.current,
-        start: "-100% top",
-        end: "bottom bottom",
-        scrub: true,
-        onUpdate: ({ progress }) => {
-          textRefs.current.forEach(
-            (el) =>
-              el &&
+        ScrollTrigger.create({
+          trigger: sectionRef2.current,
+          start: "-100% top",
+          end: "bottom bottom",
+          scrub: true,
+          onUpdate: ({ progress }) => {
+            textRefs.current.forEach((el) => {
+              if (!el) return;
               gsap.set(el, {
                 backgroundSize: `${progress * 100}% 100%`,
-                backgroundPosition: "left center",
                 opacity: 1 + progress * 2,
-              })
-          );
-        },
+              });
+            });
+          },
+        });
       });
-    }
 
-    setupGsap();
+      return () => ctx.revert();
+    }, 100);
 
-    return () => {
-      if (retryTimeout) clearTimeout(retryTimeout);
-      if (textTrigger) textTrigger.kill();
-    };
+    return () => clearTimeout(timeout);
   }, []);
 
   // 스크롤 연동 애니메이션
   useEffect(() => {
-    if (!sectionRef.current) return;
-    const yValue = isMobile ? "110px" : "280px";
-    let ctx: gsap.Context | undefined;
+    const ctx = gsap.context(() => {
+      if (!sectionRef.current) return;
 
-    ctx = gsap.context(() => {
+      const yValue = isMobile ? "110px" : "280px";
+
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -134,12 +120,17 @@ export default function Myplat() {
         .to(bottomTextRef.current, { y: `-${yValue}`, ease: "power2.out" }, 0)
         .to(
           [topTextRef.current, bottomTextRef.current],
-          { color: "#fff", ease: "none" },
+          {
+            color: "#fff",
+            ease: "none",
+          },
           ">-0.5"
         )
         .fromTo(
           imgRef.current,
-          { borderRadius: "9999px" },
+          {
+            borderRadius: "9999px",
+          },
           {
             scale: 2,
             opacity: 0,
@@ -150,38 +141,41 @@ export default function Myplat() {
         )
         .to(
           sectionRef.current,
-          { backgroundColor: "#4A4AD3", ease: "none" },
+          {
+            backgroundColor: "#4A4AD3",
+            ease: "none",
+          },
           "<"
         );
-    }, sectionRef);
+    });
 
-    return () => {
-      ctx && ctx.revert();
-    };
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+
+    return () => ctx.revert();
   }, [isMobile]);
 
   // 페이드인 및 마퀴 애니메이션
   useEffect(() => {
-    // 타이틀 Fade-in
-    let topTitleTween: gsap.core.Tween | undefined;
-    if (topTitleRef.current) {
-      topTitleTween = gsap.fromTo(
-        topTitleRef.current,
-        { opacity: 0, y: 100 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: "power3.out",
-        }
-      );
-    }
+    const ctx = gsap.context(() => {
+      // 타이틀 fade-in
+      if (topTitleRef.current) {
+        gsap.fromTo(
+          topTitleRef.current,
+          { opacity: 0, y: 100 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: "power3.out",
+          }
+        );
+      }
 
-    // Fade-in 애니메이션 (스크롤 트리거)
-    const fadeTweens: gsap.core.Tween[] = [];
-    fadeinRefs.current.forEach((el) => {
-      if (!el) return;
-      fadeTweens.push(
+      // 페이드인
+      fadeinRefs.current.forEach((el) => {
+        if (!el) return;
         gsap.fromTo(
           el,
           { opacity: 0, y: 60 },
@@ -196,41 +190,31 @@ export default function Myplat() {
               scrub: 0.8,
             },
           }
-        )
-      );
-    });
+        );
+      });
 
-    // 마퀴 텍스트 애니메이션
-    const marqueeContainer = marqueeRef.current;
-    const marqueeText = marqueeTextRef.current;
-    let marqueeTween: gsap.core.Tween | null = null;
-
-    function startMarquee() {
+      // 마퀴
+      const marqueeContainer = marqueeRef.current;
+      const marqueeText = marqueeTextRef.current;
       if (!marqueeContainer || !marqueeText) return;
-      if (marqueeTween) {
-        marqueeTween.kill();
-        marqueeTween = null;
-      }
-      while (marqueeContainer.children.length > 1) {
-        marqueeContainer.removeChild(marqueeContainer.lastChild!);
-      }
-      const textClone = marqueeText.cloneNode(true) as HTMLElement;
-      marqueeContainer.appendChild(textClone);
+
+      const gap = 60;
+      marqueeContainer.innerHTML = "";
+      marqueeContainer.style.gap = `${gap}px`;
 
       marqueeText.style.display = "inline-block";
+      const textClone = marqueeText.cloneNode(true) as HTMLElement;
       textClone.style.display = "inline-block";
-      const gap = 60;
-      marqueeContainer.style.gap = `${gap}px`;
+
+      marqueeContainer.appendChild(marqueeText);
+      marqueeContainer.appendChild(textClone);
 
       const textWidth = marqueeText.offsetWidth;
       const totalWidth = textWidth + gap;
 
-      if (textWidth === 0) {
-        setTimeout(startMarquee, 50);
-        return;
-      }
+      if (textWidth === 0) return;
 
-      marqueeTween = gsap.to(marqueeContainer, {
+      gsap.to(marqueeContainer, {
         x: `-=${totalWidth}`,
         duration: 18,
         ease: "none",
@@ -239,19 +223,19 @@ export default function Myplat() {
           x: gsap.utils.unitize((x) => parseFloat(x) % totalWidth),
         },
       });
-    }
+    });
 
-    startMarquee();
+    return () => ctx.revert();
+  }, []);
 
-    return () => {
-      topTitleTween?.kill();
-      fadeTweens.forEach((t) => t.kill());
-      if (marqueeTween) marqueeTween.kill();
-      if (marqueeContainer) {
-        marqueeContainer.style.transform = "";
-      }
-      ScrollTrigger.getAll().forEach((st) => st.kill());
-    };
+  useEffect(() => {
+    ScrollTrigger.refresh(); // 리사이즈 후 트리거 강제 업데이트
+  }, [isMobile]);
+
+  useEffect(() => {
+    ScrollTrigger.config({
+      autoRefreshEvents: "DOMContentLoaded,load,resize",
+    });
   }, []);
 
   return (
