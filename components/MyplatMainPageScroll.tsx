@@ -1,11 +1,10 @@
 "use client";
-import { useRef, useEffect, RefObject } from "react";
+import { useEffect, RefObject } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-// 타입 선언
 type MyplatMainPageScrollProps = {
   fadeinRefs: RefObject<(HTMLDivElement | null)[]>;
   index: number;
@@ -18,6 +17,7 @@ export default function MyplatMainPageScroll({
   useEffect(() => {
     const el = fadeinRefs.current?.[index];
     if (!el) return;
+
     const tween = gsap.fromTo(
       el,
       { opacity: 0, y: 60 },
@@ -33,6 +33,7 @@ export default function MyplatMainPageScroll({
         },
       }
     );
+
     return () => {
       tween.kill();
       ScrollTrigger.getAll().forEach((st) => st.kill());

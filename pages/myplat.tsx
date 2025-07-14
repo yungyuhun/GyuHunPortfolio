@@ -203,8 +203,11 @@ export default function Myplat() {
       </section>
 
       {/* Section 4 : 스크롤 트리거 애니메이션 */}
-      <MyplatScrollTrigger fadeinRefs={fadeinRefs} />
-
+      <MyplatScrollTrigger
+        fadeinRefs={fadeinRefs}
+        isMobile={isMobile}
+        fadeinIndex={3}
+      />
       {/* Section 5 : 마이플랫 메인 페이지 스크롤 이미지 */}
       <MyplatMainPageScroll fadeinRefs={fadeinRefs} index={1} />
 
