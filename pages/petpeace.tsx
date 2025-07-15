@@ -7,7 +7,6 @@ import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import Loading from "@/components/Loading";
 import imagesLoaded from "imagesloaded";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -69,9 +68,12 @@ export default function Petpeace() {
     init();
   }, []);
 
-  // AOS 초기화 (로딩 완료 후)
   useEffect(() => {
-    if (!isLoaded) return;
+    if (isLoaded) window.scrollTo(0, 0);
+    console.log("모두 불러옴!");
+
+    AOS.refreshHard();
+    ScrollTrigger.getAll().forEach((st) => st.kill());
 
     AOS.init({
       duration: 1000,
@@ -80,12 +82,19 @@ export default function Petpeace() {
       easing: "ease-out-cubic",
     });
 
-    setTimeout(() => {
+    let count = 0;
+    const maxRefresh = 8;
+    const interval = setInterval(() => {
       AOS.refresh();
-    }, 100);
+      ScrollTrigger.refresh();
+      count++;
+      if (count > maxRefresh) clearInterval(interval);
+    }, 150);
 
     return () => {
+      clearInterval(interval);
       AOS.refreshHard();
+      ScrollTrigger.getAll().forEach((st) => st.kill());
     };
   }, [isMobile, isLoaded]);
 
@@ -137,9 +146,6 @@ export default function Petpeace() {
       if (marqueeRef.current) marqueeRef.current.style.transform = "";
     };
   }, [isLoaded]);
-
-  // 로딩 중에는 Loading 컴포넌트만 렌더링
-  if (!isLoaded) return <Loading />;
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden bg-white">
