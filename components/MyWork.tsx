@@ -47,6 +47,7 @@ export default function MyWork() {
   const [cursorVisible, setCursorVisible] = useState(false);
 
   useEffect(() => {
+    // gsap context: cleanup 자동, SSR 안전
     const ctx = gsap.context(() => {
       const allPanels = gsap.utils.toArray<HTMLElement>(".panel");
 
@@ -88,14 +89,15 @@ export default function MyWork() {
 
   return (
     <div ref={sectionRef} className="relative w-full">
+      {/* 커스텀 커서(옵션) */}
       <CustomCursor visible={cursorVisible} />
 
       {panels.map((panel, index) => {
         const isInteractive = !!panel.path;
 
-        const content = (
+        // 안전: a태그+legacyBehavior 패턴
+        const SectionContent = (
           <section
-            key={index}
             className={`relative z-[${
               20 + index
             }] panel flex items-center justify-center w-full h-screen ${
@@ -103,6 +105,7 @@ export default function MyWork() {
             }`}
             onMouseEnter={() => isInteractive && setCursorVisible(true)}
             onMouseLeave={() => isInteractive && setCursorVisible(false)}
+            tabIndex={0}
           >
             {panel.image && (
               <img
@@ -120,7 +123,9 @@ export default function MyWork() {
               )}
               <h2
                 className={`font-sans font-semibold md:text-pt-title xs:text-pt-title-xs ${
-                  index === 0 ? "font-inter font-bold md:!text-inter-title xs:!text-inter-title=xs" : ""
+                  index === 0
+                    ? "font-inter font-bold md:!text-inter-title xs:!text-inter-title=xs"
+                    : ""
                 }`}
               >
                 {panel.title}
@@ -130,11 +135,11 @@ export default function MyWork() {
         );
 
         return isInteractive ? (
-          <Link key={index} href={panel.path}>
-            {content}
+          <Link key={index} href={panel.path} style={{ display: "block" }}>
+            {SectionContent}
           </Link>
         ) : (
-          content
+          <div key={index}>{SectionContent}</div>
         );
       })}
 

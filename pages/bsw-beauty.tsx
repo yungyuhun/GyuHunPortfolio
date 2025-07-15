@@ -7,7 +7,6 @@ import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import Loading from "@/components/Loading";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -39,7 +38,7 @@ const HQSubImages = [
 ];
 
 export default function BSW() {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [ready, setReady] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -49,47 +48,39 @@ export default function BSW() {
     return () => window.removeEventListener("resize", checkIsMobile);
   }, []);
 
-  // 전체 리소스 로드 확인 (이미지 + 폰트 + window.onload)
   useEffect(() => {
-    const loadAllAssets = async () => {
-      await new Promise<void>((resolve) => {
-        import("imagesloaded").then(({ default: imagesLoaded }) => {
-          imagesLoaded(document.body, { background: true }, () => resolve());
-        });
-      });
-
-      if (document.fonts) {
-        await document.fonts.ready;
-      }
-
-      await new Promise<void>((resolve) => {
-        if (document.readyState === "complete") resolve();
-        else window.addEventListener("load", () => resolve(), { once: true });
-      });
-
-      setIsLoaded(true);
-    };
-
-    loadAllAssets();
+    if (typeof window === "undefined") return;
+    if (!sessionStorage.getItem("petpeaceReloaded")) {
+      sessionStorage.setItem("petpeaceReloaded", "true");
+      window.location.reload();
+    }
   }, []);
 
-  // AOS 초기화 (로딩 완료 후)
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!ready) return;
+    if (typeof window === "undefined") return;
 
-    AOS.init({
-      duration: 1000,
-      once: false,
-      offset: isMobile ? 200 : 400,
-      easing: "ease-out-cubic",
-    });
+    try {
+      AOS.init({
+        duration: 1000,
+        once: false,
+        offset: isMobile ? 200 : 500,
+        easing: "ease-out-cubic",
+      });
+    } catch (error) {}
 
     setTimeout(() => {
-      AOS.refresh();
-    }, 100);
-  }, [isMobile, isLoaded]);
+      try {
+        AOS.refresh();
+      } catch (error) {}
+    }, 200);
 
-  if (!isLoaded) return <Loading />;
+    return () => {
+      try {
+        AOS.refreshHard();
+      } catch (error) {}
+    };
+  }, [isMobile, ready]);
 
   return (
     <div className="relative w-full min-h-screen bg-white">

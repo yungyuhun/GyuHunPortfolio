@@ -16,7 +16,6 @@ export default function Petpeace() {
 
   const [isMobile, setIsMobile] = useState(false);
   const [ready, setReady] = useState(true);
-  const [showReloadCover, setShowReloadCover] = useState(false);
 
   const topImages = [
     "/petpeace_sub5.png",
@@ -53,6 +52,7 @@ export default function Petpeace() {
       window.location.reload();
     }
   }, []);
+
   useEffect(() => {
     if (!ready) return;
     if (typeof window === "undefined") return;
@@ -61,27 +61,21 @@ export default function Petpeace() {
       AOS.init({
         duration: 1000,
         once: false,
-        offset: isMobile ? 100 : 200,
+        offset: isMobile ? 200 : 500,
         easing: "ease-out-cubic",
       });
-    } catch (error) {
-      console.error("AOS 초기화 에러:", error);
-    }
+    } catch (error) {}
 
     setTimeout(() => {
       try {
         AOS.refresh();
-      } catch (error) {
-        console.error("AOS refresh 에러:", error);
-      }
+      } catch (error) {}
     }, 200);
 
     return () => {
       try {
         AOS.refreshHard();
-      } catch (error) {
-        console.error("AOS 클린업 에러:", error);
-      }
+      } catch (error) {}
     };
   }, [isMobile, ready]);
 
