@@ -124,7 +124,7 @@ export default function BSW() {
   }, [isMobile]);
 
   return (
-    <div className="relative w-full min-h-screen overflow-hidden bg-white">
+    <div className="relative w-full min-h-screen bg-white">
       {/* Section 1 : 메인 이미지/타이틀 */}
       <section className="relative w-full h-screen overflow-hidden">
         <img
@@ -473,7 +473,7 @@ export default function BSW() {
       </section>
 
       {/* Section 10 : BSW HQ 로그인,회원가입 페이지 */}
-      <section className="flex flex-col items-center mx-auto bg-primary">
+      <section className="mx-auto bg-primary">
         <div
           ref={(el) => {
             fadeinRefs.current[11] = el;
