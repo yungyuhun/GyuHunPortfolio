@@ -7,17 +7,16 @@ import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import imagesLoaded from "imagesloaded";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Petpeace() {
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeTextRef = useRef<HTMLDivElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null); // 이미지 포함 영역 ref
 
   const [isMobile, setIsMobile] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [ready, setReady] = useState(true);
+  const [showReloadCover, setShowReloadCover] = useState(false);
 
   const topImages = [
     "/petpeace_sub5.png",
@@ -37,26 +36,6 @@ export default function Petpeace() {
     "/petpeace_sub15.png",
   ];
 
-  // 리소스 로딩 감지 (DOM + 이미지)
-  useEffect(() => {
-    const checkLoaded = () => {
-      if (!wrapperRef.current) return;
-      imagesLoaded(wrapperRef.current, { background: true }, () => {
-        setIsLoaded(true);
-      });
-    };
-
-    if (document.readyState === "complete") {
-      checkLoaded();
-    } else {
-      window.addEventListener("load", checkLoaded, { once: true });
-    }
-
-    return () => {
-      window.removeEventListener("load", checkLoaded);
-    };
-  }, []);
-
   // 반응형 체크
   useEffect(() => {
     const handleResize = () => {
@@ -67,36 +46,48 @@ export default function Petpeace() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // AOS 초기화
   useEffect(() => {
-    if (!isLoaded) return;
+    if (typeof window === "undefined") return;
+    if (!sessionStorage.getItem("petpeaceReloaded")) {
+      sessionStorage.setItem("petpeaceReloaded", "true");
+      window.location.reload();
+    }
+  }, []);
+  useEffect(() => {
+    if (!ready) return;
+    if (typeof window === "undefined") return;
 
-    window.scrollTo(0, 0); // 첫 로딩 시 스크롤 초기화
+    try {
+      AOS.init({
+        duration: 1000,
+        once: false,
+        offset: isMobile ? 100 : 200,
+        easing: "ease-out-cubic",
+      });
+    } catch (error) {
+      console.error("AOS 초기화 에러:", error);
+    }
 
-    AOS.init({
-      duration: 1000,
-      once: false,
-      offset: isMobile ? 200 : 500,
-      easing: "ease-out-cubic",
-    });
-
-    // 여러 번 refresh로 layout 안정화
-    let count = 0;
-    const interval = setInterval(() => {
-      AOS.refresh();
-      ScrollTrigger.refresh();
-      if (++count > 10) clearInterval(interval);
+    setTimeout(() => {
+      try {
+        AOS.refresh();
+      } catch (error) {
+        console.error("AOS refresh 에러:", error);
+      }
     }, 200);
 
     return () => {
-      clearInterval(interval);
-      AOS.refreshHard();
+      try {
+        AOS.refreshHard();
+      } catch (error) {
+        console.error("AOS 클린업 에러:", error);
+      }
     };
-  }, [isMobile, isLoaded]);
+  }, [isMobile, ready]);
 
-  // GSAP marquee
+  // GSAP marquee 애니메이션 (로딩 완료 후)
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!ready) return;
 
     let marqueeTween: gsap.core.Tween | null = null;
 
@@ -139,13 +130,10 @@ export default function Petpeace() {
       marqueeTween?.kill();
       if (marqueeRef.current) marqueeRef.current.style.transform = "";
     };
-  }, [isLoaded]);
+  }, [ready]);
 
   return (
-    <div
-      ref={wrapperRef}
-      className="relative w-full min-h-screen overflow-hidden bg-white"
-    >
+    <div className="relative w-full min-h-screen overflow-hidden bg-white">
       {/* Section 1 : 메인 이미지/타이틀 */}
       <section className="relative w-full h-screen overflow-hidden">
         <img
