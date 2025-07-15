@@ -1,26 +1,38 @@
+"use client";
+
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
 type MyplatScrollTriggerProps = {
-  fadeinRefs: React.RefObject<(HTMLDivElement | null)[]>;
   isMobile: boolean;
-  fadeinIndex: number;
 };
 
 export default function MyplatScrollTrigger({
-  fadeinRefs,
   isMobile,
-  fadeinIndex,
 }: MyplatScrollTriggerProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const topTextRef = useRef<HTMLHeadingElement>(null);
   const bottomTextRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // ScrollTrigger timeline
+  // AOS 초기화
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,
+      once: false,
+      offset: isMobile ? 200 : 400,
+      easing: "ease-out-cubic",
+    });
+
+    setTimeout(() => AOS.refresh(), 100);
+  }, [isMobile]);
+
+  // ScrollTrigger timeline (텍스트/이미지/배경 애니메이션)
   useEffect(() => {
     if (!sectionRef.current) return;
 
@@ -65,38 +77,14 @@ export default function MyplatScrollTrigger({
     return () => ctx.revert();
   }, [isMobile]);
 
-  // fadein 애니메이션 (필요시)
-  useEffect(() => {
-    const el = fadeinRefs.current?.[fadeinIndex];
-    if (el) {
-      gsap.fromTo(
-        el,
-        { opacity: 0, y: 60 },
-        {
-          opacity: 1,
-          y: 0,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: el,
-            start: "top 60%",
-            end: "top 25%",
-            scrub: 0.8,
-          },
-        }
-      );
-    }
-  }, [fadeinRefs, fadeinIndex]);
-
   return (
     <section
       ref={sectionRef}
       className="relative flex flex-col items-center justify-center w-full max-w-full overflow-hidden bg-white"
     >
       <div
-        ref={el => {
-          if (fadeinRefs.current) fadeinRefs.current[fadeinIndex] = el;
-        }}
         className="flex flex-col justify-center w-full md:max-w-[1440px] xs:max-w-full mx-auto xs:px-5 h-screen"
+        data-aos="fade-up"
       >
         <h2
           ref={topTextRef}
@@ -121,8 +109,7 @@ export default function MyplatScrollTrigger({
           ref={bottomTextRef}
           className="relative z-20 font-sans font-normal text-center md:mt-20 xs:mt-10 md:text-pt-subsection-title xs:text-lg text-primary"
         >
-          인재 아웃소싱의 풍부한 경험을 지닌 매칭 컨설턴트가 서비스를
-          제공하며,
+          인재 아웃소싱의 풍부한 경험을 지닌 매칭 컨설턴트가 서비스를 제공하며,
           <br className="hidden md:inline" />
           이해하고 소통해 나가는 플랫폼을 만들어 나가도록 하겠습니다.
           <br className="hidden md:inline" />

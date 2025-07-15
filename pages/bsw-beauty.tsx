@@ -5,6 +5,8 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -36,23 +38,7 @@ const HQSubImages = [
 ];
 
 export default function BSW() {
-  const fadeinRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const topTitleRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
-
-  // 새로고침
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const reloaded = sessionStorage.getItem("bswReloaded");
-
-    if (!reloaded) {
-      sessionStorage.setItem("bswReloaded", "true");
-      window.location.reload();
-    } else {
-      sessionStorage.removeItem("bswReloaded");
-    }
-  }, []);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -61,66 +47,15 @@ export default function BSW() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // GSAP 페이드인 애니메이션 (모든 Section)
   useEffect(() => {
-    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
-    let fadeTweens: gsap.core.Tween[] = [];
+    AOS.init({
+      duration: 1000,
+      once: false,
+      offset: isMobile ? 200 : 400,
+      easing: "ease-out-cubic",
+    });
 
-    // 필요한 fadeinRefs 개수 (마지막 인덱스 + 1)
-    const fadeinLength = 21; // 마지막 Section에서 사용하는 인덱스 + 1로 맞추세요
-
-    function setupFadein() {
-      const targets = fadeinRefs.current.slice(0, fadeinLength);
-      if (targets.length !== fadeinLength || targets.some((el) => !el)) {
-        retryTimeout = setTimeout(setupFadein, 50);
-        return;
-      }
-      // 기존 Tween 정리
-      fadeTweens.forEach((t) => t.kill());
-      fadeTweens = [];
-      targets.forEach((el) => {
-        if (!el) return;
-        fadeTweens.push(
-          gsap.fromTo(
-            el,
-            { opacity: 0, y: 60 },
-            {
-              opacity: 1,
-              y: 0,
-              ease: "power3.out",
-              scrollTrigger: {
-                trigger: el,
-                start: "top 60%",
-                end: "top 25%",
-                scrub: 0.8,
-              },
-            }
-          )
-        );
-      });
-    }
-
-    // 상단 타이틀 Fade-in
-    if (topTitleRef.current) {
-      gsap.fromTo(
-        topTitleRef.current,
-        { opacity: 0, y: 100 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: "power3.out",
-        }
-      );
-    }
-
-    setupFadein();
-
-    return () => {
-      if (retryTimeout) clearTimeout(retryTimeout);
-      fadeTweens.forEach((t) => t.kill());
-      ScrollTrigger.getAll().forEach((st) => st.kill());
-    };
+    setTimeout(() => AOS.refresh(), 100);
   }, [isMobile]);
 
   return (
@@ -133,7 +68,7 @@ export default function BSW() {
           className="absolute inset-0 z-0 object-cover w-full h-full"
         />
         <div
-          ref={topTitleRef}
+          data-aos="fade-up"
           className="absolute inset-0 z-10 flex flex-col items-center justify-center"
         >
           <p className="font-sans font-light text-white md:text-pt-subsection-title xs:text-pt-subtitle-xs">
@@ -154,9 +89,7 @@ export default function BSW() {
       {/* Section 2 : 프로젝트 설명 */}
       <section className="relative md:py-[200px] bg-white xs:py-20">
         <div
-          ref={(el) => {
-            fadeinRefs.current[0] = el;
-          }}
+          data-aos="fade-up"
           className="flex justify-between max-w-[1440px] md:mx-auto md:flex-row xs:flex-col xs:mx-5"
         >
           <div className="flex flex-col gap-8">
@@ -238,9 +171,7 @@ export default function BSW() {
       {/* Section 3 : POS System 목업 이미지 */}
       <section className="relative flex flex-col items-center justify-center md:py-[200px] xs:py-20 bg-primary">
         <h1
-          ref={(el) => {
-            fadeinRefs.current[1] = el;
-          }}
+          data-aos="fade-up"
           className="font-bold text-white md:mx-auto xs:mx-5 md:text-inter-title font-inter xs:text-inter-title-xs"
         >
           BSW Beauty
@@ -248,9 +179,7 @@ export default function BSW() {
           Retail POS System
         </h1>
         <div
-          ref={(el) => {
-            fadeinRefs.current[2] = el;
-          }}
+          data-aos="fade-up"
           className="relative z-10 pointer-events-none select-none md:-mt-5 xs:mt-0 md:mx-auto xs:mx-5"
         >
           <img
@@ -266,15 +195,13 @@ export default function BSW() {
         {POSImages.map((row, rowIdx) => (
           <div
             key={rowIdx}
-            ref={(el) => {
-              fadeinRefs.current[3 + rowIdx] = el;
-            }}
             className={`grid md:w-[130%] xs:w-[150%] md:grid-cols-4 xs:grid-cols-3 md:gap-10 xs:gap-2 pointer-events-none select-none ${
-              -rowIdx === 0 ? "ml-[10%]" : "mr-[10%]"
+              rowIdx === 0 ? "ml-[10%]" : "mr-[10%]"
             }`}
+            data-aos="fade-up"
+            data-aos-delay={rowIdx * 100}
           >
             {row.map((img, colIdx) => {
-              // 모바일에서 마지막 이미지는 렌더링하지 않음
               if (isMobile && colIdx === row.length - 1) return null;
               return (
                 <img
@@ -282,6 +209,8 @@ export default function BSW() {
                   src={img.src}
                   alt={img.alt}
                   className="object-cover w-full bg-white border rounded-lg md:rounded-2xl border-primary-light"
+                  data-aos="fade-left"
+                  data-aos-delay={colIdx * 100}
                 />
               );
             })}
@@ -292,9 +221,7 @@ export default function BSW() {
       {/* Section 5 : POS System Font */}
       <section className="flex flex-col items-center w-full mx-auto overflow-hidden bg-primary">
         <div
-          ref={(el) => {
-            fadeinRefs.current[5] = el;
-          }}
+          data-aos="fade-up"
           className="w-full md:max-w-[1440px] xs:max-w-full flex md:flex-row xs:flex-col md:pb-[200px] xs:pb-20 md:gap-0 xs:gap-10"
         >
           <div className="flex flex-col flex-1 md:gap-6 xs:gap-4 md:mx-auto xs:mx-5">
@@ -348,9 +275,7 @@ export default function BSW() {
       <section className="flex flex-col items-center md:pb-[200px] xs:pb-20 mx-auto bg-primary">
         {/* 상단 타이틀 */}
         <div
-          ref={(el) => {
-            fadeinRefs.current[6] = el;
-          }}
+          data-aos="fade-up"
           className="flex w-full md:max-w-[1440px] xs:max-w-full md:mb-[100px] xs:mb-10"
         >
           <h3 className="font-sans font-bold text-white md:mx-0 xs:mx-5 md:text-pt-section-title xs:text-pt-section-title-xs">
@@ -358,9 +283,7 @@ export default function BSW() {
           </h3>
         </div>
         <div
-          ref={(el) => {
-            fadeinRefs.current[7] = el;
-          }}
+          data-aos="fade-up"
           className="flex flex-col md:gap-8 xs:gap-4 md:max-w-[1440px] xs:max-w-full pointer-events-none select-none md:mx-auto xs:mx-5"
         >
           <img
@@ -420,9 +343,7 @@ export default function BSW() {
       <section className="flex flex-col items-center md:pb-[200px] xs:pb-20 mx-auto bg-primary">
         {/* 상단 타이틀 */}
         <div
-          ref={(el) => {
-            fadeinRefs.current[8] = el;
-          }}
+          data-aos="fade-up"
           className="flex w-full md:max-w-[1440px] xs:max-w-full md:mb-[100px] xs:mb-10"
         >
           <h3 className="font-sans font-bold text-white md:mx-0 xs:mx-5 md:text-pt-section-title xs:text-pt-section-title-xs">
@@ -430,9 +351,7 @@ export default function BSW() {
           </h3>
         </div>
         <div
-          ref={(el) => {
-            fadeinRefs.current[9] = el;
-          }}
+          data-aos="fade-up"
           className="flex md:max-w-[1440px] xs:max-w-full pointer-events-none select-none md:mx-auto xs:mx-5"
         >
           <img
@@ -455,9 +374,7 @@ export default function BSW() {
       {/* Section 9 : BSW HQ Dashboard 비디오 */}
       <section className="flex flex-col items-center md:py-[200px] xs:py-20 md:px-0 xs:px-5 bg-primary">
         <div
-          ref={(el) => {
-            fadeinRefs.current[10] = el;
-          }}
+          data-aos="fade-up"
           className="md:h-[750px] xs:h-full w-full md:max-w-[1440px] xs:max-w-full mx-auto md:rounded-2xl xs:rounded-xl overflow-hidden pointer-events-auto select-auto md:border-4 xs:border-2 border-primary-deepLight"
         >
           <video
@@ -475,9 +392,7 @@ export default function BSW() {
       {/* Section 10 : BSW HQ 로그인,회원가입 페이지 */}
       <section className="mx-auto bg-primary">
         <div
-          ref={(el) => {
-            fadeinRefs.current[11] = el;
-          }}
+          data-aos="fade-up"
           className="flex md:flex-row xs:flex-col md:max-w-[1440px] xs:max-w-full w-full mx-auto md:px-0 xs:px-5 md:gap-0 xs:gap-10"
         >
           {/* 왼쪽 고정 텍스트 */}
@@ -514,9 +429,7 @@ export default function BSW() {
       {/* Section 11 : BSW HQ 주요 페이지 */}
       <section className="flex flex-col items-center md:min-h-screen xs:min-h-0 overflow-hidden mx-auto md:py-[200px] xs:py-20 bg-primary">
         <div
-          ref={(el) => {
-            fadeinRefs.current[13] = el;
-          }}
+          data-aos="fade-up"
           className="relative grid grid-cols-3 md:gap-14 xs:gap-4 md:w-[110%] xs:w-[150%] h-full"
         >
           {HQSubImages.map((col, colIdx) => (
@@ -548,9 +461,7 @@ export default function BSW() {
       {/* Section 12 : BSW Beauty 슬로건 */}
       <section className="flex flex-col md:pb-[200px] xs:pb-20 bg-primary">
         <div
-          ref={(el) => {
-            fadeinRefs.current[14] = el;
-          }}
+          data-aos="fade-up"
           className="md:max-w-[1440px] xs:max-w-full md:mx-auto xs:mx-5"
         >
           <h2 className="font-bold text-white/20 md:text-inter-subtitle font-inter xs:text-inter-subtitle-xs">
@@ -592,17 +503,13 @@ export default function BSW() {
         {/* 상단 텍스트 */}
         <div className="w-full md:max-w-[1440px] xs:max-w-full mx-auto">
           <h3
-            ref={(el) => {
-              fadeinRefs.current[15] = el;
-            }}
+            data-aos="fade-up"
             className="block font-sans font-bold text-white md:text-pt-section-title xs:text-pt-section-title-xs mb-14 md:mx-auto xs:mx-5"
           >
             Mobile Design
           </h3>
           <div
-            ref={(el) => {
-              fadeinRefs.current[16] = el;
-            }}
+            data-aos="fade-up"
             className="relative flex justify-center w-full mx-auto pointer-events-none select-none md:px-0 xs:px-5 md:max-w-3xl xs:max-w-full"
           >
             <img
@@ -612,9 +519,7 @@ export default function BSW() {
             />
           </div>
           <h2
-            ref={(el) => {
-              fadeinRefs.current[17] = el;
-            }}
+            data-aos="fade-up"
             className="font-bold font-inter md:text-inter-title xs:text-inter-title-xs md:text-[#FF2F93]/5 xs:text-[#FF2F93]/10 md:mx-auto xs:mx-5 md:pt-[100px] xs:pt-10"
           >
             HQ APP & <br />
@@ -622,9 +527,7 @@ export default function BSW() {
           </h2>
           <div className="flex flex-col md:gap-[200px] xs:gap-20">
             <div
-              ref={(el) => {
-                fadeinRefs.current[18] = el;
-              }}
+              data-aos="fade-up"
               className="flex items-center w-full md:flex-row xs:flex-col md:px-0 xs:px-5 md:-mt-20 xs:mt-0 md:gap-14 xs:gap-4"
             >
               <p className="font-sans text-white md:w-2/3 xs:w-full text-pt-body">
@@ -650,9 +553,7 @@ export default function BSW() {
               </div>
             </div>
             <div
-              ref={(el) => {
-                fadeinRefs.current[19] = el;
-              }}
+              data-aos="fade-up"
               className="flex items-center w-full md:flex-row xs:flex-col-reverse md:px-0 xs:px-5 md:-mt-20 xs:mt-0 md:gap-14 xs:gap-4"
             >
               <div className="grid w-full grid-cols-2 pointer-events-none select-none md:gap-14 xs:gap-4">
@@ -678,9 +579,7 @@ export default function BSW() {
               </p>
             </div>
             <div
-              ref={(el) => {
-                fadeinRefs.current[20] = el;
-              }}
+              data-aos="fade-up"
               className="flex items-center w-full md:flex-row xs:flex-col md:px-0 xs:px-5 md:-mt-20 xs:mt-0 md:gap-14 xs:gap-4"
             >
               <p className="font-sans text-white md:w-2/3 xs:w-full text-pt-body">

@@ -1,12 +1,11 @@
 "use client";
-import { useRef, useEffect } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+import { useEffect } from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const BOImages = [
   "/myplat_bo2.png",
@@ -19,55 +18,25 @@ const BOImages = [
 ];
 
 export default function MyplatAdmin() {
-  // 섹션별 fadein 효과를 위한 ref 배열
-  const fadeinRefs = useRef<(HTMLDivElement | null)[]>([]);
-
   useEffect(() => {
-    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
-    const fadeinIndexes = [9, 10, 11];
+    AOS.init({
+      duration: 1000,
+      once: false,
+      offset: 300,
+      easing: "ease-out-cubic",
+    });
 
-    function setupFadein() {
-      const targets = fadeinIndexes.map((idx) => fadeinRefs.current[idx]);
-      if (targets.some((el) => !el)) {
-        retryTimeout = setTimeout(setupFadein, 50);
-        return;
-      }
-      targets.forEach((el) => {
-        if (!el) return;
-        gsap.fromTo(
-          el,
-          { opacity: 0, y: 60 },
-          {
-            opacity: 1,
-            y: 0,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: el,
-              start: "top 60%",
-              end: "top 25%",
-              scrub: 0.8,
-            },
-          }
-        );
-      });
-    }
-    setupFadein();
-    return () => {
-      if (retryTimeout) clearTimeout(retryTimeout);
-      ScrollTrigger.getAll().forEach((st) => st.kill());
-    };
+    setTimeout(() => AOS.refresh(), 100);
   }, []);
 
   return (
     <>
-      {/* Admin Page Section */}
+      {/* Admin 메인 페이지 */}
       <section className="relative md:py-[200px] xs:py-20 bg-background-blue">
         <div className="relative mx-auto md:max-w-[1440px] xs:max-w-full xs:px-5">
           <div
-            ref={(el) => {
-              fadeinRefs.current[9] = el;
-            }}
             className="flex md:flex-row xs:flex-col justify-between w-full md:max-w-[1440px] xs:max-w-full mx-auto md:mb-[100px] xs:mb-10 xs:gap-4"
+            data-aos="fade-up"
           >
             <h3 className="font-sans font-bold text-blue md:text-pt-section-title xs:text-pt-section-title-xs">
               Admin Page
@@ -80,25 +49,20 @@ export default function MyplatAdmin() {
               쉽게 했습니다.
             </p>
           </div>
+
           <img
-            ref={(el) => {
-              fadeinRefs.current[10] = el;
-            }}
             src="/myplat_bo1.png"
             alt="Myplat Main Image"
             className="w-full md:border-[6px] xs:border-[3px] md:rounded-3xl xs:rounded-xl border-primary shadow-lg"
+            data-aos="fade-up"
+            data-aos-delay="100"
           />
         </div>
       </section>
 
-      {/* Admin Subpage Swiper Section */}
+      {/* Admin 서브 페이지 Swiper */}
       <section className="md:pb-[200px] xs:pb-20 w-full overflow-hidden bg-background-blue">
-        <div
-          ref={(el) => {
-            fadeinRefs.current[11] = el;
-          }}
-          className="flex items-center justify-center"
-        >
+        <div className="flex items-center justify-center" data-aos="fade-left" data-aos-delay="200">
           <Swiper
             modules={[Autoplay]}
             centeredSlides={true}

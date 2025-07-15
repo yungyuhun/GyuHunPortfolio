@@ -17,12 +17,49 @@ export default function App({ Component, pageProps }: AppProps) {
 
   const isIndex = router.pathname === "/";
 
+  // 스크롤 위치 저장용 Map
+  const scrollPositions = useRef<Map<string, number>>(new Map());
+
   // Splash 비활성화 (index 아닐 때)
   useEffect(() => {
     if (!isIndex && showSplash) setShowSplash(false);
   }, [isIndex, showSplash]);
 
-  // index에서 다른 페이지로 이동 시 위치 저장 + 상단 이동
+  // 페이지 이동 시 현재 스크롤 위치 저장
+  useEffect(() => {
+    const handleRouteChangeStart = (url: string) => {
+      scrollPositions.current.set(router.asPath, window.scrollY);
+    };
+
+    router.events.on("routeChangeStart", handleRouteChangeStart);
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChangeStart);
+    };
+  }, [router]);
+
+  // 뒤로 가기(popstate) 시 스크롤 복원
+  useEffect(() => {
+    const handlePopState = () => {
+      const savedY = scrollPositions.current.get(window.location.pathname) || 0;
+      if (lenisRef.current) {
+        lenisRef.current.scrollTo(savedY, { immediate: true });
+      } else {
+        window.scrollTo(0, savedY);
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  // scrollRestoration 수동 설정
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+  }, []);
+
+  // index에서 다른 페이지로 이동 시 스크롤 맨 위로
   useEffect(() => {
     if (!isIndex) {
       setIndexScrollY(window.scrollY);
@@ -46,7 +83,6 @@ export default function App({ Component, pageProps }: AppProps) {
         }
       };
       rafId = requestAnimationFrame(restoreScroll);
-
       return () => cancelAnimationFrame(rafId);
     }
   }, [isIndex, indexScrollY]);
@@ -82,7 +118,6 @@ export default function App({ Component, pageProps }: AppProps) {
       document.body.style.overflow = "auto";
     }
 
-    // cleanup
     return () => {
       running = false;
       cancelAnimationFrame(requestId);
@@ -92,7 +127,6 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, [showSplash]);
 
-  // Splash가 끝나기 전에는 메인 컴포넌트 렌더링하지 않음
   return (
     <>
       <Head>
@@ -117,6 +151,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta property="og:url" content="https://gyuhun.com" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+
       {isIndex && showSplash ? (
         <Splash onComplete={() => setShowSplash(false)} />
       ) : (

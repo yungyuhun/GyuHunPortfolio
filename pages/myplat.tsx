@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
+import AOS from "aos";
+import "aos/dist/aos.css";
 import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import MyplatScrollTrigger from "@/components/MyplatScrollTrigger";
 import MyplatMainPageScroll from "@/components/MyplatMainPageScroll";
 import MyplatSubPageScroll from "@/components/MyplatSubPageScroll";
@@ -12,32 +12,13 @@ import MyplatTextGradient from "@/components/MyplatTextGradient";
 import MyplatAdmin from "@/components/MyplatAdmin";
 import MyplatMobile from "@/components/MyplatMobile";
 
-gsap.registerPlugin(ScrollTrigger);
-
 export default function Myplat() {
-  const topTitleRef = useRef<HTMLDivElement>(null);
-  const fadeinRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const marqueeRef = useRef<HTMLDivElement>(null);
-  const marqueeTextRef = useRef<HTMLDivElement>(null);
+  const marqueeRef = useRef<HTMLDivElement | null>(null);
+  const marqueeTextRef = useRef<HTMLDivElement | null>(null);
   const [isMobile, setIsMobile] = useState(
     typeof window !== "undefined" ? window.innerWidth < 768 : false
   );
 
-  // 새로고침
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const reloaded = sessionStorage.getItem("myplatReloaded");
-
-    if (!reloaded) {
-      sessionStorage.setItem("myplatReloaded", "true");
-      window.location.reload();
-    } else {
-      sessionStorage.removeItem("myplatReloaded");
-    }
-  }, []);
-
-  // 반응형
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -46,56 +27,18 @@ export default function Myplat() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // 페이드인
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      // 타이틀 fade-in
-      if (topTitleRef.current) {
-        gsap.fromTo(
-          topTitleRef.current,
-          { opacity: 0, y: 100 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: "power3.out",
-          }
-        );
-      }
-
-      // 페이드인
-      fadeinRefs.current.forEach((el) => {
-        if (!el) return;
-        gsap.fromTo(
-          el,
-          { opacity: 0, y: 60 },
-          {
-            opacity: 1,
-            y: 0,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: el,
-              start: "top 60%",
-              end: "top 25%",
-              scrub: 0.8,
-            },
-          }
-        );
-      });
+    AOS.init({
+      duration: 1000,
+      once: false,
+      offset: isMobile ? 200 : 400,
+      easing: "ease-out-cubic",
     });
 
-    return () => ctx.revert();
-  }, []);
-
-  useEffect(() => {
-    ScrollTrigger.refresh();
+    setTimeout(() => {
+      AOS.refresh();
+    }, 100);
   }, [isMobile]);
-
-  useEffect(() => {
-    ScrollTrigger.config({
-      autoRefreshEvents: "DOMContentLoaded,load,resize",
-    });
-  }, []);
 
   return (
     <div className="relative w-full min-h-screen bg-white md:overflow-visible xs:overflow-hidden">
@@ -107,7 +50,7 @@ export default function Myplat() {
           className="absolute inset-0 z-0 object-cover w-full h-full"
         />
         <div
-          ref={topTitleRef}
+          data-aos="fade-up"
           className="absolute inset-0 z-10 flex flex-col items-center justify-center"
         >
           <p className="font-sans font-light text-white md:text-pt-subsection-title xs:text-pt-subtitle-xs">
@@ -128,9 +71,7 @@ export default function Myplat() {
       {/* Section 2 : 프로젝트 설명 */}
       <section className="relative md:py-[200px] bg-white xs:py-20">
         <div
-          ref={(el) => {
-            fadeinRefs.current[0] = el;
-          }}
+          data-aos="fade-up"
           className="flex justify-between max-w-[1440px] md:mx-auto md:flex-row xs:flex-col xs:mx-5"
         >
           <div className="flex flex-col gap-8">
@@ -216,30 +157,22 @@ export default function Myplat() {
       </section>
 
       {/* Section 4 : 스크롤 트리거 애니메이션 */}
-      <MyplatScrollTrigger
-        fadeinRefs={fadeinRefs}
-        isMobile={isMobile}
-        fadeinIndex={3}
-      />
+      <MyplatScrollTrigger isMobile={isMobile} />
+
       {/* Section 5 : 마이플랫 메인 페이지 스크롤 이미지 */}
-      <MyplatMainPageScroll fadeinRefs={fadeinRefs} index={1} />
+      <MyplatMainPageScroll />
 
       {/* Section 6 : PC Sub Page */}
-      <MyplatSubPageScroll fadeinRefs={fadeinRefs} index={2} />
+      <MyplatSubPageScroll />
 
       {/* Section 7 : 마퀴 텍스트 및 모바일 이미지 */}
-      <MyplatMobile
-        fadeinRefs={fadeinRefs}
-        marqueeRef={marqueeRef}
-        marqueeTextRef={marqueeTextRef}
-      />
+      <MyplatMobile marqueeRef={marqueeRef} marqueeTextRef={marqueeTextRef} />
+
       {/* Section 8 : 디자인 시스템 */}
       <section className="relative md:py-[200px] xs:py-20 bg-background-light">
         <div className="relative mx-auto md:max-w-[1440px] xs:max-w-full xs:px-5">
           <div
-            ref={(el) => {
-              fadeinRefs.current[6] = el;
-            }}
+            data-aos="fade-up"
             className="flex md:flex-row xs:flex-col justify-between w-full md:max-w-[1440px] xs:max-w-full mx-auto md:mb-[100px] xs:mb-10 xs:gap-4"
           >
             <h3 className="font-sans font-bold text-primary md:text-pt-section-title xs:text-pt-section-title-xs">
@@ -253,9 +186,7 @@ export default function Myplat() {
             </p>
           </div>
           <img
-            ref={(el) => {
-              fadeinRefs.current[7] = el;
-            }}
+            data-aos="fade-up"
             src="/myplat_color.png"
             alt="Myplat Main Image"
             className="w-full md:rounded-3xl xs:rounded-xl"
@@ -269,9 +200,7 @@ export default function Myplat() {
       {/* Section 10 : 마이플랫 목업 */}
       <section className="relative bg-background-light">
         <img
-          ref={(el) => {
-            fadeinRefs.current[8] = el;
-          }}
+          data-aos="fade-up"
           src="myplat_mockup.png"
           alt="Myplat Main Image"
           className="object-cover w-full"
