@@ -17,15 +17,18 @@ export default function App({ Component, pageProps }: AppProps) {
 
   const isIndex = router.pathname === "/";
 
+  // 스크롤 위치 저장용 Map
+  const scrollPositions = useRef<Map<string, number>>(new Map());
+
   // Splash 비활성화 (index 아닐 때)
   useEffect(() => {
     if (!isIndex && showSplash) setShowSplash(false);
   }, [isIndex, showSplash]);
 
-  // 페이지 이동 시 현재 스크롤 위치 sessionStorage에 저장
+  // 페이지 이동 시 현재 스크롤 위치 저장
   useEffect(() => {
     const handleRouteChangeStart = (url: string) => {
-      sessionStorage.setItem(`scroll-position-${router.asPath}`, window.scrollY.toString());
+      scrollPositions.current.set(router.asPath, window.scrollY);
     };
 
     router.events.on("routeChangeStart", handleRouteChangeStart);
@@ -34,17 +37,14 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, [router]);
 
-  // 뒤로 가기(popstate) 시 스크롤 위치 복원
+  // 뒤로 가기(popstate) 시 스크롤 복원
   useEffect(() => {
     const handlePopState = () => {
-      const savedY = sessionStorage.getItem(`scroll-position-${window.location.pathname}`);
-      if (savedY) {
-        const y = parseInt(savedY, 10);
-        if (lenisRef.current) {
-          lenisRef.current.scrollTo(y, { immediate: true });
-        } else {
-          window.scrollTo(0, y);
-        }
+      const savedY = scrollPositions.current.get(window.location.pathname) || 0;
+      if (lenisRef.current) {
+        lenisRef.current.scrollTo(savedY, { immediate: true });
+      } else {
+        window.scrollTo(0, savedY);
       }
     };
 
@@ -52,14 +52,14 @@ export default function App({ Component, pageProps }: AppProps) {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
-  // scrollRestoration 수동 설정 (브라우저 기본 동작 방지)
+  // scrollRestoration 수동 설정
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
     }
   }, []);
 
-  // index에서 다른 페이지로 이동 시 스크롤 맨 위로 이동
+  // index에서 다른 페이지로 이동 시 스크롤 맨 위로
   useEffect(() => {
     if (!isIndex) {
       setIndexScrollY(window.scrollY);
@@ -71,20 +71,21 @@ export default function App({ Component, pageProps }: AppProps) {
     }
   }, [router.pathname, isIndex]);
 
-  // index로 돌아올 때 sessionStorage에서 위치 읽어 복원
+  // index로 돌아올 때 저장된 위치로 이동
   useEffect(() => {
-    if (isIndex) {
-      const savedY = sessionStorage.getItem(`scroll-position-/`);
-      if (savedY) {
-        const y = parseInt(savedY, 10);
+    if (isIndex && indexScrollY > 0) {
+      let rafId: number;
+      const restoreScroll = () => {
         if (lenisRef.current) {
-          lenisRef.current.scrollTo(y, { immediate: true });
+          lenisRef.current.scrollTo(indexScrollY, { immediate: true });
         } else {
-          window.scrollTo(0, y);
+          window.scrollTo(0, indexScrollY);
         }
-      }
+      };
+      rafId = requestAnimationFrame(restoreScroll);
+      return () => cancelAnimationFrame(rafId);
     }
-  }, [isIndex]);
+  }, [isIndex, indexScrollY]);
 
   // Lenis 인스턴스 및 스크롤 관리
   useEffect(() => {

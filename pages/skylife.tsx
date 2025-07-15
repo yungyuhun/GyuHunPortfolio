@@ -5,16 +5,13 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
-import AOS from "aos";
-import "aos/dist/aos.css";
+import useFadeInOnScroll from "@/src/hooks/useFadeInOnScroll";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function SkyLife() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const textRefs = useRef<(HTMLSpanElement | null)[]>([]);
-  const marqueeRef = useRef<HTMLDivElement>(null);
-  const marqueeTextRef = useRef<HTMLDivElement>(null);
+  useFadeInOnScroll();
 
   const subImages = [
     ["/skylife_sub1.png", "/skylife_sub2.png"],
@@ -22,7 +19,6 @@ export default function SkyLife() {
     ["/skylife_sub5.png", "/skylife_sub6.png"],
   ];
 
-  const [ready, setReady] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   // 모바일이면 2개만, 아니면 전체
   const visibleCols = isMobile ? 2 : subImages.length;
@@ -35,128 +31,30 @@ export default function SkyLife() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // 텍스트 애니메이션
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!sessionStorage.getItem("petpeaceReloaded")) {
-      sessionStorage.setItem("petpeaceReloaded", "true");
-      window.location.reload();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!ready) return;
-    if (typeof window === "undefined") return;
-
-    try {
-      AOS.init({
-        duration: 1000,
-        once: false,
-        offset: isMobile ? 200 : 500,
-        easing: "ease-out-cubic",
-      });
-    } catch (error) {}
-
-    setTimeout(() => {
-      try {
-        AOS.refresh();
-      } catch (error) {}
-    }, 200);
-
-    return () => {
-      try {
-        AOS.refreshHard();
-      } catch (error) {}
-    };
-  }, [isMobile, ready]);
-
-  // GSAP 애니메이션 (텍스트 그라데이션 & 마퀴) - 로딩 후 실행
-  useEffect(() => {
-    if (!ready) return;
-
-    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
-    let textTrigger: ScrollTrigger | null = null;
-    let marqueeTween: gsap.core.Tween | null = null;
-
-    function setupGsap() {
-      if (
-        !sectionRef.current ||
-        textRefs.current.length < 3 ||
-        textRefs.current.some((el) => !el)
-      ) {
-        retryTimeout = setTimeout(setupGsap, 50);
-        return;
-      }
-
-      textRefs.current.forEach(
-        (el) =>
-          el &&
-          gsap.set(el, {
-            backgroundSize: "0% 100%",
-            opacity: 1.2,
-          })
+    const targets =
+      sectionRef.current?.querySelectorAll<HTMLSpanElement>(
+        ".text-fill-effect"
       );
+    if (!targets || targets.length === 0) return;
 
-      textTrigger = ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: true,
-        onUpdate: ({ progress }) => {
-          textRefs.current.forEach(
-            (el) =>
-              el &&
-              gsap.set(el, {
-                backgroundSize: `${progress * 100}% 100%`,
-                opacity: 1 + progress * 2,
-              })
-          );
-        },
-      });
-
-      const marqueeContainer = marqueeRef.current;
-      const marqueeText = marqueeTextRef.current;
-      if (marqueeContainer && marqueeText) {
-        while (marqueeContainer.children.length > 1) {
-          marqueeContainer.removeChild(marqueeContainer.lastChild!);
-        }
-        const textClone = marqueeText.cloneNode(true) as HTMLElement;
-        marqueeContainer.appendChild(textClone);
-
-        const gap = isMobile ? 30 : 60;
-        marqueeText.style.display = "inline-block";
-        textClone.style.display = "inline-block";
-        marqueeContainer.style.gap = `${gap}px`;
-
-        requestAnimationFrame(() => {
-          const textWidth = marqueeText.offsetWidth;
-          const totalWidth = textWidth + gap;
-          if (textWidth === 0) {
-            retryTimeout = setTimeout(setupGsap, 50);
-            return;
+    const observer = new window.IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("scrolled");
+          } else {
+            entry.target.classList.remove("scrolled");
           }
-          marqueeTween = gsap.to(marqueeContainer, {
-            x: `-=${totalWidth}`,
-            duration: 18,
-            ease: "none",
-            repeat: -1,
-            modifiers: {
-              x: gsap.utils.unitize((x) => parseFloat(x) % totalWidth),
-            },
-          });
         });
-      }
-    }
+      },
+      { threshold: 0.8 }
+    );
 
-    setupGsap();
-
-    return () => {
-      if (retryTimeout) clearTimeout(retryTimeout);
-      textTrigger?.kill();
-      marqueeTween?.kill();
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-      if (marqueeRef.current) marqueeRef.current.style.transform = "";
-    };
-  }, [isMobile, ready]);
+    targets.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden bg-white">
@@ -167,10 +65,7 @@ export default function SkyLife() {
           alt="SkyLife Background"
           className="absolute inset-0 z-0 object-cover w-full h-full"
         />
-        <div
-          data-aos="fade-up"
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center"
-        >
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center fade-in-section">
           <p className="font-sans font-light text-white md:text-pt-subsection-title xs:text-pt-subtitle-xs">
             Web/Mobile Platform
           </p>
@@ -188,10 +83,7 @@ export default function SkyLife() {
 
       {/* Section 2 : 프로젝트 설명 */}
       <section className="relative md:py-[200px] bg-white xs:py-20">
-        <div
-          data-aos="fade-up"
-          className="flex justify-between max-w-[1440px] md:mx-auto md:flex-row xs:flex-col xs:mx-5"
-        >
+        <div className="flex justify-between max-w-[1440px] md:mx-auto md:flex-row xs:flex-col xs:mx-5 fade-in-section">
           <div className="flex flex-wrap gap-4 md:flex-row md:max-w-xl xs:max-w-full xs:flex-col">
             <h2 className="font-sans font-bold text-primary md:text-pt-section-title xs:text-pt-section-title-xs">
               스카이라이프 홈페이지 고도화
@@ -232,7 +124,6 @@ export default function SkyLife() {
               <a
                 href="https://www.skylife.co.kr/"
                 target="_blank"
-                rel="noopener noreferrer"
                 className="px-8 py-3 font-sans font-normal text-center transition-all duration-300 ease-out bg-white border rounded-full h-fit text-primary md:w-auto xs:w-full md:mt-12 xs:mt-6 text-pt-body border-primary-extraLight hover:bg-primary hover:text-white hover:border-transparent"
               >
                 사이트 바로가기
@@ -272,36 +163,20 @@ export default function SkyLife() {
         className="flex flex-col items-center justify-center gap-10 md:min-h-screen xs:min-h-0 md:py-0 xs:py-20 bg-background-green"
       >
         <img
-          data-aos="fade"
           src="/skylife_logo.png"
           alt="SkyLife Logo"
-          className="w-full md:max-w-xl xs:max-w-[240px]"
+          className="w-full md:max-w-xl xs:max-w-[240px] fade-in-section"
         />
-        <p className="font-sans font-bold text-center md:mx-auto xs:mx-5 md:text-pt-section-title xs:text-pt-subtitle-xs">
-          <span
-            ref={(el) => {
-              textRefs.current[0] = el;
-            }}
-            className="inline-block text-fill-effect"
-          >
+        <p className="font-sans font-bold text-center md:mx-auto xs:mx-5 md:text-pt-section-title xs:text-pt-subtitle-xs fade-in-section">
+          <span className="inline-block text-fill-effect">
             스카이라이프는 전국 어디서나 고화질 방송과
           </span>
           <br />
-          <span
-            ref={(el) => {
-              textRefs.current[1] = el;
-            }}
-            className="inline-block text-fill-effect"
-          >
+          <span className="inline-block text-fill-effect">
             다양한 미디어 서비스를 제공하는
           </span>
           <br />
-          <span
-            ref={(el) => {
-              textRefs.current[2] = el;
-            }}
-            className="inline-block text-fill-effect"
-          >
+          <span className="inline-block text-fill-effect">
             대한민국의 대표 위성방송 브랜드입니다.
           </span>
         </p>
@@ -309,23 +184,17 @@ export default function SkyLife() {
 
       {/* Section 4 : 프로젝트 미리보기 */}
       <section className="relative md:min-h-screen xs:min-h-0 md:py-[200px] xs:py-20 bg-white">
-        <div className="max-w-[1440px] flex flex-col items-center justify-center md:mx-auto xs:mx-5">
-          <div
-            data-aos="fade-up"
-            className="relative z-0 w-full overflow-hidden"
-          >
+        <div className="max-w-[1440px] flex flex-col items-center justify-center md:mx-auto xs:mx-5 fade-in-section">
+          <div className="relative z-0 w-full overflow-hidden">
             <span
               className="font-bold md:text-inter-title font-inter whitespace-nowrap
         bg-gradient-to-r from-[#05C753] to-[#61FFA0]
-        bg-clip-text text-transparent inline-block xs:text-[36px] w-full text-center"
+        bg-clip-text text-transparent inline-block xs:text-[36px] w-full text-center "
             >
               Interactive Design
             </span>
           </div>
-          <div
-            data-aos="fade-up"
-            className="relative z-10 pointer-events-none select-none md:-mt-8 xs:-mt-4"
-          >
+          <div className="relative z-10 pointer-events-none select-none md:-mt-8 xs:-mt-4">
             <img src="/macbook.png" alt="Macbook Mockup" className="w-full" />
             {/* 화면 안에 실제 서비스 이미지 오버레이 */}
             <div
@@ -350,10 +219,7 @@ export default function SkyLife() {
       <section className="md:min-h-screen xs:min-h-0 bg-white md:py-[200px] xs:py-20">
         <div className="max-w-[1440px] md:mx-auto xs:mx-5 flex flex-col items-center md:gap-[100px] xs:gap-10">
           {/* 상단 타이틀 */}
-          <div
-            data-aos="fade-up"
-            className="flex justify-between w-full md:flex-row xs:flex-col md:gap-0 xs:gap-4"
-          >
+          <div className="flex justify-between w-full md:flex-row xs:flex-col md:gap-0 xs:gap-4 fade-in-section">
             <h3 className="font-sans font-bold md:text-pt-section-title xs:text-pt-section-title-xs">
               Main Page
             </h3>
@@ -365,10 +231,7 @@ export default function SkyLife() {
             </p>
           </div>
           {/* 리뷰 Swiper 영상 */}
-          <div
-            data-aos="fade-up"
-            className="w-full max-w-[1440px] bg-white border-2 border-deepLight md:rounded-xl xs:rounded-lg overflow-hidden"
-          >
+          <div className="w-full max-w-[1440px] bg-white border-2 border-deepLight md:rounded-xl xs:rounded-lg overflow-hidden fade-in-section">
             <video
               src="/skylife_review.mp4"
               muted
@@ -380,10 +243,7 @@ export default function SkyLife() {
             />
           </div>
           {/* 혜택 Swiper 영상 */}
-          <div
-            data-aos="fade-up"
-            className="w-full max-w-[1440px] bg-white border-2 border-deepLight md:rounded-xl xs:rounded-lg overflow-hidden"
-          >
+          <div className="w-full max-w-[1440px] bg-white border-2 border-deepLight md:rounded-xl xs:rounded-lg overflow-hidden fade-in-section">
             <video
               src="/skylife_benefit.mp4"
               muted
@@ -395,10 +255,7 @@ export default function SkyLife() {
             />
           </div>
           {/* 포인트 Swiper 영상 */}
-          <div
-            data-aos="fade-up"
-            className="w-full max-w-[1440px] bg-white border-2 border-deepLight md:rounded-xl xs:rounded-lg overflow-hidden"
-          >
+          <div className="w-full max-w-[1440px] bg-white border-2 border-deepLight md:rounded-xl xs:rounded-lg overflow-hidden fade-in-section">
             <video
               src="/skylife_point.mp4"
               muted
@@ -416,10 +273,7 @@ export default function SkyLife() {
       <section className="md:min-h-screen xs:min-h-0 bg-white md:pb-[200px] xs:pb-20">
         <div className="max-w-[1440px] md:mx-auto xs:mx-5 flex flex-col items-center md:gap-[100px] xs:gap-10">
           {/* 상단 타이틀 */}
-          <div
-            data-aos="fade-up"
-            className="flex justify-between w-full md:flex-row xs:flex-col md:gap-0 xs:gap-4"
-          >
+          <div className="flex justify-between w-full md:flex-row xs:flex-col md:gap-0 xs:gap-4 fade-in-section">
             <h3 className="font-sans font-bold md:text-pt-section-title xs:text-pt-section-title-xs">
               Sub Page
             </h3>
@@ -433,13 +287,11 @@ export default function SkyLife() {
           <div className="grid md:grid-cols-3 xs:grid-cols-2 md:gap-10 xs:gap-4">
             {subImages.slice(0, visibleCols).map((col, colIdx) => (
               <div key={colIdx} className="flex flex-col md:gap-10 xs:gap-4">
-                {col.map((src, rowIdx) => {
+                {col.map((src) => {
                   return (
                     <div
                       key={src}
-                      className="flex flex-row items-center justify-center overflow-hidden"
-                      data-aos="fade-up"
-                      data-aos-delay={rowIdx * 100}
+                      className="flex flex-row items-center justify-center overflow-hidden fade-in-section"
                     >
                       <img
                         src={src}
@@ -458,10 +310,9 @@ export default function SkyLife() {
       {/* Section 7 : 프로젝트 PC 목업 */}
       <section className="flex flex-col items-center w-full bg-white">
         <img
-          data-aos="fade-up"
           src="/skylife_mockup.png"
           alt="PC Sub Page Mockup"
-          className="w-full max-w-full"
+          className="w-full max-w-full fade-in-section"
         />
       </section>
 
@@ -469,10 +320,7 @@ export default function SkyLife() {
       <section className="min-h-screen bg-white md:py-[200px] xs:py-20">
         <div className="max-w-[1440px] md:mx-auto xs:mx-5 flex flex-col items-center md:gap-[100px] xs:gap-10">
           {/* 상단 타이틀 - Colors */}
-          <div
-            data-aos="fade-up"
-            className="flex justify-between w-full md:flex-row xs:flex-col md:gap-0 xs:gap-4"
-          >
+          <div className="flex justify-between w-full md:flex-row xs:flex-col md:gap-0 xs:gap-4 fade-in-section">
             <h3 className="font-sans font-bold md:text-pt-section-title xs:text-pt-section-title-xs">
               Design System
             </h3>
@@ -483,7 +331,7 @@ export default function SkyLife() {
               기반의 디자인 시스템을 구축하였습니다.
             </p>
           </div>
-          <div data-aos="fade-up" className="flex w-full">
+          <div className="flex w-full fade-in-section">
             <img
               src="/skylife_color.png"
               alt="Color System"
@@ -491,19 +339,13 @@ export default function SkyLife() {
             />
           </div>
           {/* 상단 타이틀 - Icons */}
-          <div
-            data-aos="fade-up"
-            className="flex w-full md:mt-[100px] xs:mt-10"
-          >
+          <div className="flex w-full md:mt-[100px] xs:mt-10 fade-in-section">
             <h3 className="font-sans font-bold md:text-pt-section-title xs:text-pt-section-title-xs">
               Icons
             </h3>
           </div>
-          <div
-            data-aos="fade-up"
-            className="grid w-full gap-10 md:grid-cols-2 xs:grid-cols-1"
-          >
-            <div className="flex flex-col gap-6">
+          <div className="grid w-full gap-10 md:grid-cols-2 xs:grid-cols-1">
+            <div className="flex flex-col gap-6 fade-in-section">
               <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subtitle-xs">
                 System Icons
               </p>
@@ -513,7 +355,7 @@ export default function SkyLife() {
                 className="w-full max-w-full"
               />
             </div>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 fade-in-section">
               <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subtitle-xs">
                 Graphic Icons
               </p>
@@ -525,19 +367,13 @@ export default function SkyLife() {
             </div>
           </div>
           {/* 상단 타이틀 - Components */}
-          <div
-            data-aos="fade-up"
-            className="flex w-full md:mt-[100px] xs:mt-10"
-          >
-            <h3 className="font-sans font-bold md:text-pt-section-title xs:text-pt-section-title-xs">
+          <div className="flex w-full md:mt-[100px] xs:mt-10">
+            <h3 className="font-sans font-bold md:text-pt-section-title xs:text-pt-section-title-xs fade-in-section">
               Components
             </h3>
           </div>
-          <div
-            data-aos="fade-up"
-            className="grid w-full gap-10 md:grid-cols-2 xs:grid-cols-1"
-          >
-            <div className="flex flex-col gap-6">
+          <div className="grid w-full gap-10 md:grid-cols-2 xs:grid-cols-1">
+            <div className="flex flex-col gap-6 fade-in-section">
               <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subtitle-xs">
                 Button
               </p>
@@ -547,7 +383,7 @@ export default function SkyLife() {
                 className="w-full max-w-full"
               />
             </div>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 fade-in-section">
               <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subtitle-xs">
                 Checkbox
               </p>
@@ -557,7 +393,7 @@ export default function SkyLife() {
                 className="w-full max-w-full"
               />
             </div>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 fade-in-section">
               <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subtitle-xs">
                 Dropdown
               </p>
@@ -567,7 +403,7 @@ export default function SkyLife() {
                 className="w-full max-w-full"
               />
             </div>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 fade-in-section">
               <p className="font-bold font-font-sans md:text-pt-subtitle xs:text-pt-subtitle-xs">
                 Text Field
               </p>
@@ -585,33 +421,25 @@ export default function SkyLife() {
       <section className="relative flex flex-col md:py-[200px] xs:py-20 items-center w-full min-h-screen overflow-hidden bg-green">
         {/* 상단 텍스트 */}
         <div className="w-full max-w-[1440px] mx-auto ">
-          <h3
-            data-aos="fade-up"
-            className="block font-sans font-bold text-white md:text-pt-section-title xs:text-pt-section-title-xs mb-14 md:mx-0 xs:mx-5"
-          >
+          <h3 className="block font-sans font-bold text-white md:text-pt-section-title xs:text-pt-section-title-xs mb-14 md:mx-0 xs:mx-5 fade-in-section">
             Mobile Design
           </h3>
-          <div
-            data-aos="fade-up"
-            className="relative flex justify-center w-full mx-auto md:max-w-2xl xs:max-w-xs"
-          >
+          <div className="relative flex justify-center w-full mx-auto md:max-w-2xl xs:max-w-xs fade-in-section">
             <img
               src="/skylife_mockup2.png"
               alt="모바일 목업"
               className="w-full h-full"
             />
           </div>
-          <div
-            data-aos="fade-up"
-            className="absolute left-0 w-full overflow-hidden pointer-events-none select-none"
-          >
-            <div ref={marqueeRef} className="flex whitespace-nowrap">
-              <div
-                ref={marqueeTextRef}
-                data-aos="fade-left"
-                className="inline-block font-bold font-inter md:text-inter-title xs:text-inter-title-xs text-white/40 whitespace-nowrap"
-              >
-                Connect for Happy Life, KT SkyLife
+          <div className="absolute left-0 w-full overflow-hidden pointer-events-none select-none fade-in-section">
+            <div className="marquee-container">
+              <div className="marquee fade-in-section">
+                <span className="inline-block font-bold font-inter md:text-inter-title xs:text-inter-title-xs text-white/40 whitespace-nowrap">
+                  Connect for Happy Life, KT SkyLife
+                </span>
+                <span className="inline-block font-bold font-inter md:text-inter-title xs:text-inter-title-xs text-white/40 whitespace-nowrap">
+                  Connect for Happy Life, KT SkyLife
+                </span>
               </div>
             </div>
           </div>
@@ -630,11 +458,9 @@ export default function SkyLife() {
               return (
                 <div
                   key={i}
-                  className={`flex items-center justify-center overflow-hidden xs:max-h-[460px] md:max-h-[800px] md:rounded-3xl xs:rounded-xl w-full${
+                  className={`flex items-center justify-center overflow-hidden xs:max-h-[460px] md:max-h-[800px] md:rounded-3xl xs:rounded-xl w-full fade-in-section${
                     marginClass ? " " + marginClass : ""
                   }`}
-                  data-aos="fade-up"
-                  data-aos-delay={i * 100}
                 >
                   <img
                     src={src}
@@ -661,11 +487,9 @@ export default function SkyLife() {
               return (
                 <div
                   key={i}
-                  className={`flex items-center justify-center overflow-hidden xs:max-h-[460px] md:max-h-[800px] md:rounded-3xl xs:rounded-xl w-full${
+                  className={`flex items-center justify-center overflow-hidden xs:max-h-[460px] md:max-h-[800px] md:rounded-3xl xs:rounded-xl w-full fade-in-section${
                     marginClass ? " " + marginClass : ""
                   }`}
-                  data-aos="fade-up"
-                  data-aos-delay={i * 100}
                 >
                   <img
                     src={src}
@@ -694,10 +518,7 @@ export default function SkyLife() {
           alt="Skylife Background Mobile"
           className="block object-cover w-full h-full md:hidden"
         />
-        <div
-          data-aos="fade-up"
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center md:gap-8 xs:gap-4"
-        >
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center md:gap-8 xs:gap-4 fade-in-section">
           <img
             src="/skylife_logo.png"
             alt="SkyLife Logo"

@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import useFadeInOnScroll from "@/src/hooks/useFadeInOnScroll";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -38,7 +39,8 @@ const HQSubImages = [
 ];
 
 export default function BSW() {
-  const [ready, setReady] = useState(true);
+  useFadeInOnScroll();
+
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -47,40 +49,6 @@ export default function BSW() {
     window.addEventListener("resize", checkIsMobile);
     return () => window.removeEventListener("resize", checkIsMobile);
   }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!sessionStorage.getItem("petpeaceReloaded")) {
-      sessionStorage.setItem("petpeaceReloaded", "true");
-      window.location.reload();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!ready) return;
-    if (typeof window === "undefined") return;
-
-    try {
-      AOS.init({
-        duration: 1000,
-        once: false,
-        offset: isMobile ? 200 : 500,
-        easing: "ease-out-cubic",
-      });
-    } catch (error) {}
-
-    setTimeout(() => {
-      try {
-        AOS.refresh();
-      } catch (error) {}
-    }, 200);
-
-    return () => {
-      try {
-        AOS.refreshHard();
-      } catch (error) {}
-    };
-  }, [isMobile, ready]);
 
   return (
     <div className="relative w-full min-h-screen bg-white">
@@ -91,10 +59,7 @@ export default function BSW() {
           alt="SkyLife Background"
           className="absolute inset-0 z-0 object-cover w-full h-full"
         />
-        <div
-          data-aos="fade-up"
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center"
-        >
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center fade-in-section">
           <p className="font-sans font-light text-white md:text-pt-subsection-title xs:text-pt-subtitle-xs">
             Retail Management
           </p>
@@ -112,10 +77,7 @@ export default function BSW() {
 
       {/* Section 2 : 프로젝트 설명 */}
       <section className="relative md:py-[200px] bg-white xs:py-20">
-        <div
-          data-aos="fade-up"
-          className="flex justify-between max-w-[1440px] md:mx-auto md:flex-row xs:flex-col xs:mx-5"
-        >
+        <div className="flex justify-between max-w-[1440px] md:mx-auto md:flex-row xs:flex-col xs:mx-5 fade-in-section">
           <div className="flex flex-col gap-8">
             <h2 className="font-sans font-bold text-primary md:text-pt-section-title xs:text-pt-section-title-xs">
               BSW Beauty 솔루션 구축
@@ -154,7 +116,6 @@ export default function BSW() {
                 </span>
               </div>
               <button
-                rel="noopener noreferrer"
                 onClick={(e) => {
                   alert(
                     "해당 프로젝트는 현재 비공개 처리되어 있어 열람하실 수 없습니다."
@@ -194,18 +155,12 @@ export default function BSW() {
 
       {/* Section 3 : POS System 목업 이미지 */}
       <section className="relative flex flex-col items-center justify-center md:py-[200px] xs:py-20 bg-primary">
-        <h1
-          data-aos="fade-up"
-          className="font-bold text-white md:mx-auto xs:mx-5 md:text-inter-title font-inter xs:text-inter-title-xs"
-        >
+        <h1 className="font-bold text-white md:mx-auto xs:mx-5 md:text-inter-title font-inter xs:text-inter-title-xs fade-in-section">
           BSW Beauty
           <br />
           Retail POS System
         </h1>
-        <div
-          data-aos="fade-up"
-          className="relative z-10 pointer-events-none select-none md:-mt-5 xs:mt-0 md:mx-auto xs:mx-5"
-        >
+        <div className="relative z-10 pointer-events-none select-none md:-mt-5 xs:mt-0 md:mx-auto xs:mx-5 fade-in-section">
           <img
             src="/bsw-macbook.png"
             alt="Macbook Mockup"
@@ -219,11 +174,9 @@ export default function BSW() {
         {POSImages.map((row, rowIdx) => (
           <div
             key={rowIdx}
-            className={`grid md:w-[130%] xs:w-[150%] md:grid-cols-4 xs:grid-cols-3 md:gap-10 xs:gap-2 pointer-events-none select-none ${
+            className={`grid md:w-[130%] xs:w-[150%] md:grid-cols-4 xs:grid-cols-3 md:gap-10 xs:gap-2 pointer-events-none select-none fade-in-section ${
               rowIdx === 0 ? "ml-[10%]" : "mr-[10%]"
             }`}
-            data-aos="fade-up"
-            data-aos-delay={rowIdx * 100}
           >
             {row.map((img, colIdx) => {
               if (isMobile && colIdx === row.length - 1) return null;
@@ -232,9 +185,7 @@ export default function BSW() {
                   key={img.src}
                   src={img.src}
                   alt={img.alt}
-                  className="object-cover w-full bg-white border rounded-lg md:rounded-2xl border-primary-light"
-                  data-aos="fade-left"
-                  data-aos-delay={colIdx * 100}
+                  className="object-cover w-full bg-white border rounded-lg md:rounded-2xl border-primary-light fade-in-section"
                 />
               );
             })}
@@ -244,10 +195,7 @@ export default function BSW() {
 
       {/* Section 5 : POS System Font */}
       <section className="flex flex-col items-center w-full mx-auto overflow-hidden bg-primary">
-        <div
-          data-aos="fade-up"
-          className="w-full md:max-w-[1440px] xs:max-w-full flex md:flex-row xs:flex-col md:pb-[200px] xs:pb-20 md:gap-0 xs:gap-10"
-        >
+        <div className="w-full md:max-w-[1440px] xs:max-w-full flex md:flex-row xs:flex-col md:pb-[200px] xs:pb-20 md:gap-0 xs:gap-10 fade-in-section">
           <div className="flex flex-col flex-1 md:gap-6 xs:gap-4 md:mx-auto xs:mx-5">
             <h2 className="font-bold text-white font-inter md:text-inter-subtitle xs:text-inter-subtitle-xs">
               Inter
@@ -298,18 +246,12 @@ export default function BSW() {
       {/* Section 6 : POS System Color System */}
       <section className="flex flex-col items-center md:pb-[200px] xs:pb-20 mx-auto bg-primary">
         {/* 상단 타이틀 */}
-        <div
-          data-aos="fade-up"
-          className="flex w-full md:max-w-[1440px] xs:max-w-full md:mb-[100px] xs:mb-10"
-        >
+        <div className="flex w-full md:max-w-[1440px] xs:max-w-full md:mb-[100px] xs:mb-10 fade-in-section">
           <h3 className="font-sans font-bold text-white md:mx-0 xs:mx-5 md:text-pt-section-title xs:text-pt-section-title-xs">
             Color System
           </h3>
         </div>
-        <div
-          data-aos="fade-up"
-          className="flex flex-col md:gap-8 xs:gap-4 md:max-w-[1440px] xs:max-w-full pointer-events-none select-none md:mx-auto xs:mx-5"
-        >
+        <div className="flex flex-col md:gap-8 xs:gap-4 md:max-w-[1440px] xs:max-w-full pointer-events-none select-none md:mx-auto xs:mx-5 fade-in-section">
           <img
             src="/bsw_pos-blue.png"
             alt="blue color"
@@ -366,18 +308,12 @@ export default function BSW() {
       {/* Section 7 : POS System Icons */}
       <section className="flex flex-col items-center md:pb-[200px] xs:pb-20 mx-auto bg-primary">
         {/* 상단 타이틀 */}
-        <div
-          data-aos="fade-up"
-          className="flex w-full md:max-w-[1440px] xs:max-w-full md:mb-[100px] xs:mb-10"
-        >
+        <div className="flex w-full md:max-w-[1440px] xs:max-w-full md:mb-[100px] xs:mb-10 fade-in-section">
           <h3 className="font-sans font-bold text-white md:mx-0 xs:mx-5 md:text-pt-section-title xs:text-pt-section-title-xs">
             Icons
           </h3>
         </div>
-        <div
-          data-aos="fade-up"
-          className="flex md:max-w-[1440px] xs:max-w-full pointer-events-none select-none md:mx-auto xs:mx-5"
-        >
+        <div className="flex md:max-w-[1440px] xs:max-w-full pointer-events-none select-none md:mx-auto xs:mx-5 fade-in-section">
           <img
             src="/bsw_pos-icon.png"
             alt="POS Icon"
@@ -397,10 +333,7 @@ export default function BSW() {
 
       {/* Section 9 : BSW HQ Dashboard 비디오 */}
       <section className="flex flex-col items-center md:py-[200px] xs:py-20 md:px-0 xs:px-5 bg-primary">
-        <div
-          data-aos="fade-up"
-          className="md:h-[750px] xs:h-full w-full md:max-w-[1440px] xs:max-w-full mx-auto md:rounded-2xl xs:rounded-xl overflow-hidden pointer-events-auto select-auto md:border-4 xs:border-2 border-primary-deepLight"
-        >
+        <div className="md:h-[750px] xs:h-full w-full md:max-w-[1440px] xs:max-w-full mx-auto md:rounded-2xl xs:rounded-xl overflow-hidden pointer-events-auto select-auto md:border-4 xs:border-2 border-primary-deepLight fade-in-section">
           <video
             src="/bsw_hq.mp4"
             muted
@@ -415,10 +348,7 @@ export default function BSW() {
 
       {/* Section 10 : BSW HQ 로그인,회원가입 페이지 */}
       <section className="mx-auto bg-primary">
-        <div
-          data-aos="fade-up"
-          className="flex md:flex-row xs:flex-col md:max-w-[1440px] xs:max-w-full w-full mx-auto md:px-0 xs:px-5 md:gap-0 xs:gap-10"
-        >
+        <div className="flex md:flex-row xs:flex-col md:max-w-[1440px] xs:max-w-full w-full mx-auto md:px-0 xs:px-5 md:gap-0 xs:gap-10 fade-in-section">
           {/* 왼쪽 고정 텍스트 */}
           <div className="md:sticky xs:relative md:top-[200px] xs:top-0 z-10 flex flex-col items-start justify-start md:w-1/2 xs:w-full h-fit text-white">
             <h3 className="font-sans font-bold md:mb-6 xs:mb-4 md:text-pt-section-title xs:text-pt-subsection-title">
@@ -452,10 +382,7 @@ export default function BSW() {
 
       {/* Section 11 : BSW HQ 주요 페이지 */}
       <section className="flex flex-col items-center md:min-h-screen xs:min-h-0 overflow-hidden mx-auto md:py-[200px] xs:py-20 bg-primary">
-        <div
-          data-aos="fade-up"
-          className="relative grid grid-cols-3 md:gap-14 xs:gap-4 md:w-[110%] xs:w-[150%] h-full"
-        >
+        <div className="relative grid grid-cols-3 md:gap-14 xs:gap-4 md:w-[110%] xs:w-[150%] h-full fade-in-section">
           {HQSubImages.map((col, colIdx) => (
             <div
               key={colIdx}
@@ -484,10 +411,7 @@ export default function BSW() {
 
       {/* Section 12 : BSW Beauty 슬로건 */}
       <section className="flex flex-col md:pb-[200px] xs:pb-20 bg-primary">
-        <div
-          data-aos="fade-up"
-          className="md:max-w-[1440px] xs:max-w-full md:mx-auto xs:mx-5"
-        >
+        <div className="md:max-w-[1440px] xs:max-w-full md:mx-auto xs:mx-5 fade-in-section">
           <h2 className="font-bold text-white/20 md:text-inter-subtitle font-inter xs:text-inter-subtitle-xs">
             BSW BEAUTY,
             <br />
@@ -526,34 +450,22 @@ export default function BSW() {
       <section className="relative flex flex-col md:py-[200px] xs:py-20 items-center w-full min-h-screen overflow-hidden bg-primary">
         {/* 상단 텍스트 */}
         <div className="w-full md:max-w-[1440px] xs:max-w-full mx-auto">
-          <h3
-            data-aos="fade-up"
-            className="block font-sans font-bold text-white md:text-pt-section-title xs:text-pt-section-title-xs mb-14 md:mx-auto xs:mx-5"
-          >
+          <h3 className="block font-sans font-bold text-white md:text-pt-section-title xs:text-pt-section-title-xs mb-14 md:mx-auto xs:mx-5 fade-in-section">
             Mobile Design
           </h3>
-          <div
-            data-aos="fade-up"
-            className="relative flex justify-center w-full mx-auto pointer-events-none select-none md:px-0 xs:px-5 md:max-w-3xl xs:max-w-full"
-          >
+          <div className="relative flex justify-center w-full mx-auto pointer-events-none select-none md:px-0 xs:px-5 md:max-w-3xl xs:max-w-full fade-in-section">
             <img
               src="/bsw_app-mockup2.png"
               alt="BSW App Mockup"
               className="w-full h-full"
             />
           </div>
-          <h2
-            data-aos="fade-up"
-            className="font-bold font-inter md:text-inter-title xs:text-inter-title-xs md:text-[#FF2F93]/5 xs:text-[#FF2F93]/10 md:mx-auto xs:mx-5 md:pt-[100px] xs:pt-10"
-          >
+          <h2 className="font-bold font-inter md:text-inter-title xs:text-inter-title-xs md:text-[#FF2F93]/5 xs:text-[#FF2F93]/10 md:mx-auto xs:mx-5 md:pt-[100px] xs:pt-10 fade-in-section">
             HQ APP & <br />
             BSW Mobile
           </h2>
           <div className="flex flex-col md:gap-[200px] xs:gap-20">
-            <div
-              data-aos="fade-up"
-              className="flex items-center w-full md:flex-row xs:flex-col md:px-0 xs:px-5 md:-mt-20 xs:mt-0 md:gap-14 xs:gap-4"
-            >
+            <div className="flex items-center w-full md:flex-row xs:flex-col md:px-0 xs:px-5 md:-mt-20 xs:mt-0 md:gap-14 xs:gap-4 fade-in-section">
               <p className="font-sans text-white md:w-2/3 xs:w-full text-pt-body">
                 React 기반 컴포넌트 구조로 설계하여, 각 구매 건을 카드
                 <br className="hidden md:inline" />
@@ -576,10 +488,7 @@ export default function BSW() {
                 />
               </div>
             </div>
-            <div
-              data-aos="fade-up"
-              className="flex items-center w-full md:flex-row xs:flex-col-reverse md:px-0 xs:px-5 md:-mt-20 xs:mt-0 md:gap-14 xs:gap-4"
-            >
+            <div className="flex items-center w-full md:flex-row xs:flex-col-reverse md:px-0 xs:px-5 md:-mt-20 xs:mt-0 md:gap-14 xs:gap-4 fade-in-section">
               <div className="grid w-full grid-cols-2 pointer-events-none select-none md:gap-14 xs:gap-4">
                 <img
                   src="/bsw_app-main3.png"
@@ -602,10 +511,7 @@ export default function BSW() {
                 재고를 관리할 수 있도록 설계하였습니다.
               </p>
             </div>
-            <div
-              data-aos="fade-up"
-              className="flex items-center w-full md:flex-row xs:flex-col md:px-0 xs:px-5 md:-mt-20 xs:mt-0 md:gap-14 xs:gap-4"
-            >
+            <div className="flex items-center w-full md:flex-row xs:flex-col md:px-0 xs:px-5 md:-mt-20 xs:mt-0 md:gap-14 xs:gap-4 fade-in-section">
               <p className="font-sans text-white md:w-2/3 xs:w-full text-pt-body">
                 각 화면에서는 검색, 필터, 상세 내역 확인 등 실무자가 모바일
                 <br className="hidden md:inline" />
