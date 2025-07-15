@@ -8,6 +8,7 @@ import { Scroll } from "@/src/icons/Icon";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Loading from "@/components/Loading";
+import imagesLoaded from "imagesloaded";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -47,37 +48,25 @@ export default function Petpeace() {
 
   // 모든 리소스 로딩 체크 (이미지, 폰트, window.onload)
   useEffect(() => {
-    const loadAllAssets = async () => {
-      // 1. body가 준비될 때까지 대기
-      await new Promise<void>((resolve) => {
-        function waitForBody() {
-          if (document.body) return resolve();
-          setTimeout(waitForBody, 10);
-        }
-        waitForBody();
-      });
-
-      // 2. 이미지 로딩 대기
-      const { default: imagesLoaded } = await import("imagesloaded");
-      await new Promise<void>((resolve) => {
-        imagesLoaded(document.body, { background: true }, () => resolve());
-      });
-
-      // 3. 폰트 로딩 대기
-      if (document.fonts) {
-        await document.fonts.ready;
-      }
-
-      // 4. window.onload 대기
+    async function init() {
+      // 1. 이미지 로딩 대기
+      await new Promise<void>((resolve) =>
+        imagesLoaded(document.body, { background: true }, () => resolve())
+      );
+      // 2. 폰트 로딩 대기
+      if (document.fonts) await document.fonts.ready;
+      // 3. window.onload 대기
       await new Promise<void>((resolve) => {
         if (document.readyState === "complete") resolve();
         else window.addEventListener("load", () => resolve(), { once: true });
       });
-
+      // 4. 애니메이션 라이브러리 초기화
+      AOS.refresh();
+      ScrollTrigger.refresh();
+      // 5. 로딩 완료 처리
       setIsLoaded(true);
-    };
-
-    loadAllAssets();
+    }
+    init();
   }, []);
 
   // AOS 초기화 (로딩 완료 후)
@@ -149,6 +138,7 @@ export default function Petpeace() {
     };
   }, [isLoaded]);
 
+  // 로딩 중에는 Loading 컴포넌트만 렌더링
   if (!isLoaded) return <Loading />;
 
   return (
