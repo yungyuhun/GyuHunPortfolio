@@ -35,6 +35,38 @@ export default function Petpeace() {
     "/petpeace_sub15.png",
   ];
 
+  useEffect(() => {
+    function onDomReady() {
+      console.log("DOM is ready!");
+    }
+    function onAllLoaded() {
+      console.log("All resources loaded!");
+    }
+
+    // DOM 준비
+    if (
+      document.readyState === "interactive" ||
+      document.readyState === "complete"
+    ) {
+      onDomReady();
+    } else {
+      document.addEventListener("DOMContentLoaded", onDomReady, { once: true });
+    }
+
+    // 모든 리소스 준비
+    if (document.readyState === "complete") {
+      onAllLoaded();
+    } else {
+      window.addEventListener("load", onAllLoaded, { once: true });
+    }
+
+    // cleanup
+    return () => {
+      document.removeEventListener("DOMContentLoaded", onDomReady);
+      window.removeEventListener("load", onAllLoaded);
+    };
+  }, []);
+
   // 반응형 체크
   useEffect(() => {
     const handleResize = () => {
@@ -45,35 +77,22 @@ export default function Petpeace() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // 모든 리소스 로딩 체크 (이미지, 폰트, window.onload)
   useEffect(() => {
-    async function init() {
-      // 1. 이미지 로딩 대기
-      await new Promise<void>((resolve) =>
-        imagesLoaded(document.body, { background: true }, () => resolve())
-      );
-      // 2. 폰트 로딩 대기
-      if (document.fonts) await document.fonts.ready;
-      // 3. window.onload 대기
-      await new Promise<void>((resolve) => {
-        if (document.readyState === "complete") resolve();
-        else window.addEventListener("load", () => resolve(), { once: true });
-      });
-      // 4. 애니메이션 라이브러리 초기화
+    if (!isLoaded) return;
+    let count = 0;
+    const max = 10;
+    const interval = setInterval(() => {
       AOS.refresh();
       ScrollTrigger.refresh();
-      // 5. 로딩 완료 처리
-      setIsLoaded(true);
-    }
-    init();
-  }, []);
+      count++;
+      if (count > max) clearInterval(interval);
+    }, 200);
+    return () => clearInterval(interval);
+  }, [isLoaded]);
 
+  // AOS 초기화 (로딩 완료 후)
   useEffect(() => {
     if (isLoaded) window.scrollTo(0, 0);
-    console.log("모두 불러옴!");
-
-    AOS.refreshHard();
-    ScrollTrigger.getAll().forEach((st) => st.kill());
 
     AOS.init({
       duration: 1000,
@@ -82,19 +101,12 @@ export default function Petpeace() {
       easing: "ease-out-cubic",
     });
 
-    let count = 0;
-    const maxRefresh = 8;
-    const interval = setInterval(() => {
+    setTimeout(() => {
       AOS.refresh();
-      ScrollTrigger.refresh();
-      count++;
-      if (count > maxRefresh) clearInterval(interval);
-    }, 150);
+    }, 100);
 
     return () => {
-      clearInterval(interval);
       AOS.refreshHard();
-      ScrollTrigger.getAll().forEach((st) => st.kill());
     };
   }, [isMobile, isLoaded]);
 
