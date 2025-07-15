@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import AOS from "aos";
-import "aos/dist/aos.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,17 +19,10 @@ export default function MyplatScrollTrigger({
   const bottomTextRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // AOS 초기화
+  // AOS
   useEffect(() => {
-    AOS.init({
-      duration: 1000,
-      once: false,
-      offset: isMobile ? 200 : 400,
-      easing: "ease-out-cubic",
-    });
-
-    setTimeout(() => AOS.refresh(), 100);
-  }, [isMobile]);
+    AOS.refresh();
+  }, []);
 
   // ScrollTrigger timeline (텍스트/이미지/배경 애니메이션)
   useEffect(() => {

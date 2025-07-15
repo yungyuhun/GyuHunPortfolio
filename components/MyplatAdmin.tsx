@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import AOS from "aos";
-import "aos/dist/aos.css";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
@@ -19,14 +18,7 @@ const BOImages = [
 
 export default function MyplatAdmin() {
   useEffect(() => {
-    AOS.init({
-      duration: 1000,
-      once: false,
-      offset: 300,
-      easing: "ease-out-cubic",
-    });
-
-    setTimeout(() => AOS.refresh(), 100);
+    AOS.refresh();
   }, []);
 
   return (
@@ -62,7 +54,11 @@ export default function MyplatAdmin() {
 
       {/* Admin 서브 페이지 Swiper */}
       <section className="md:pb-[200px] xs:pb-20 w-full overflow-hidden bg-background-blue">
-        <div className="flex items-center justify-center" data-aos="fade-left" data-aos-delay="200">
+        <div
+          className="flex items-center justify-center"
+          data-aos="fade-left"
+          data-aos-delay="200"
+        >
           <Swiper
             modules={[Autoplay]}
             centeredSlides={true}

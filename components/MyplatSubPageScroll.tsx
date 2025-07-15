@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import AOS from "aos";
-import "aos/dist/aos.css";
 
 const MyplatSubImages = [
   "/myplat_sub1.png",
@@ -22,14 +21,7 @@ const MyplatSub2Images = [
 
 export default function MyplatSubPageScroll() {
   useEffect(() => {
-    AOS.init({
-      duration: 1000,
-      once: false,
-      offset: 300,
-      easing: "ease-out-cubic",
-    });
-
-    setTimeout(() => AOS.refresh(), 100);
+    AOS.refresh();
   }, []);
 
   return (
@@ -75,10 +67,7 @@ export default function MyplatSubPageScroll() {
           className="flex flex-col md:pt-20 xs:pt-0 md:gap-8 xs:gap-4 md:pl-8 xs:pl-0 md:w-1/3 xs:w-full"
         >
           {MyplatSub2Images.map((src, i) => (
-            <div
-              key={i}
-              className="w-full md:h-[290px] xs:h-full"
-            >
+            <div key={i} className="w-full md:h-[290px] xs:h-full">
               <div className="flex items-center justify-center w-full h-full overflow-hidden border-4 shadow-lg pointer-events-none select-none border-primary rounded-2xl">
                 <img
                   src={src}

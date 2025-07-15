@@ -1,16 +1,18 @@
 "use client";
+import dynamic from "next/dynamic";
 
 import { useEffect, useRef, useState } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
-import MyplatScrollTrigger from "@/components/MyplatScrollTrigger";
-import MyplatMainPageScroll from "@/components/MyplatMainPageScroll";
-import MyplatSubPageScroll from "@/components/MyplatSubPageScroll";
-import MyplatTextGradient from "@/components/MyplatTextGradient";
-import MyplatAdmin from "@/components/MyplatAdmin";
-import MyplatMobile from "@/components/MyplatMobile";
+const MyplatScrollTrigger = dynamic(() => import("@/components/MyplatScrollTrigger"), { ssr: false });
+const MyplatMainPageScroll = dynamic(() => import("@/components/MyplatMainPageScroll"), { ssr: false });
+const MyplatSubPageScroll = dynamic(() => import("@/components/MyplatSubPageScroll"), { ssr: false });
+const MyplatTextGradient = dynamic(() => import("@/components/MyplatTextGradient"), { ssr: false });
+const MyplatAdmin = dynamic(() => import("@/components/MyplatAdmin"), { ssr: false });
+const MyplatMobile = dynamic(() => import("@/components/MyplatMobile"), { ssr: false });
+
 
 export default function Myplat() {
   const marqueeRef = useRef<HTMLDivElement | null>(null);
@@ -150,6 +152,7 @@ export default function Myplat() {
       {/* Section 3 : 마이플랫 메인 이미지 */}
       <section className="flex justify-center min-h-screen md:py-[200px] xs:py-20 bg-background-gray">
         <img
+        
           src="/myplat_main.png"
           alt="Myplat Main"
           className="w-full md:max-w-[1440px] xs:max-w-full xs:px-5"
