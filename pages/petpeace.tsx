@@ -14,6 +14,8 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Petpeace() {
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeTextRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null); // 이미지 포함 영역 ref
+
   const [isMobile, setIsMobile] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -35,35 +37,23 @@ export default function Petpeace() {
     "/petpeace_sub15.png",
   ];
 
+  // 리소스 로딩 감지 (DOM + 이미지)
   useEffect(() => {
-    function onDomReady() {
-      console.log("DOM is ready!");
-    }
-    function onAllLoaded() {
-      console.log("All resources loaded!");
-    }
+    const checkLoaded = () => {
+      if (!wrapperRef.current) return;
+      imagesLoaded(wrapperRef.current, { background: true }, () => {
+        setIsLoaded(true);
+      });
+    };
 
-    // DOM 준비
-    if (
-      document.readyState === "interactive" ||
-      document.readyState === "complete"
-    ) {
-      onDomReady();
-    } else {
-      document.addEventListener("DOMContentLoaded", onDomReady, { once: true });
-    }
-
-    // 모든 리소스 준비
     if (document.readyState === "complete") {
-      onAllLoaded();
+      checkLoaded();
     } else {
-      window.addEventListener("load", onAllLoaded, { once: true });
+      window.addEventListener("load", checkLoaded, { once: true });
     }
 
-    // cleanup
     return () => {
-      document.removeEventListener("DOMContentLoaded", onDomReady);
-      window.removeEventListener("load", onAllLoaded);
+      window.removeEventListener("load", checkLoaded);
     };
   }, []);
 
@@ -77,22 +67,11 @@ export default function Petpeace() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // AOS 초기화
   useEffect(() => {
     if (!isLoaded) return;
-    let count = 0;
-    const max = 10;
-    const interval = setInterval(() => {
-      AOS.refresh();
-      ScrollTrigger.refresh();
-      count++;
-      if (count > max) clearInterval(interval);
-    }, 200);
-    return () => clearInterval(interval);
-  }, [isLoaded]);
 
-  // AOS 초기화 (로딩 완료 후)
-  useEffect(() => {
-    if (isLoaded) window.scrollTo(0, 0);
+    window.scrollTo(0, 0); // 첫 로딩 시 스크롤 초기화
 
     AOS.init({
       duration: 1000,
@@ -101,57 +80,60 @@ export default function Petpeace() {
       easing: "ease-out-cubic",
     });
 
-    setTimeout(() => {
+    // 여러 번 refresh로 layout 안정화
+    let count = 0;
+    const interval = setInterval(() => {
       AOS.refresh();
-    }, 100);
+      ScrollTrigger.refresh();
+      if (++count > 10) clearInterval(interval);
+    }, 200);
 
     return () => {
+      clearInterval(interval);
       AOS.refreshHard();
     };
   }, [isMobile, isLoaded]);
 
-  // GSAP marquee 애니메이션 (로딩 완료 후)
+  // GSAP marquee
   useEffect(() => {
     if (!isLoaded) return;
 
     let marqueeTween: gsap.core.Tween | null = null;
 
-    function setupGsap() {
-      const marqueeContainer = marqueeRef.current;
-      const marqueeText = marqueeTextRef.current;
-      if (marqueeContainer && marqueeText) {
-        while (marqueeContainer.children.length > 1) {
-          marqueeContainer.removeChild(marqueeContainer.lastChild!);
-        }
-        const textClone = marqueeText.cloneNode(true) as HTMLElement;
-        marqueeContainer.appendChild(textClone);
+    const marqueeContainer = marqueeRef.current;
+    const marqueeText = marqueeTextRef.current;
 
-        marqueeText.style.display = "inline-block";
-        textClone.style.display = "inline-block";
-        const gap = 60;
-        marqueeContainer.style.gap = `${gap}px`;
-
-        requestAnimationFrame(() => {
-          const textWidth = marqueeText.offsetWidth;
-          const totalWidth = textWidth + gap;
-          if (textWidth === 0) {
-            setTimeout(setupGsap, 50);
-            return;
-          }
-          marqueeTween = gsap.to(marqueeContainer, {
-            x: `-=${totalWidth}`,
-            duration: 18,
-            ease: "none",
-            repeat: -1,
-            modifiers: {
-              x: gsap.utils.unitize((x) => parseFloat(x) % totalWidth),
-            },
-          });
-        });
+    if (marqueeContainer && marqueeText) {
+      while (marqueeContainer.children.length > 1) {
+        marqueeContainer.removeChild(marqueeContainer.lastChild!);
       }
-    }
 
-    setupGsap();
+      const textClone = marqueeText.cloneNode(true) as HTMLElement;
+      marqueeContainer.appendChild(textClone);
+
+      marqueeText.style.display = "inline-block";
+      textClone.style.display = "inline-block";
+
+      const gap = 60;
+      marqueeContainer.style.gap = `${gap}px`;
+
+      requestAnimationFrame(() => {
+        const textWidth = marqueeText.offsetWidth;
+        const totalWidth = textWidth + gap;
+
+        if (textWidth === 0) return;
+
+        marqueeTween = gsap.to(marqueeContainer, {
+          x: `-=${totalWidth}`,
+          duration: 18,
+          ease: "none",
+          repeat: -1,
+          modifiers: {
+            x: gsap.utils.unitize((x) => parseFloat(x) % totalWidth),
+          },
+        });
+      });
+    }
 
     return () => {
       marqueeTween?.kill();
@@ -160,7 +142,10 @@ export default function Petpeace() {
   }, [isLoaded]);
 
   return (
-    <div className="relative w-full min-h-screen overflow-hidden bg-white">
+    <div
+      ref={wrapperRef}
+      className="relative w-full min-h-screen overflow-hidden bg-white"
+    >
       {/* Section 1 : 메인 이미지/타이틀 */}
       <section className="relative w-full h-screen overflow-hidden">
         <img
