@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Loading from "@/components/Loading";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -14,6 +15,7 @@ export default function Petpeace() {
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeTextRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const topImages = [
     "/petpeace_sub5.png",
@@ -43,9 +45,34 @@ export default function Petpeace() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // AOS 초기화
+  // 모든 리소스 로딩 체크 (이미지, 폰트, window.onload)
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    const loadAllAssets = async () => {
+      const { default: imagesLoaded } = await import("imagesloaded");
+
+      await new Promise<void>((resolve) => {
+        if (!document.body) return resolve();
+        imagesLoaded(document.body, { background: true }, () => resolve());
+      });
+
+      if (document.fonts) {
+        await document.fonts.ready;
+      }
+
+      await new Promise<void>((resolve) => {
+        if (document.readyState === "complete") resolve();
+        else window.addEventListener("load", () => resolve(), { once: true });
+      });
+
+      setIsLoaded(true);
+    };
+
+    loadAllAssets();
+  }, []);
+
+  // AOS 초기화 (로딩 완료 후)
+  useEffect(() => {
+    if (!isLoaded) return;
 
     AOS.init({
       duration: 1000,
@@ -54,7 +81,6 @@ export default function Petpeace() {
       easing: "ease-out-cubic",
     });
 
-    // 레이아웃 변동 대응
     setTimeout(() => {
       AOS.refresh();
     }, 100);
@@ -62,10 +88,12 @@ export default function Petpeace() {
     return () => {
       AOS.refreshHard();
     };
-  }, [isMobile]);
+  }, [isMobile, isLoaded]);
 
-  // GSAP marquee 애니메이션
+  // GSAP marquee 애니메이션 (로딩 완료 후)
   useEffect(() => {
+    if (!isLoaded) return;
+
     let marqueeTween: gsap.core.Tween | null = null;
 
     function setupGsap() {
@@ -109,7 +137,10 @@ export default function Petpeace() {
       marqueeTween?.kill();
       if (marqueeRef.current) marqueeRef.current.style.transform = "";
     };
-  }, []);
+  }, [isLoaded]);
+
+    if (!isLoaded) return <Loading />;
+  
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden bg-white">

@@ -40,26 +40,32 @@ export default function Myplat() {
   useEffect(() => {
     const checkIsMobile = () => setIsMobile(window.innerWidth < 768);
     checkIsMobile();
-
     window.addEventListener("resize", checkIsMobile);
     return () => window.removeEventListener("resize", checkIsMobile);
   }, []);
 
-  // 전체 리소스 로딩 완료 확인
+  // 전체 리소스 로드 확인 (이미지 + 폰트 + window.onload)
   useEffect(() => {
-    const onLoad = () => {
+    const loadAllAssets = async () => {
+      await new Promise<void>((resolve) => {
+        import("imagesloaded").then(({ default: imagesLoaded }) => {
+          imagesLoaded(document.body, { background: true }, () => resolve());
+        });
+      });
+
+      if (document.fonts) {
+        await document.fonts.ready;
+      }
+
+      await new Promise<void>((resolve) => {
+        if (document.readyState === "complete") resolve();
+        else window.addEventListener("load", () => resolve(), { once: true });
+      });
+
       setIsLoaded(true);
     };
 
-    if (document.readyState === "complete") {
-      // 이미 로딩 완료된 경우
-      onLoad();
-    } else {
-      // 로딩 중인 경우
-      window.addEventListener("load", onLoad, { once: true });
-    }
-
-    return () => window.removeEventListener("load", onLoad);
+    loadAllAssets();
   }, []);
 
   // AOS 초기화 (로딩 완료 후)
@@ -78,7 +84,6 @@ export default function Myplat() {
     }, 100);
   }, [isMobile, isLoaded]);
 
-  // 로딩 중이면 Loading 컴포넌트 출력
   if (!isLoaded) return <Loading />;
 
   return (

@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Loading from "@/components/Loading";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -38,16 +39,44 @@ const HQSubImages = [
 ];
 
 export default function BSW() {
+  const [isLoaded, setIsLoaded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const checkIsMobile = () => setIsMobile(window.innerWidth < 768);
+    checkIsMobile();
+    window.addEventListener("resize", checkIsMobile);
+    return () => window.removeEventListener("resize", checkIsMobile);
   }, []);
 
+  // 전체 리소스 로드 확인 (이미지 + 폰트 + window.onload)
   useEffect(() => {
+    const loadAllAssets = async () => {
+      await new Promise<void>((resolve) => {
+        import("imagesloaded").then(({ default: imagesLoaded }) => {
+          imagesLoaded(document.body, { background: true }, () => resolve());
+        });
+      });
+
+      if (document.fonts) {
+        await document.fonts.ready;
+      }
+
+      await new Promise<void>((resolve) => {
+        if (document.readyState === "complete") resolve();
+        else window.addEventListener("load", () => resolve(), { once: true });
+      });
+
+      setIsLoaded(true);
+    };
+
+    loadAllAssets();
+  }, []);
+
+  // AOS 초기화 (로딩 완료 후)
+  useEffect(() => {
+    if (!isLoaded) return;
+
     AOS.init({
       duration: 1000,
       once: false,
@@ -55,8 +84,12 @@ export default function BSW() {
       easing: "ease-out-cubic",
     });
 
-    setTimeout(() => AOS.refresh(), 100);
-  }, [isMobile]);
+    setTimeout(() => {
+      AOS.refresh();
+    }, 100);
+  }, [isMobile, isLoaded]);
+
+  if (!isLoaded) return <Loading />;
 
   return (
     <div className="relative w-full min-h-screen bg-white">

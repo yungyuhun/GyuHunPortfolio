@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Loading from "@/components/Loading";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -22,19 +23,10 @@ export default function SkyLife() {
     ["/skylife_sub5.png", "/skylife_sub6.png"],
   ];
 
+  const [isLoaded, setIsLoaded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-
-  // 새로고침
-  // useEffect(() => {
-  //   if (typeof window === "undefined") return;
-  //   const reloaded = sessionStorage.getItem("skylifeReloaded");
-  //   if (!reloaded) {
-  //     sessionStorage.setItem("skylifeReloaded", "true");
-  //     window.location.reload();
-  //   } else {
-  //     sessionStorage.removeItem("skylifeReloaded");
-  //   }
-  // }, []);
+  // 모바일이면 2개만, 아니면 전체
+  const visibleCols = isMobile ? 2 : subImages.length;
 
   // 반응형 처리
   useEffect(() => {
@@ -44,12 +36,37 @@ export default function SkyLife() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // 모바일이면 2개만, 아니면 전체
-  const visibleCols = isMobile ? 2 : subImages.length;
-
-  // AOS 초기화
+  // 전체 리소스 로딩 체크 (이미지, 폰트, window.onload)
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    const loadAllAssets = async () => {
+      // imagesloaded 동적 import
+      const { default: imagesLoaded } = await import("imagesloaded");
+
+      await new Promise<void>((resolve) => {
+        if (!document.body) return resolve();
+        imagesLoaded(document.body, { background: true }, () => resolve());
+      });
+
+      // 폰트 로딩 대기
+      if (document.fonts) {
+        await document.fonts.ready;
+      }
+
+      // window.onload 대기
+      await new Promise<void>((resolve) => {
+        if (document.readyState === "complete") resolve();
+        else window.addEventListener("load", () => resolve(), { once: true });
+      });
+
+      setIsLoaded(true);
+    };
+
+    loadAllAssets();
+  }, []);
+
+  // AOS 초기화 (로딩 완료 후)
+  useEffect(() => {
+    if (!isLoaded) return;
 
     AOS.init({
       duration: 1000,
@@ -58,7 +75,6 @@ export default function SkyLife() {
       easing: "ease-out-cubic",
     });
 
-    // 레이아웃 변동 대응
     setTimeout(() => {
       AOS.refresh();
     }, 100);
@@ -66,16 +82,17 @@ export default function SkyLife() {
     return () => {
       AOS.refreshHard();
     };
-  }, [isMobile]);
+  }, [isMobile, isLoaded]);
 
-  // GSAP 애니메이션 (텍스트 그라데이션 & 마퀴)
+  // GSAP 애니메이션 (텍스트 그라데이션 & 마퀴) - 로딩 후 실행
   useEffect(() => {
+    if (!isLoaded) return;
+
     let retryTimeout: ReturnType<typeof setTimeout> | null = null;
     let textTrigger: ScrollTrigger | null = null;
     let marqueeTween: gsap.core.Tween | null = null;
 
     function setupGsap() {
-      // 텍스트 그라데이션용 ref 준비됐는지 체크
       if (
         !sectionRef.current ||
         textRefs.current.length < 3 ||
@@ -85,7 +102,6 @@ export default function SkyLife() {
         return;
       }
 
-      // 텍스트 그라데이션
       textRefs.current.forEach(
         (el) =>
           el &&
@@ -112,7 +128,6 @@ export default function SkyLife() {
         },
       });
 
-      // 마퀴 애니메이션
       const marqueeContainer = marqueeRef.current;
       const marqueeText = marqueeTextRef.current;
       if (marqueeContainer && marqueeText) {
@@ -131,7 +146,7 @@ export default function SkyLife() {
           const textWidth = marqueeText.offsetWidth;
           const totalWidth = textWidth + gap;
           if (textWidth === 0) {
-            setTimeout(setupGsap, 50);
+            retryTimeout = setTimeout(setupGsap, 50);
             return;
           }
           marqueeTween = gsap.to(marqueeContainer, {
@@ -156,7 +171,9 @@ export default function SkyLife() {
       ScrollTrigger.getAll().forEach((t) => t.kill());
       if (marqueeRef.current) marqueeRef.current.style.transform = "";
     };
-  }, [isMobile]);
+  }, [isMobile, isLoaded]);
+
+  if (!isLoaded) return <Loading />;
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden bg-white">
