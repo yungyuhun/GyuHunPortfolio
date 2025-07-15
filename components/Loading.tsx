@@ -5,7 +5,7 @@ import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 export default function Loading() {
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-primary bg-opacity-60">
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white bg-opacity-60">
       <DotLottieReact
         src="https://lottie.host/ccb63565-827f-434e-bbdd-818173124c36/QLa8iNrLRs.lottie"
         loop

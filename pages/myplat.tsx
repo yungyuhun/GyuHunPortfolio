@@ -6,30 +6,66 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
-const MyplatScrollTrigger = dynamic(() => import("@/components/MyplatScrollTrigger"), { ssr: false });
-const MyplatMainPageScroll = dynamic(() => import("@/components/MyplatMainPageScroll"), { ssr: false });
-const MyplatSubPageScroll = dynamic(() => import("@/components/MyplatSubPageScroll"), { ssr: false });
-const MyplatTextGradient = dynamic(() => import("@/components/MyplatTextGradient"), { ssr: false });
-const MyplatAdmin = dynamic(() => import("@/components/MyplatAdmin"), { ssr: false });
-const MyplatMobile = dynamic(() => import("@/components/MyplatMobile"), { ssr: false });
-
+import Loading from "@/components/Loading";
+const MyplatScrollTrigger = dynamic(
+  () => import("@/components/MyplatScrollTrigger"),
+  { ssr: false }
+);
+const MyplatMainPageScroll = dynamic(
+  () => import("@/components/MyplatMainPageScroll"),
+  { ssr: false }
+);
+const MyplatSubPageScroll = dynamic(
+  () => import("@/components/MyplatSubPageScroll"),
+  { ssr: false }
+);
+const MyplatTextGradient = dynamic(
+  () => import("@/components/MyplatTextGradient"),
+  { ssr: false }
+);
+const MyplatAdmin = dynamic(() => import("@/components/MyplatAdmin"), {
+  ssr: false,
+});
+const MyplatMobile = dynamic(() => import("@/components/MyplatMobile"), {
+  ssr: false,
+});
 
 export default function Myplat() {
+  const [isMobile, setIsMobile] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const marqueeRef = useRef<HTMLDivElement | null>(null);
   const marqueeTextRef = useRef<HTMLDivElement | null>(null);
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== "undefined" ? window.innerWidth < 768 : false
-  );
 
+  // 모바일 여부 확인
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const checkIsMobile = () => setIsMobile(window.innerWidth < 768);
+    checkIsMobile();
+
+    window.addEventListener("resize", checkIsMobile);
+    return () => window.removeEventListener("resize", checkIsMobile);
   }, []);
 
+  // 전체 리소스 로딩 완료 확인
   useEffect(() => {
+    const onLoad = () => {
+      setIsLoaded(true);
+    };
+
+    if (document.readyState === "complete") {
+      // 이미 로딩 완료된 경우
+      onLoad();
+    } else {
+      // 로딩 중인 경우
+      window.addEventListener("load", onLoad, { once: true });
+    }
+
+    return () => window.removeEventListener("load", onLoad);
+  }, []);
+
+  // AOS 초기화 (로딩 완료 후)
+  useEffect(() => {
+    if (!isLoaded) return;
+
     AOS.init({
       duration: 1000,
       once: false,
@@ -40,7 +76,10 @@ export default function Myplat() {
     setTimeout(() => {
       AOS.refresh();
     }, 100);
-  }, [isMobile]);
+  }, [isMobile, isLoaded]);
+
+  // 로딩 중이면 Loading 컴포넌트 출력
+  if (!isLoaded) return <Loading />;
 
   return (
     <div className="relative w-full min-h-screen bg-white md:overflow-visible xs:overflow-hidden">
@@ -152,7 +191,6 @@ export default function Myplat() {
       {/* Section 3 : 마이플랫 메인 이미지 */}
       <section className="flex justify-center min-h-screen md:py-[200px] xs:py-20 bg-background-gray">
         <img
-        
           src="/myplat_main.png"
           alt="Myplat Main"
           className="w-full md:max-w-[1440px] xs:max-w-full xs:px-5"

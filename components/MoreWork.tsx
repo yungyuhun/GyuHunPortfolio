@@ -80,48 +80,32 @@ const projects = [
 
 export default function WorkTableGSAP() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const imageRefs = useRef<HTMLDivElement[]>([]);
 
   useGSAP(() => {
-    // 초기 이미지 스타일 설정
     imageRefs.current.forEach((img) => {
-      if (img) {
-        gsap.set(img, { opacity: 0, scale: 0.98 });
-      }
+      gsap.set(img, { opacity: 0, scale: 0.98 });
     });
   }, []);
 
-  const handleMouseEnter = (i: number, e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouse = (
+    index: number,
+    isEnter: boolean,
+    e: React.MouseEvent<HTMLDivElement>
+  ) => {
     const row = e.currentTarget;
+    const image = imageRefs.current[index];
 
-    gsap.to(imageRefs.current[i], {
-      opacity: 1,
-      scale: 1,
+    gsap.to(image, {
+      opacity: isEnter ? 1 : 0,
+      scale: isEnter ? 1 : 0.98,
       duration: 0.3,
       ease: "power2.out",
       overwrite: "auto",
     });
 
     gsap.to(row.querySelectorAll(".work-cell"), {
-      color: "#fff",
-      duration: 0.3,
-      ease: "power2.out",
-    });
-  };
-
-  const handleMouseLeave = (i: number, e: React.MouseEvent<HTMLDivElement>) => {
-    const row = e.currentTarget;
-
-    gsap.to(imageRefs.current[i], {
-      opacity: 0,
-      scale: 0.98,
-      duration: 0.3,
-      ease: "power2.in",
-      overwrite: "auto",
-    });
-
-    gsap.to(row.querySelectorAll(".work-cell"), {
-      color: "#757575",
+      color: isEnter ? "#fff" : "#757575",
       duration: 0.3,
       ease: "power2.out",
     });
@@ -140,6 +124,8 @@ export default function WorkTableGSAP() {
       className="relative flex flex-col items-center w-full min-h-screen bg-black"
     >
       <InfiniteMarquee />
+
+      {/* 타이틀 */}
       <div className="flex flex-col items-center justify-center gap-8 md:mt-[200px] md:mb-[140px] xs:mt-20 xs:mb-16">
         <span className="md:h-[200px] w-[1px] bg-white xs:h-24"></span>
         <p className="font-sans font-semibold text-white md:text-pt-subsection-title xs:text-pt-subsection-title-xs">
@@ -167,8 +153,8 @@ export default function WorkTableGSAP() {
               key={i}
               data-index={i}
               className="relative flex md:mx-auto xs:mx-5 items-center md:py-8 xs:py-6 cursor-pointer group md:max-w-[1440px] xs:max-w-full xs:justify-between"
-              onMouseEnter={(e) => handleMouseEnter(i, e)}
-              onMouseLeave={(e) => handleMouseLeave(i, e)}
+              onMouseEnter={(e) => handleMouse(i, true, e)}
+              onMouseLeave={(e) => handleMouse(i, false, e)}
               onClick={(e) => !p.path && handleClick(e)}
             >
               <div className="w-1/12 font-sans font-normal md:block text-pt-body text-primary-light work-cell xs:hidden">
@@ -189,10 +175,10 @@ export default function WorkTableGSAP() {
               {/* Hover 이미지 */}
               <div
                 ref={(el) => {
-                  imageRefs.current[i] = el;
+                  if (el) imageRefs.current[i] = el;
                 }}
-                style={{ willChange: "opacity, transform" }}
                 className="absolute md:right-40 xs:right-0 top-1/2 -translate-y-1/2 md:w-[520px] xs:w-48 md:h-[300px] xs:h-32 rounded-lg overflow-hidden shadow z-10 pointer-events-none"
+                style={{ willChange: "opacity, transform" }}
               >
                 <img
                   src={p.image}
@@ -225,8 +211,7 @@ export default function WorkTableGSAP() {
 
       {/* 하단 텍스트 */}
       <div className="w-full md:mb-[200px] xs:mb-20 xs:max-w-fit md:max-w-[1440px] mt-8 font-sans font-normal md:text-pt-body md:text-right text-primary-light xs:text-pt-body-xs xs:text-left xs:mx-5">
-        대표적으로 기재한 프로젝트 외에도 더 많은 웹사이트 구축 프로젝트를
-        경험했습니다.
+        대표적으로 기재한 프로젝트 외에도 더 많은 웹사이트 구축 프로젝트를 경험했습니다.
       </div>
     </section>
   );
