@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import AOS from "aos";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -19,16 +18,16 @@ export default function MyplatScrollTrigger({
   const bottomTextRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // AOS
   useEffect(() => {
-    AOS.refresh();
-  }, []);
+    if (
+      !sectionRef.current ||
+      !topTextRef.current ||
+      !bottomTextRef.current ||
+      !imgRef.current
+    )
+      return;
 
-  // ScrollTrigger timeline (텍스트/이미지/배경 애니메이션)
-  useEffect(() => {
-    if (!sectionRef.current) return;
-
-    const yValue = isMobile ? "110px" : "280px";
+    const yValue = isMobile ? 110 : 280;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
@@ -42,7 +41,7 @@ export default function MyplatScrollTrigger({
       });
 
       tl.to(topTextRef.current, { y: yValue, ease: "power2.out" }, 0)
-        .to(bottomTextRef.current, { y: `-${yValue}`, ease: "power2.out" }, 0)
+        .to(bottomTextRef.current, { y: -yValue, ease: "power2.out" }, 0)
         .to(
           [topTextRef.current, bottomTextRef.current],
           { color: "#fff", ease: "none" },
@@ -66,7 +65,10 @@ export default function MyplatScrollTrigger({
         );
     }, sectionRef);
 
-    return () => ctx.revert();
+    return () => {
+      ctx.revert();
+      ScrollTrigger.getAll().forEach((st) => st.kill());
+    };
   }, [isMobile]);
 
   return (
@@ -74,10 +76,7 @@ export default function MyplatScrollTrigger({
       ref={sectionRef}
       className="relative flex flex-col items-center justify-center w-full max-w-full overflow-hidden bg-white"
     >
-      <div
-        className="flex flex-col justify-center w-full md:max-w-[1440px] xs:max-w-full mx-auto xs:px-5 h-screen"
-        data-aos="fade-up"
-      >
+      <div className="flex flex-col justify-center w-full md:max-w-[1440px] xs:max-w-full mx-auto xs:px-5 h-screen">
         <h2
           ref={topTextRef}
           className="relative z-20 font-bold text-center md:mb-20 xs:mb-10 font-inter md:text-inter-subtitle xs:text-inter-subtitle-xs text-blue/20"

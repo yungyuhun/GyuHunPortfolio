@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-function useFadeInOnScroll(className = "fade-in-section", threshold = 0.2) {
+function useFadeInOnScroll(className = "fade-in-section", threshold = 0.3) {
   useEffect(() => {
     const elements = document.querySelectorAll(`.${className}`);
     if (!elements.length) return;

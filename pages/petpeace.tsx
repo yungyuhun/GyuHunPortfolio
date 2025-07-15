@@ -320,7 +320,7 @@ export default function Petpeace() {
       {/* Section 8 : 좋은나라펫피스 모바일 */}
       <section className="w-full h-full overflow-hidden rlative">
         <div className="marquee-container">
-          <div className="marquee">
+          <div className="marquee fade-in-section">
             <span className="font-serif font-semibold md:mt-20 xs:mt-10 md:text-inter-title xs:text-inter-title-xs text-yellow">
               A Platform of Petcare Revolution. Good Country Petpeace
             </span>
