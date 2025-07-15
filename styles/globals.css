@@ -20,6 +20,37 @@ body {
   background: #000;
 }
 
+/* fade in 애니메이션 */
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.7s cubic-bezier(.39, .13, .46, .81), transform 0.7s;
+}
+
+.fade-in-section.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Marquee 애니메이션 */
+.marquee-container {
+  overflow: hidden;
+  width: 100%;
+  /* 원하는 높이/패딩 등 추가 가능 */
+}
+
+.marquee {
+  display: flex;
+  white-space: nowrap;
+  animation: marquee 18s linear infinite;
+  will-change: transform;
+}
+
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
 /* Text Outline Effect */
 .text-fill-effect {
   position: relative;
