@@ -48,17 +48,27 @@ export default function Petpeace() {
   // 모든 리소스 로딩 체크 (이미지, 폰트, window.onload)
   useEffect(() => {
     const loadAllAssets = async () => {
-      const { default: imagesLoaded } = await import("imagesloaded");
-
+      // 1. body가 준비될 때까지 대기
       await new Promise<void>((resolve) => {
-        if (!document.body) return resolve();
+        function waitForBody() {
+          if (document.body) return resolve();
+          setTimeout(waitForBody, 10);
+        }
+        waitForBody();
+      });
+
+      // 2. 이미지 로딩 대기
+      const { default: imagesLoaded } = await import("imagesloaded");
+      await new Promise<void>((resolve) => {
         imagesLoaded(document.body, { background: true }, () => resolve());
       });
 
+      // 3. 폰트 로딩 대기
       if (document.fonts) {
         await document.fonts.ready;
       }
 
+      // 4. window.onload 대기
       await new Promise<void>((resolve) => {
         if (document.readyState === "complete") resolve();
         else window.addEventListener("load", () => resolve(), { once: true });
@@ -139,8 +149,7 @@ export default function Petpeace() {
     };
   }, [isLoaded]);
 
-    if (!isLoaded) return <Loading />;
-  
+  if (!isLoaded) return <Loading />;
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden bg-white">
