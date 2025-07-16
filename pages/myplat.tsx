@@ -46,15 +46,25 @@ const BOImages = [
 export default function Myplat() {
   useFadeInOnScroll();
 
-  const [isMobile, setIsMobile] = useState(false);
+  function useDeviceSize() {
+    const [deviceSize, setDeviceSize] = useState<
+      "mobile" | "tablet" | "desktop"
+    >("desktop");
 
-  // 모바일 여부 확인
-  useEffect(() => {
-    const checkIsMobile = () => setIsMobile(window.innerWidth < 768);
-    checkIsMobile();
-    window.addEventListener("resize", checkIsMobile);
-    return () => window.removeEventListener("resize", checkIsMobile);
-  }, []);
+    useEffect(() => {
+      const checkDeviceSize = () => {
+        const width = window.innerWidth;
+        if (width < 768) setDeviceSize("mobile");
+        else if (width < 1024) setDeviceSize("tablet");
+        else setDeviceSize("desktop");
+      };
+      checkDeviceSize();
+      window.addEventListener("resize", checkDeviceSize);
+      return () => window.removeEventListener("resize", checkDeviceSize);
+    }, []);
+
+    return deviceSize;
+  }
 
   return (
     <div className="relative w-full min-h-screen bg-white md:overflow-visible xs:overflow-hidden">
@@ -166,7 +176,7 @@ export default function Myplat() {
       </section>
 
       {/* Section 4 : 스크롤 트리거 애니메이션 */}
-      <MyplatScrollTrigger isMobile={isMobile} />
+      <MyplatScrollTrigger />
 
       {/* Section 5 : 마이플랫 메인 페이지 스크롤 이미지 */}
       <section className="relative bg-blue md:-mt-[200px] xs:-mt-20 md:pb-[200px] xs:pb-20 bg-top bg-cover bg-no-repeat">

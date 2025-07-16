@@ -47,7 +47,8 @@ export default function MyWork() {
   const [cursorVisible, setCursorVisible] = useState(false);
 
   useEffect(() => {
-    // gsap context: cleanup 자동, SSR 안전
+    const isMobile = window.innerWidth < 768;
+
     const ctx = gsap.context(() => {
       const allPanels = gsap.utils.toArray<HTMLElement>(".panel");
 
@@ -60,7 +61,8 @@ export default function MyWork() {
           end: "bottom top",
           pin: !isLast,
           pinSpacing: false,
-          scrub: true,
+          scrub: 0.2, // 부드럽게 스크럽
+          pinType: "transform", // mobile 최적화용
         });
 
         const text = panel.querySelector(".panel-text");
@@ -88,14 +90,16 @@ export default function MyWork() {
   }, []);
 
   return (
-    <div ref={sectionRef} className="relative w-full">
-      {/* 커스텀 커서(옵션) */}
+    <div
+      ref={sectionRef}
+      className="relative w-full touch-none overscroll-none"
+      style={{ touchAction: "pan-y" }}
+    >
       <CustomCursor visible={cursorVisible} />
 
       {panels.map((panel, index) => {
         const isInteractive = !!panel.path;
 
-        // 안전: a태그+legacyBehavior 패턴
         const SectionContent = (
           <section
             className={`relative z-[${
@@ -111,8 +115,13 @@ export default function MyWork() {
               <img
                 src={panel.image}
                 alt={panel.title}
-                className="absolute inset-0 z-0 object-cover w-full h-full transition-transform duration-700 will-change-transform"
-                style={{ pointerEvents: "none", transform: "scale(1.04)" }}
+                className="absolute inset-0 z-0 object-cover w-full h-full"
+                style={{
+                  pointerEvents: "none",
+                  willChange: "transform, opacity",
+                  transform: "translateZ(0)",
+                  backfaceVisibility: "hidden",
+                }}
               />
             )}
             <div className="relative z-10 flex flex-col items-center justify-center text-center text-white panel-text">

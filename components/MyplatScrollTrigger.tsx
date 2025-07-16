@@ -1,18 +1,33 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-type MyplatScrollTriggerProps = {
-  isMobile: boolean;
-};
+function useDeviceSize() {
+  const [deviceSize, setDeviceSize] = useState<"mobile" | "tablet" | "desktop">(
+    "desktop"
+  );
 
-export default function MyplatScrollTrigger({
-  isMobile,
-}: MyplatScrollTriggerProps) {
+  useEffect(() => {
+    const checkDeviceSize = () => {
+      const width = window.innerWidth;
+      if (width < 768) setDeviceSize("mobile");
+      else if (width < 1024) setDeviceSize("tablet");
+      else setDeviceSize("desktop");
+    };
+    checkDeviceSize();
+    window.addEventListener("resize", checkDeviceSize);
+    return () => window.removeEventListener("resize", checkDeviceSize);
+  }, []);
+
+  return deviceSize;
+}
+
+export default function MyplatScrollTrigger() {
+  const deviceSize = useDeviceSize();
   const sectionRef = useRef<HTMLDivElement>(null);
   const topTextRef = useRef<HTMLHeadingElement>(null);
   const bottomTextRef = useRef<HTMLDivElement>(null);
@@ -27,7 +42,8 @@ export default function MyplatScrollTrigger({
     )
       return;
 
-    const yValue = isMobile ? 110 : 280;
+    const yValue =
+      deviceSize === "mobile" ? 110 : deviceSize === "tablet" ? 240 : 240;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
@@ -69,7 +85,7 @@ export default function MyplatScrollTrigger({
       ctx.revert();
       ScrollTrigger.getAll().forEach((st) => st.kill());
     };
-  }, [isMobile]);
+  }, [deviceSize]);
 
   return (
     <section
@@ -79,7 +95,7 @@ export default function MyplatScrollTrigger({
       <div className="flex flex-col justify-center w-full md:max-w-[1440px] xs:max-w-full mx-auto xs:px-5 h-screen">
         <h2
           ref={topTextRef}
-          className="relative z-20 font-bold text-center md:mb-20 xs:mb-10 font-inter md:text-inter-subtitle xs:text-inter-subtitle-xs text-blue/20"
+          className="relative z-20 font-bold text-center md:mb-14 xs:mb-10 font-inter md:text-[72px] xs:text-inter-subtitle-xs text-blue/20"
         >
           My Platform
           <br />
@@ -92,13 +108,13 @@ export default function MyplatScrollTrigger({
               ref={imgRef}
               src="/myplat_banner_mobile.png"
               alt="My Platform, Freelance Services"
-              className="object-cover w-full h-full"
+              className="object-cover w-full h-full md:max-w-[1200px] md:mx-auto xs:max-w-full"
             />
           </picture>
         </div>
         <div
           ref={bottomTextRef}
-          className="relative z-20 font-sans font-normal text-center md:mt-20 xs:mt-10 md:text-pt-subsection-title xs:text-lg text-primary"
+          className="relative z-20 font-sans font-normal text-center md:mt-14 xs:mt-10 md:text-pt-subtitle xs:text-lg text-primary"
         >
           인재 아웃소싱의 풍부한 경험을 지닌 매칭 컨설턴트가 서비스를 제공하며,
           <br className="hidden md:inline" />
