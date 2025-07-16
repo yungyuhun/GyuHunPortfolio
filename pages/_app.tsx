@@ -61,6 +61,16 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, [showSplash]);
 
+  useEffect(() => {
+    if (!isIndex) {
+      if (lenisRef.current) {
+        lenisRef.current.scrollTo(0, { immediate: true });
+      } else {
+        window.scrollTo(0, 0);
+      }
+    }
+  }, [router.pathname, isIndex]);
+
   // 페이지 이동 시 scroll 저장
   useEffect(() => {
     const handleRouteChangeStart = () => {
