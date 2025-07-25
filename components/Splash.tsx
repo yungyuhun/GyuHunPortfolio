@@ -88,7 +88,7 @@ export default function Splash({ onComplete }: { onComplete: () => void }) {
           y="50%"
           dy=".35em"
           textAnchor="middle"
-          className="font-bold font-inter text-inter-title"
+          className="font-sans font-bold text-[160px]"
           style={{
             fill: "transparent",
             stroke: "#fff",
