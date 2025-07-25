@@ -48,7 +48,7 @@ export default function InfiniteMarquee() {
       <div ref={containerRef} className="flex whitespace-nowrap">
         <h2
           ref={textRef}
-          className="pr-8 font-bold font-inter md:-mt-8 xs:-mt-2 md:text-inter-title xs:text-inter-title-xs text-outline xs:text-outline-xs"
+          className="pr-8 font-bold md:font-inter xs:font-sans md:-mt-8 xs:-mt-4 md:text-inter-title xs:text-pt-title-xs md:text-outline xs:text-outline-xs"
           style={{ willChange: "transform" }}
         >
           Modern Interactive Web Publisher

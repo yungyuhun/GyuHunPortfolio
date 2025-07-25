@@ -47,42 +47,67 @@ export default function MyWork() {
   const [cursorVisible, setCursorVisible] = useState(false);
 
   useEffect(() => {
-    const isMobile = window.innerWidth < 768;
-
     const ctx = gsap.context(() => {
       const allPanels = gsap.utils.toArray<HTMLElement>(".panel");
 
-      allPanels.forEach((panel, i) => {
-        const isLast = i === allPanels.length - 1;
+      ScrollTrigger.matchMedia({
+        // PC (768px 이상)
+        "(min-width: 768px)": () => {
+          allPanels.forEach((panel, i) => {
+            const isLast = i === allPanels.length - 1;
 
-        ScrollTrigger.create({
-          trigger: panel,
-          start: "top top",
-          end: "bottom top",
-          pin: !isLast,
-          pinSpacing: false,
-          scrub: 0.2, // 부드럽게 스크럽
-          pinType: "transform", // mobile 최적화용
-        });
+            ScrollTrigger.create({
+              trigger: panel,
+              start: "top top",
+              end: "bottom top",
+              pin: !isLast,
+              pinSpacing: false,
+              scrub: 0.2,
+              pinType: "transform",
+            });
 
-        const text = panel.querySelector(".panel-text");
-        if (text) {
-          gsap.fromTo(
-            text,
-            { y: 50, opacity: 0 },
-            {
-              y: 0,
-              opacity: 1,
-              duration: 1,
-              ease: "power2.out",
-              scrollTrigger: {
-                trigger: panel,
-                start: "top center",
-                toggleActions: "play none none reverse",
-              },
+            const text = panel.querySelector(".panel-text");
+            if (text) {
+              gsap.fromTo(
+                text,
+                { y: 50, opacity: 0 },
+                {
+                  y: 0,
+                  opacity: 1,
+                  duration: 1,
+                  ease: "power2.out",
+                  scrollTrigger: {
+                    trigger: panel,
+                    start: "top center",
+                    toggleActions: "play none none reverse",
+                  },
+                }
+              );
             }
-          );
-        }
+          });
+        },
+
+        // 모바일 (767px 이하)
+        "(max-width: 767px)": () => {
+          const texts = gsap.utils.toArray<HTMLElement>(".panel-text");
+          texts.forEach((text) => {
+            gsap.fromTo(
+              text,
+              { y: 40, opacity: 0 },
+              {
+                y: 0,
+                opacity: 1,
+                duration: 0.8,
+                ease: "power2.out",
+                scrollTrigger: {
+                  trigger: text,
+                  start: "top 80%",
+                  toggleActions: "play none none reverse",
+                },
+              }
+            );
+          });
+        },
       });
     }, sectionRef);
 
@@ -104,26 +129,27 @@ export default function MyWork() {
           <section
             className={`relative z-[${
               20 + index
-            }] panel flex items-center justify-center w-full h-screen ${
+            }] panel flex items-center justify-center w-full min-h-screen ${
               panel.background || ""
             }`}
             onMouseEnter={() => isInteractive && setCursorVisible(true)}
             onMouseLeave={() => isInteractive && setCursorVisible(false)}
             tabIndex={0}
           >
+            {/* 배경 이미지 처리: 배경 div로 교체 (성능 향상) */}
             {panel.image && (
-              <img
-                src={panel.image}
-                alt={panel.title}
-                className="absolute inset-0 z-0 object-cover w-full h-full"
+              <div
+                className="absolute inset-0 z-0 bg-center bg-cover"
                 style={{
+                  backgroundImage: `url(${panel.image})`,
                   pointerEvents: "none",
                   willChange: "transform, opacity",
-                  transform: "translateZ(0)",
                   backfaceVisibility: "hidden",
                 }}
               />
             )}
+
+            {/* 텍스트 */}
             <div className="relative z-10 flex flex-col items-center justify-center text-center text-white panel-text">
               {panel.subtitle && (
                 <p className="font-sans font-light md:text-pt-subsection-title xs:text-pt-subtitle-xs">

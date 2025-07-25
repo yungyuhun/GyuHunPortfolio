@@ -10,12 +10,14 @@ const Footer = dynamic(() => import("@/components/Footer"), { ssr: false });
 
 export default function Home() {
   return (
-    <main className="relative w-full min-h-screen overflow-hidden bg-primary">
+    <div
+      className="relative w-full min-h-screen overflow-hidden bg-primary"
+    >
       <Header />
       <Main />
       <WhoAmISection />
       <MyWork />
       <Footer />
-    </main>
+    </div>
   );
 }

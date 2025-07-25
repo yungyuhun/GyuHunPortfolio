@@ -3,6 +3,7 @@ import type { AppProps } from "next/app";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Splash from "@/components/Splash";
+import { inter, pretendard, nanumMyeongjo } from "../fonts";
 import "../styles/globals.css";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -127,7 +128,11 @@ export default function App({ Component, pageProps }: AppProps) {
       {isIndex && showSplash ? (
         <Splash onComplete={() => setShowSplash(false)} />
       ) : (
-        <Component {...pageProps} showSplash={showSplash} />
+        <main
+          className={`${inter.variable} ${pretendard.variable} ${nanumMyeongjo.variable}`}
+        >
+          <Component {...pageProps} showSplash={showSplash} />
+        </main>
       )}
     </>
   );

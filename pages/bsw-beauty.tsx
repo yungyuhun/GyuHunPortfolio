@@ -5,7 +5,6 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "@/components/Footer";
 import { Scroll } from "@/src/icons/Icon";
-import AOS from "aos";
 import "aos/dist/aos.css";
 import useFadeInOnScroll from "@/src/hooks/useFadeInOnScroll";
 
