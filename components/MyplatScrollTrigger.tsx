@@ -8,7 +8,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 function useDeviceSize() {
   const [deviceSize, setDeviceSize] = useState<"mobile" | "tablet" | "desktop">(
-    "desktop"
+    "desktop",
   );
 
   useEffect(() => {
@@ -42,8 +42,7 @@ export default function MyplatScrollTrigger() {
     )
       return;
 
-    const yValue =
-      deviceSize === "mobile" ? 110 : deviceSize === "tablet" ? 240 : 240;
+    const yValue = deviceSize === "mobile" ? 110 : 240;
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
@@ -61,7 +60,7 @@ export default function MyplatScrollTrigger() {
         .to(
           [topTextRef.current, bottomTextRef.current],
           { color: "#fff", ease: "none" },
-          ">-0.5"
+          ">-0.5",
         )
         .fromTo(
           imgRef.current,
@@ -72,18 +71,17 @@ export default function MyplatScrollTrigger() {
             borderRadius: "0px",
             ease: "power2.inOut",
           },
-          0
+          0,
         )
         .to(
           sectionRef.current,
           { backgroundColor: "#4A4AD3", ease: "none" },
-          "<"
+          "<",
         );
     }, sectionRef);
 
     return () => {
       ctx.revert();
-      ScrollTrigger.getAll().forEach((st) => st.kill());
     };
   }, [deviceSize]);
 
