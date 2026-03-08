@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -11,7 +11,7 @@ function useDeviceSize() {
     "desktop",
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const checkDeviceSize = () => {
       const width = window.innerWidth;
       if (width < 768) setDeviceSize("mobile");
@@ -33,7 +33,7 @@ export default function MyplatScrollTrigger() {
   const bottomTextRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (
       !sectionRef.current ||
       !topTextRef.current ||
@@ -42,46 +42,68 @@ export default function MyplatScrollTrigger() {
     )
       return;
 
-    const yValue = deviceSize === "mobile" ? 110 : 240;
+    const image = imgRef.current;
 
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top top",
-          end: "+=150%",
-          pin: true,
-          scrub: true,
-        },
-      });
+    const init = () => {
+      const yValue = deviceSize === "mobile" ? 110 : 240;
 
-      tl.to(topTextRef.current, { y: yValue, ease: "power2.out" }, 0)
-        .to(bottomTextRef.current, { y: -yValue, ease: "power2.out" }, 0)
-        .to(
-          [topTextRef.current, bottomTextRef.current],
-          { color: "#fff", ease: "none" },
-          ">-0.5",
-        )
-        .fromTo(
-          imgRef.current,
-          { borderRadius: "9999px" },
-          {
-            scale: 2,
-            opacity: 0,
-            borderRadius: "0px",
-            ease: "power2.inOut",
+      const ctx = gsap.context(() => {
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top top",
+            end: "+=150%",
+            pin: true,
+            scrub: true,
+            invalidateOnRefresh: true,
           },
-          0,
-        )
-        .to(
-          sectionRef.current,
-          { backgroundColor: "#4A4AD3", ease: "none" },
-          "<",
-        );
-    }, sectionRef);
+        });
+
+        tl.to(topTextRef.current, { y: yValue, ease: "power2.out" }, 0)
+          .to(bottomTextRef.current, { y: -yValue, ease: "power2.out" }, 0)
+          .to(
+            [topTextRef.current, bottomTextRef.current],
+            { color: "#fff", ease: "none" },
+            ">-0.5",
+          )
+          .fromTo(
+            imgRef.current,
+            { borderRadius: "9999px" },
+            {
+              scale: 2,
+              opacity: 0,
+              borderRadius: "0px",
+              ease: "power2.inOut",
+            },
+            0,
+          )
+          .to(
+            sectionRef.current,
+            { backgroundColor: "#4A4AD3", ease: "none" },
+            "<",
+          );
+
+        ScrollTrigger.refresh();
+      }, sectionRef);
+
+      return ctx;
+    };
+
+    let ctx: gsap.Context | null = null;
+
+    const setup = () => {
+      ctx = init();
+    };
+
+    if (image.complete) {
+      setup();
+    } else {
+      image.addEventListener("load", setup, { once: true });
+    }
 
     return () => {
-      ctx.revert();
+      image.removeEventListener("load", setup);
+      ctx?.revert();
     };
   }, [deviceSize]);
 
