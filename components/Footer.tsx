@@ -60,7 +60,7 @@ export default function Footer() {
         {/* 하단 저작권 */}
         <div className="flex w-full md:mt-5 md:justify-end xs:justify-start xs:mt-3">
           <span className="font-sans font-normal text-primary md:text-pt-body xs:text-pt-body-xs">
-            © 2025 Yun-GyuHun. All rights reserved.
+            © Yun-GyuHun. All rights reserved.
           </span>
         </div>
       </div>
