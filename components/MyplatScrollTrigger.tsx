@@ -1,30 +1,11 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import useDeviceSize from "@/src/hooks/useDeviceSize";
 
 gsap.registerPlugin(ScrollTrigger);
-
-function useDeviceSize() {
-  const [deviceSize, setDeviceSize] = useState<"mobile" | "tablet" | "desktop">(
-    "desktop",
-  );
-
-  useLayoutEffect(() => {
-    const checkDeviceSize = () => {
-      const width = window.innerWidth;
-      if (width < 768) setDeviceSize("mobile");
-      else if (width < 1024) setDeviceSize("tablet");
-      else setDeviceSize("desktop");
-    };
-    checkDeviceSize();
-    window.addEventListener("resize", checkDeviceSize);
-    return () => window.removeEventListener("resize", checkDeviceSize);
-  }, []);
-
-  return deviceSize;
-}
 
 export default function MyplatScrollTrigger() {
   const deviceSize = useDeviceSize();

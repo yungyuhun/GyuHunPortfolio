@@ -1,14 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "@/components/Footer";
-import { Scroll } from "@/src/icons/Icon";
+import ProjectHero from "@/components/project/ProjectHero";
+import ProjectInfoSection from "@/components/project/ProjectInfoSection";
 import "aos/dist/aos.css";
 import useFadeInOnScroll from "@/src/hooks/useFadeInOnScroll";
-
-gsap.registerPlugin(ScrollTrigger);
+import useIsMobile from "@/src/hooks/useIsMobile";
 
 const POSImages = [
   [
@@ -39,118 +36,29 @@ const HQSubImages = [
 
 export default function BSW() {
   useFadeInOnScroll();
-
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkIsMobile = () => setIsMobile(window.innerWidth < 768);
-    checkIsMobile();
-    window.addEventListener("resize", checkIsMobile);
-    return () => window.removeEventListener("resize", checkIsMobile);
-  }, []);
+  const isMobile = useIsMobile();
 
   return (
     <div className="relative w-full min-h-screen bg-white">
       {/* Section 1 : 메인 이미지/타이틀 */}
-      <section className="relative w-full h-screen overflow-hidden">
-        <img
-          src="/work2.png"
-          alt="SkyLife Background"
-          className="absolute inset-0 z-0 object-cover w-full h-full"
-        />
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center fade-in-section">
-          <p className="font-sans font-light text-white md:text-pt-subsection-title xs:text-pt-subtitle-xs">
-            Retail Management
-          </p>
-          <h2 className="mt-2 font-sans font-semibold text-white md:text-pt-title xs:text-pt-title-xs">
-            BSW Beauty
-          </h2>
-        </div>
-        <div className="absolute z-10 -translate-x-1/2 left-1/2 bottom-8">
-          <Scroll
-            color="#fff"
-            className="md:w-8 md:h-8 xs:w-6 xs:h-6 animate-bounce"
-          />
-        </div>
-      </section>
+      <ProjectHero
+        image="/work2.png"
+        alt="BSW Beauty Background"
+        category="Retail Management"
+        title="BSW Beauty"
+      />
 
       {/* Section 2 : 프로젝트 설명 */}
-      <section className="relative md:py-[200px] bg-white xs:py-20">
-        <div className="flex justify-between max-w-[1440px] md:mx-auto md:flex-row xs:flex-col xs:mx-5 fade-in-section">
-          <div className="flex flex-col gap-8">
-            <h2 className="font-sans font-bold text-primary md:text-pt-section-title xs:text-pt-section-title-xs">
-              BSW Beauty 솔루션 구축
-            </h2>
-            <div className="flex flex-wrap gap-4 md:flex-row md:max-w-xl xs:max-w-full xs:flex-col">
-              <div className="flex items-center gap-2">
-                <span className="font-sans font-normal text-pt-body text-primary-deepLight">
-                  Client.
-                </span>
-                <span className="font-sans font-normal text-pt-body text-primary">
-                  BSW Beauty
-                </span>
-              </div>
-              <div className="flex gap-2 md:items-center xs:items-start">
-                <span className="font-sans font-normal text-pt-body text-primary-deepLight">
-                  Category.
-                </span>
-                <span className="font-sans font-normal text-pt-body text-primary">
-                  Retail Management
-                </span>
-              </div>
-              <div className="flex gap-2 md:items-center xs:items-start">
-                <span className="font-sans font-normal text-pt-body text-primary-deepLight">
-                  Date.
-                </span>
-                <span className="font-sans font-normal text-pt-body text-primary">
-                  2024. 09
-                </span>
-              </div>
-              <div className="flex gap-2 md:items-center xs:items-start">
-                <span className="font-sans font-normal text-pt-body text-primary-deepLight">
-                  Service.
-                </span>
-                <span className="font-sans font-normal text-pt-body text-primary">
-                  Shopify, e-Commerce, Management, Development
-                </span>
-              </div>
-              <button
-                onClick={(e) => {
-                  alert(
-                    "해당 프로젝트는 현재 비공개 처리되어 있어 열람하실 수 없습니다."
-                  );
-                }}
-                className="px-8 py-3 font-sans font-normal transition-all duration-300 ease-out bg-white border rounded-full text-primary md:mt-12 xs:mt-6 text-pt-body border-primary-extraLight hover:bg-primary hover:text-white hover:border-transparent"
-              >
-                사이트 바로가기
-              </button>
-            </div>
-          </div>
-          <div className="flex flex-col max-w-xl md:Fgap-16 xs:gap-8 md:mt-0 xs:mt-14">
-            <div className="flex flex-col gap-4">
-              <h3 className="font-sans font-semibold text-pt-body">Brief</h3>
-              <span className="flex w-full border-b border-primary-deepLight"></span>
-              <p className="font-sans font-normal text-pt-body">
-                BSW Beauty Retail Management는 제품 및 재고 관리 시스템 통합,
-                배송시스템 구축, 주문(Order) 시스템 개발, Shopify 연동 등 기업의
-                물류·유통·이커머스 전반을 아우르는 통합 솔루션을 구축하고 실무
-                효율성과 데이터 신뢰성을 높였습니다.
-              </p>
-            </div>
-            <div className="flex flex-col gap-4">
-              <h3 className="font-sans font-semibold text-pt-body">Concept</h3>
-              <span className="flex w-full border-b border-primary-deepLight"></span>
-              <p className="font-sans font-normal text-pt-body">
-                BSW Beauty Retail Management는 카드형 상품 리스트, 컬러 블록
-                버튼, 실시간 합계 등 현장 실무에 최적화된 직관적인 디자인 요소를
-                갖추며 주요 정보와 액션이 한눈에 들어오도록 배치되어 사용자가
-                빠르고 정확하게 주문·결제·재고 관리를 할 수 있도록
-                설계하였습니다.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ProjectInfoSection
+        title="BSW Beauty 솔루션 구축"
+        client="BSW Beauty"
+        category="Retail Management"
+        date="2024. 09"
+        service="Shopify, e-Commerce, Management, Development"
+        brief="BSW Beauty Retail Management는 제품 및 재고 관리 시스템 통합, 배송시스템 구축, 주문(Order) 시스템 개발, Shopify 연동 등 기업의 물류·유통·이커머스 전반을 아우르는 통합 솔루션을 구축하고 실무 효율성과 데이터 신뢰성을 높였습니다."
+        concept="BSW Beauty Retail Management는 카드형 상품 리스트, 컬러 블록 버튼, 실시간 합계 등 현장 실무에 최적화된 직관적인 디자인 요소를 갖추며 주요 정보와 액션이 한눈에 들어오도록 배치되어 사용자가 빠르고 정확하게 주문·결제·재고 관리를 할 수 있도록 설계하였습니다."
+        cta={{ type: "private" }}
+      />
 
       {/* Section 3 : POS System 목업 이미지 */}
       <section className="relative flex flex-col items-center justify-center md:py-[200px] xs:py-20 bg-primary">

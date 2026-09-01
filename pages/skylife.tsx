@@ -1,17 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "@/components/Footer";
-import { Scroll } from "@/src/icons/Icon";
+import ProjectHero from "@/components/project/ProjectHero";
+import ProjectInfoSection from "@/components/project/ProjectInfoSection";
 import useFadeInOnScroll from "@/src/hooks/useFadeInOnScroll";
-
-gsap.registerPlugin(ScrollTrigger);
+import useIsMobile from "@/src/hooks/useIsMobile";
+import useScrollFillText from "@/src/hooks/useScrollFillText";
 
 export default function SkyLife() {
-  const sectionRef = useRef<HTMLDivElement>(null);
   useFadeInOnScroll();
+  const sectionRef = useScrollFillText<HTMLDivElement>(".text-fill-effect", 0.8);
 
   const subImages = [
     ["/skylife_sub1.png", "/skylife_sub2.png"],
@@ -19,143 +17,31 @@ export default function SkyLife() {
     ["/skylife_sub5.png", "/skylife_sub6.png"],
   ];
 
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile();
   // 모바일이면 2개만, 아니면 전체
   const visibleCols = isMobile ? 2 : subImages.length;
-
-  // 반응형 처리
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // 텍스트 애니메이션
-  useEffect(() => {
-    const targets =
-      sectionRef.current?.querySelectorAll<HTMLSpanElement>(
-        ".text-fill-effect"
-      );
-    if (!targets || targets.length === 0) return;
-
-    const observer = new window.IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("scrolled");
-          } else {
-            entry.target.classList.remove("scrolled");
-          }
-        });
-      },
-      { threshold: 0.8 }
-    );
-
-    targets.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <div className="relative w-full min-h-screen overflow-hidden bg-white">
       {/* Section 1 : 메인 이미지 */}
-      <section className="relative w-full h-screen overflow-hidden">
-        <img
-          src="/work1.png"
-          alt="SkyLife Background"
-          className="absolute inset-0 z-0 object-cover w-full h-full"
-        />
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center fade-in-section">
-          <p className="font-sans font-light text-white md:text-pt-subsection-title xs:text-pt-subtitle-xs">
-            Web/Mobile Platform
-          </p>
-          <h2 className="mt-2 font-sans font-semibold text-white md:text-pt-title xs:text-pt-title-xs">
-            스카이라이프
-          </h2>
-        </div>
-        <div className="absolute z-10 -translate-x-1/2 left-1/2 bottom-8">
-          <Scroll
-            color="#fff"
-            className="md:w-8 md:h-8 xs:w-6 xs:h-6 animate-bounce"
-          />
-        </div>
-      </section>
+      <ProjectHero
+        image="/work1.png"
+        alt="SkyLife Background"
+        category="Web/Mobile Platform"
+        title="스카이라이프"
+      />
 
       {/* Section 2 : 프로젝트 설명 */}
-      <section className="relative md:py-[200px] bg-white xs:py-20">
-        <div className="flex justify-between max-w-[1440px] md:mx-auto md:flex-row xs:flex-col xs:mx-5 fade-in-section">
-          <div className="flex flex-wrap gap-4 md:flex-row md:max-w-xl xs:max-w-full xs:flex-col">
-            <h2 className="font-sans font-bold text-primary md:text-pt-section-title xs:text-pt-section-title-xs">
-              스카이라이프 홈페이지 고도화
-            </h2>
-            <div className="flex flex-wrap max-w-xl gap-4">
-              <div className="flex items-center gap-2">
-                <span className="font-sans font-normal text-pt-body text-primary-deepLight">
-                  Client.
-                </span>
-                <span className="font-sans font-normal text-pt-body text-primary">
-                  KT스카이라이프
-                </span>
-              </div>
-              <div className="flex gap-2 md:items-center xs:items-start">
-                <span className="font-sans font-normal text-pt-body text-primary-deepLight">
-                  Category.
-                </span>
-                <span className="font-sans font-normal text-pt-body text-primary">
-                  Web/Mobile Platform
-                </span>
-              </div>
-              <div className="flex gap-2 md:items-center xs:items-start">
-                <span className="font-sans font-normal text-pt-body text-primary-deepLight">
-                  Date.
-                </span>
-                <span className="font-sans font-normal text-pt-body text-primary">
-                  2025. 03
-                </span>
-              </div>
-              <div className="flex gap-2 md:items-center xs:items-start">
-                <span className="font-sans font-normal text-pt-body text-primary-deepLight">
-                  Service.
-                </span>
-                <span className="font-sans font-normal text-pt-body text-primary">
-                  UX Strategy, Visual Design, Interactive Design, Development
-                </span>
-              </div>
-              <a
-                href="https://www.skylife.co.kr/"
-                target="_blank"
-                className="px-8 py-3 font-sans font-normal text-center transition-all duration-300 ease-out bg-white border rounded-full h-fit text-primary md:w-auto xs:w-full md:mt-12 xs:mt-6 text-pt-body border-primary-extraLight hover:bg-primary hover:text-white hover:border-transparent"
-              >
-                사이트 바로가기
-              </a>
-            </div>
-          </div>
-          <div className="flex flex-col max-w-xl md:Fgap-16 xs:gap-8 md:mt-0 xs:mt-14">
-            <div className="flex flex-col gap-4">
-              <h3 className="font-sans font-semibold text-pt-body">Brief</h3>
-              <span className="flex w-full border-b border-primary-deepLight"></span>
-              <p className="font-sans font-normal text-pt-body">
-                스카이라이프의 브랜드 이미지를 강화하고, 사용자 경험(UX) 향상을
-                목표로 한 홈페이지 고도화 프로젝트를 진행했습니다. 다양한
-                디바이스에서의 접근성과 시각적 완성도를 높이고, 주요 서비스에
-                대한 사용자 접근 경로를 명확히 하여 고객 중심의 웹 환경을
-                구현했습니다.
-              </p>
-            </div>
-            <div className="flex flex-col gap-4">
-              <h3 className="font-sans font-semibold text-pt-body">Concept</h3>
-              <span className="flex w-full border-b border-primary-deepLight"></span>
-              <p className="font-sans font-normal text-pt-body">
-                사용자에게 보다 직관적이고 끊김 없는 탐색 흐름을 제공하는 것을
-                핵심 컨셉으로 설정하였습니다. 스카이라이프의 미디어/통신 서비스
-                특성을 반영하여 시각적으로는 깔끔하고 미래지향적인 느낌을 주되,
-                사용자 여정 상에서는 정보 탐색의 효율성을 최우선으로
-                고려했습니다.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ProjectInfoSection
+        title="스카이라이프 홈페이지 고도화"
+        client="KT스카이라이프"
+        category="Web/Mobile Platform"
+        date="2025. 03"
+        service="UX Strategy, Visual Design, Interactive Design, Development"
+        brief="스카이라이프의 브랜드 이미지를 강화하고, 사용자 경험(UX) 향상을 목표로 한 홈페이지 고도화 프로젝트를 진행했습니다. 다양한 디바이스에서의 접근성과 시각적 완성도를 높이고, 주요 서비스에 대한 사용자 접근 경로를 명확히 하여 고객 중심의 웹 환경을 구현했습니다."
+        concept="사용자에게 보다 직관적이고 끊김 없는 탐색 흐름을 제공하는 것을 핵심 컨셉으로 설정하였습니다. 스카이라이프의 미디어/통신 서비스 특성을 반영하여 시각적으로는 깔끔하고 미래지향적인 느낌을 주되, 사용자 여정 상에서는 정보 탐색의 효율성을 최우선으로 고려했습니다."
+        cta={{ type: "link", href: "https://www.skylife.co.kr/" }}
+      />
 
       {/* Section 3 : 스카이라이프 소개 */}
       <section

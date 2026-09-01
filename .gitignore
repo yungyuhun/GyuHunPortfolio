@@ -32,3 +32,4 @@ Thumbs.db
 # 기타 캐시 및 임시 파일
 *.log
 *.tmp
+*.tsbuildinfo

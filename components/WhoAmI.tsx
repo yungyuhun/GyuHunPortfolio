@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import useIsMobile from "@/src/hooks/useIsMobile";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -65,19 +66,9 @@ export default function WhoAmI() {
   const textRefs = useRef<(HTMLHeadingElement | null)[]>([]);
   const imgRefs = useRef<(HTMLImageElement | null)[]>([]);
 
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile();
   const texts = isMobile ? mobileTexts : pcTexts;
   const positions = isMobile ? mobileImagePositions : PCImagePositions;
-
-  // 화면 크기 감지
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {

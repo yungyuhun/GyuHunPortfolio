@@ -1,29 +1,7 @@
-import { useEffect, useRef } from "react";
+import useScrollFillText from "@/src/hooks/useScrollFillText";
 
 export default function MyplatTextGradient() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const targets =
-      sectionRef.current?.querySelectorAll<HTMLSpanElement>(
-        ".text-fill-effect2"
-      );
-    if (!targets) return;
-    const observer = new window.IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("scrolled");
-          } else {
-            entry.target.classList.remove("scrolled");
-          }
-        });
-      },
-      { threshold: 1.0 }
-    );
-    targets.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
+  const sectionRef = useScrollFillText<HTMLDivElement>(".text-fill-effect2", 1.0);
 
   return (
     <section

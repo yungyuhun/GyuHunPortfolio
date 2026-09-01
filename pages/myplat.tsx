@@ -1,12 +1,12 @@
 "use client";
 import dynamic from "next/dynamic";
 
-import { useEffect, useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import Footer from "@/components/Footer";
-import { Scroll } from "@/src/icons/Icon";
+import ProjectHero from "@/components/project/ProjectHero";
+import ProjectInfoSection from "@/components/project/ProjectInfoSection";
 import useFadeInOnScroll from "@/src/hooks/useFadeInOnScroll";
 const MyplatScrollTrigger = dynamic(
   () => import("@/components/MyplatScrollTrigger"),
@@ -46,125 +46,27 @@ const BOImages = [
 export default function Myplat() {
   useFadeInOnScroll();
 
-  function useDeviceSize() {
-    const [deviceSize, setDeviceSize] = useState<
-      "mobile" | "tablet" | "desktop"
-    >("desktop");
-
-    useEffect(() => {
-      const checkDeviceSize = () => {
-        const width = window.innerWidth;
-        if (width < 768) setDeviceSize("mobile");
-        else if (width < 1024) setDeviceSize("tablet");
-        else setDeviceSize("desktop");
-      };
-      checkDeviceSize();
-      window.addEventListener("resize", checkDeviceSize);
-      return () => window.removeEventListener("resize", checkDeviceSize);
-    }, []);
-
-    return deviceSize;
-  }
-
   return (
     <div className="relative w-full min-h-screen bg-white md:overflow-visible xs:overflow-hidden">
       {/* Section 1 : 메인 이미지/타이틀 */}
-      <section className="relative w-full h-screen overflow-hidden">
-        <img
-          src="/work3.png"
-          alt="Myplat Background"
-          className="absolute inset-0 z-0 object-cover w-full h-full"
-        />
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center fade-in-section">
-          <p className="font-sans font-light text-white md:text-pt-subsection-title xs:text-pt-subtitle-xs">
-            Web/Mobile Platform
-          </p>
-          <h2 className="mt-2 font-sans font-semibold text-white md:text-pt-title xs:text-pt-title-xs">
-            마이플랫
-          </h2>
-        </div>
-        <div className="absolute z-10 -translate-x-1/2 left-1/2 bottom-8">
-          <Scroll
-            color="#fff"
-            className="md:w-8 md:h-8 xs:w-6 xs:h-6 animate-bounce"
-          />
-        </div>
-      </section>
+      <ProjectHero
+        image="/work3.png"
+        alt="Myplat Background"
+        category="Web/Mobile Platform"
+        title="마이플랫"
+      />
 
       {/* Section 2 : 프로젝트 설명 */}
-      <section className="relative md:py-[200px] bg-white xs:py-20">
-        <div className="flex justify-between max-w-[1440px] md:mx-auto md:flex-row xs:flex-col xs:mx-5 fade-in-section">
-          <div className="flex flex-col gap-8">
-            <h2 className="font-sans font-bold text-primary md:text-pt-section-title xs:text-pt-section-title-xs">
-              마이플랫 홈페이지 제작
-            </h2>
-            <div className="flex flex-wrap gap-4 md:flex-row md:max-w-xl xs:max-w-full xs:flex-col">
-              <div className="flex items-center gap-2">
-                <span className="font-sans font-normal text-pt-body text-primary-deepLight">
-                  Client.
-                </span>
-                <span className="font-sans font-normal text-pt-body text-primary">
-                  마이플랫
-                </span>
-              </div>
-              <div className="flex gap-2 md:items-center xs:items-start">
-                <span className="font-sans font-normal text-pt-body text-primary-deepLight">
-                  Category.
-                </span>
-                <span className="font-sans font-normal text-pt-body text-primary">
-                  Web/Mobile Platform
-                </span>
-              </div>
-              <div className="flex gap-2 md:items-center xs:items-start">
-                <span className="font-sans font-normal text-pt-body text-primary-deepLight">
-                  Date.
-                </span>
-                <span className="font-sans font-normal text-pt-body text-primary">
-                  2023. 12
-                </span>
-              </div>
-              <div className="flex gap-2 md:items-center xs:items-start">
-                <span className="font-sans font-normal text-pt-body text-primary-deepLight">
-                  Service.
-                </span>
-                <span className="font-sans font-normal text-pt-body text-primary">
-                  UX Strategy, Visual Design, Project Management, Development
-                </span>
-              </div>
-              <a
-                href="https://www.myplat.co.kr/"
-                target="_blank"
-                className="px-8 py-3 font-sans font-normal text-center transition-all duration-300 ease-out bg-white border rounded-full h-fit text-primary md:w-auto xs:w-full md:mt-12 xs:mt-6 text-pt-body border-primary-extraLight hover:bg-primary hover:text-white hover:border-transparent"
-              >
-                사이트 바로가기
-              </a>
-            </div>
-          </div>
-          <div className="flex flex-col max-w-xl md:Fgap-16 xs:gap-8 md:mt-0 xs:mt-14">
-            <div className="flex flex-col gap-4">
-              <h3 className="font-sans font-semibold text-pt-body">Brief</h3>
-              <span className="flex w-full border-b border-primary-deepLight"></span>
-              <p className="font-sans font-normal text-pt-body">
-                마이플랫은 IT 프리랜서와 프로젝트를 연결해주는 아웃소싱
-                플랫폼입니다. 기업이나 개인이 IT 프로젝트를 등록하면, 다양한 IT
-                프리랜서(개발자, 퍼블리셔, 디자이너 등)가 자신의 역량과 경험에
-                맞는 프로젝트를 찾아 지원할 수 있도록 돕는 서비스입니다.
-              </p>
-            </div>
-            <div className="flex flex-col gap-4">
-              <h3 className="font-sans font-semibold text-pt-body">Concept</h3>
-              <span className="flex w-full border-b border-primary-deepLight"></span>
-              <p className="font-sans font-normal text-pt-body">
-                깔끔한 레이아웃과 명확한 정보 구조로, 처음 방문하는 사용자도
-                서비스를 쉽게 이해할 수 있도록 설계했습니다. 신뢰와 전문성,
-                그리고 간결함을 바탕으로 IT 프리랜서와 클라이언트 모두가
-                편리하게 이용할 수 있는 사용자 중심의 플랫폼 서비스를
-                구현했습니다.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ProjectInfoSection
+        title="마이플랫 홈페이지 제작"
+        client="마이플랫"
+        category="Web/Mobile Platform"
+        date="2023. 12"
+        service="UX Strategy, Visual Design, Project Management, Development"
+        brief="마이플랫은 IT 프리랜서와 프로젝트를 연결해주는 아웃소싱 플랫폼입니다. 기업이나 개인이 IT 프로젝트를 등록하면, 다양한 IT 프리랜서(개발자, 퍼블리셔, 디자이너 등)가 자신의 역량과 경험에 맞는 프로젝트를 찾아 지원할 수 있도록 돕는 서비스입니다."
+        concept="깔끔한 레이아웃과 명확한 정보 구조로, 처음 방문하는 사용자도 서비스를 쉽게 이해할 수 있도록 설계했습니다. 신뢰와 전문성, 그리고 간결함을 바탕으로 IT 프리랜서와 클라이언트 모두가 편리하게 이용할 수 있는 사용자 중심의 플랫폼 서비스를 구현했습니다."
+        cta={{ type: "link", href: "https://www.myplat.co.kr/" }}
+      />
 
       {/* Section 3 : 마이플랫 메인 이미지 */}
       <section className="flex justify-center min-h-screen md:py-[200px] xs:py-20 bg-background-gray">

@@ -1,16 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "@/components/Footer";
-import { Scroll } from "@/src/icons/Icon";
+import ProjectHero from "@/components/project/ProjectHero";
+import ProjectInfoSection from "@/components/project/ProjectInfoSection";
 import useFadeInOnScroll from "@/src/hooks/useFadeInOnScroll";
-
-gsap.registerPlugin(ScrollTrigger);
+import useIsMobile from "@/src/hooks/useIsMobile";
 
 export default function Petpeace() {
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useIsMobile();
   useFadeInOnScroll();
 
   const topImages = [
@@ -31,118 +28,27 @@ export default function Petpeace() {
     "/petpeace_sub15.png",
   ];
 
-  // 반응형 체크
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   return (
     <div className="relative w-full min-h-screen overflow-hidden bg-white">
       {/* Section 1 : 메인 이미지/타이틀 */}
-      <section className="relative w-full h-screen overflow-hidden">
-        <img
-          src="/work4.png"
-          alt="Petpeace Background"
-          className="absolute inset-0 z-0 object-cover w-full h-full"
-        />
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center fade-in-section">
-          <p className="font-sans font-light text-white md:text-pt-subsection-title xs:text-pt-subtitle-xs">
-            Web/Mobile Platform
-          </p>
-          <h2 className="mt-2 font-sans font-semibold text-white md:text-pt-title xs:text-pt-title-xs">
-            좋은나라펫피스
-          </h2>
-        </div>
-        <div className="absolute z-10 -translate-x-1/2 left-1/2 bottom-8">
-          <Scroll
-            color="#fff"
-            className="md:w-8 md:h-8 xs:w-6 xs:h-6 animate-bounce"
-          />
-        </div>
-      </section>
+      <ProjectHero
+        image="/work4.png"
+        alt="Petpeace Background"
+        category="Web/Mobile Platform"
+        title="좋은나라펫피스"
+      />
 
       {/* Section 2 : 프로젝트 설명 */}
-      <section className="relative md:py-[200px] bg-white xs:py-20">
-        <div className="flex justify-between max-w-[1440px] md:mx-auto md:flex-row xs:flex-col xs:mx-5 fade-in-section">
-          <div className="flex flex-col gap-8">
-            <h2 className="font-sans font-bold text-primary md:text-pt-section-title xs:text-pt-section-title-xs">
-              좋은나라펫피스 홈페이지 제작
-            </h2>
-            <div className="flex flex-wrap gap-4 md:flex-row md:max-w-xl xs:max-w-full xs:flex-col">
-              <div className="flex items-center gap-2">
-                <span className="font-sans font-normal text-pt-body text-primary-deepLight">
-                  Client.
-                </span>
-                <span className="font-sans font-normal text-pt-body text-primary">
-                  좋은나라펫피스
-                </span>
-              </div>
-              <div className="flex gap-2 md:items-center xs:items-start">
-                <span className="font-sans font-normal text-pt-body text-primary-deepLight">
-                  Category.
-                </span>
-                <span className="font-sans font-normal text-pt-body text-primary">
-                  Web/Mobile Platform
-                </span>
-              </div>
-              <div className="flex gap-2 md:items-center xs:items-start">
-                <span className="font-sans font-normal text-pt-body text-primary-deepLight">
-                  Date.
-                </span>
-                <span className="font-sans font-normal text-pt-body text-primary">
-                  2022. 04
-                </span>
-              </div>
-              <div className="flex gap-2 md:items-center xs:items-start">
-                <span className="font-sans font-normal text-pt-body text-primary-deepLight">
-                  Service.
-                </span>
-                <span className="font-sans font-normal text-pt-body text-primary">
-                  UX Strategy, Visual Design, e-Commerce, Development
-                </span>
-              </div>
-              <button
-                onClick={(e) => {
-                  alert(
-                    "해당 프로젝트는 현재 비공개 처리되어 있어 열람하실 수 없습니다."
-                  );
-                }}
-                className="px-8 py-3 font-sans font-normal transition-all duration-300 ease-out bg-white border rounded-full text-primary md:mt-12 xs:mt-6 text-pt-body border-primary-extraLight hover:bg-primary hover:text-white hover:border-transparent"
-              >
-                사이트 바로가기
-              </button>
-            </div>
-          </div>
-          <div className="flex flex-col max-w-xl md:Fgap-16 xs:gap-8 md:mt-0 xs:mt-14">
-            <div className="flex flex-col gap-4">
-              <h3 className="font-sans font-semibold text-pt-body">Brief</h3>
-              <span className="flex w-full border-b border-primary-deepLight"></span>
-              <p className="font-sans font-normal text-pt-body">
-                반려동물 장례 전문 서비스 플랫폼을 구축하여, 보호자와 반려동물의
-                마지막 순간을 따뜻하게 동행할 수 있도록 설계하였습니다. 또한,
-                1:1 맞춤 상담, 24시간 응대, 투명한 정보 구조와 감성적 UI/UX로
-                신뢰와 편의성을 모두 갖춘 서비스를 완성했습니다.
-              </p>
-            </div>
-            <div className="flex flex-col gap-4">
-              <h3 className="font-sans font-semibold text-pt-body">Concept</h3>
-              <span className="flex w-full border-b border-primary-deepLight"></span>
-              <p className="font-sans font-normal text-pt-body">
-                메인 이미지, 컬러, 문구 등에서 가족의 마지막을 함께하는 동행의
-                의미를 전달하며, 방문자가 브랜드 메시지를 직관적으로 느낄 수
-                있도록 디자인하였습니다. 절차, 상품, 후기, 파트너 등 핵심 정보를
-                직관적으로 배치해 이용자 편의성을 극대화하였고, 처음 방문하는
-                사용자도 쉽게 이해할 수 있도록 구성하였습니다.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ProjectInfoSection
+        title="좋은나라펫피스 홈페이지 제작"
+        client="좋은나라펫피스"
+        category="Web/Mobile Platform"
+        date="2022. 04"
+        service="UX Strategy, Visual Design, e-Commerce, Development"
+        brief="반려동물 장례 전문 서비스 플랫폼을 구축하여, 보호자와 반려동물의 마지막 순간을 따뜻하게 동행할 수 있도록 설계하였습니다. 또한, 1:1 맞춤 상담, 24시간 응대, 투명한 정보 구조와 감성적 UI/UX로 신뢰와 편의성을 모두 갖춘 서비스를 완성했습니다."
+        concept="메인 이미지, 컬러, 문구 등에서 가족의 마지막을 함께하는 동행의 의미를 전달하며, 방문자가 브랜드 메시지를 직관적으로 느낄 수 있도록 디자인하였습니다. 절차, 상품, 후기, 파트너 등 핵심 정보를 직관적으로 배치해 이용자 편의성을 극대화하였고, 처음 방문하는 사용자도 쉽게 이해할 수 있도록 구성하였습니다."
+        cta={{ type: "private" }}
+      />
 
       {/* Section 3 : 좋은나라펫피스 메인 이미지 */}
       <section className="flex flex-col items-center justify-center min-h-screen bg-background-gray">
